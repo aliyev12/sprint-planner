@@ -1,0 +1,41 @@
+.room-grid-container {
+  display: grid;
+  grid-template-areas: "users content issues";
+  grid-template-columns: 200px 1fr 200px;
+  grid-template-rows: 1fr;
+  grid-gap: 10px;
+}
+
+aside.users-aside {
+  grid-area: users;
+  margin-left: 0.5rem;
+}
+
+main {
+  grid-area: content;
+}
+
+aside.issues-aside {
+  grid-area: issues;
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .room-grid-container {
+    grid-template-areas:
+      "users"
+      "content"
+      "issues";
+
+    grid-template-columns: 1fr;
+    grid-template-rows:
+      minmax(75px, auto) /* Users */
+      1fr /* Content */
+      minmax(75px, auto); /* Issues */
+  }
+
+  aside.users-aside,
+  aside.issues-aside {
+    margin: 0;
+  }
+}

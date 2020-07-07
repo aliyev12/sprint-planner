@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+
+:root {
+  --main-color: #0d47a1;
+  --dark-color-a: #667aff;
+  --dark-color-b: #7386ff;
+  --light-color: #e6e9ff;
+  --success-color: #5cb85c;
+  --error-color: #d9534f;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 100px auto 100px;
+  grid-template-rows: repeat(3, 100px);
+  grid-gap: 1em;
+}
