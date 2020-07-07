@@ -1,0 +1,42 @@
+{
+  "name": "sprint-planner",
+  "version": "1.0.0",
+  "description": "App for sprint planning",
+  "main": "server.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon server.ts",
+    "build": "tsc -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aliyev12/sprint-planner.git"
+  },
+  "keywords": [
+    "sprint",
+    "planning"
+  ],
+  "author": "Abdul Aliyev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aliyev12/sprint-planner/issues"
+  },
+  "homepage": "https://github.com/aliyev12/sprint-planner#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "moment": "^2.27.0",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.6",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^14.0.14",
+    "@types/socket.io": "^2.1.8",
+    "cross-env": "^7.0.2",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.6"
+  }
+}

@@ -1,0 +1,42 @@
+.Home.container {
+  height: 100%;
+}
+
+.Home .card .card-content .card-title {
+  margin-bottom: 2rem;
+}
+
+.Home .create-new-room-btn {
+  margin-bottom: 2rem;
+}
+
+.Home .or {
+  margin-bottom: 2rem;
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.Home .input-field > label {
+  color: black;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.card {
+  max-width: 100%;
+}
+
+@media (min-width: 600px) {
+  .card {
+    max-width: 40rem;
+  }
+}
+@media (min-width: 992px) {
+}
+@media (min-width: 1200px) {
+}
