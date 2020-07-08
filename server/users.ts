@@ -1,4 +1,5 @@
 const users: IUser[] = [];
+const rooms = [];
 
 export interface IUser {
   id: string;
@@ -17,6 +18,22 @@ export const addUser = ({ id, name, room }: IUser) => {
   const user = { id, name, room };
   users.push(user);
   return { user };
+};
+
+export const addOrGetRoom = ({ id, name }: any) => {
+  const existingRoom = rooms.find((r) => r.id === id);
+
+  if (existingRoom) return existingRoom;
+
+  name = name.trim();
+  const newRoom = { id, name };
+  rooms.push(newRoom);
+  return newRoom;
+};
+
+export const getRoom = (id: string): any => {
+  const foundRoom = rooms.find((r) => r.id === id);
+  return foundRoom;
 };
 
 export const removeUser = (id: string): IUser | void => {

@@ -18,8 +18,10 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
+    "react-toastify": "^6.0.8",
     "socket.io-client": "^2.3.0",
-    "typescript": "~3.7.2"
+    "typescript": "~3.7.2",
+    "uniqid": "^5.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -43,6 +45,8 @@
     ]
   },
   "devDependencies": {
-    "@types/query-string": "^6.3.0"
+    "@types/query-string": "^6.3.0",
+    "@types/react-toastify": "^4.1.0",
+    "@types/uniqid": "^5.2.0"
   }
 }

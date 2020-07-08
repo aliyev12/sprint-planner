@@ -41,6 +41,22 @@ footer {
   align-items: center;
 }
 
+.Toastify__toast-container {
+  font-size: 1.6rem;
+  color: var(--black-color);
+}
+.Toastify__toast--default {
+}
+.Toastify__toast--info {
+}
+.Toastify__toast--success {
+  background: var(--success-color__light);
+}
+.Toastify__toast--warning {
+}
+.Toastify__toast--error {
+}
+
 @media (max-width: 768px) {
   .grid-container {
     grid-template-areas:

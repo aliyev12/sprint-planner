@@ -5,8 +5,10 @@
   --dark-color-a: #667aff;
   --dark-color-b: #7386ff;
   --light-color: #e6e9ff;
-  --success-color: #5cb85c;
+  --success-color: #00c853;
+  --success-color__light: #00e676;
   --error-color: #d9534f;
+  --black-color: #333333;
 }
 
 *,

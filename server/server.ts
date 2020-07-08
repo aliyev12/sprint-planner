@@ -3,7 +3,15 @@ import path from "path";
 import http from "http";
 import socketio from "socket.io";
 import { baseRoute } from "./routes";
-import { addUser, removeUser, getUser, getUsersInRoom, IUser } from "./users";
+import {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+  IUser,
+  addOrGetRoom,
+  getRoom,
+} from "./users";
 import { formatMessage, botName } from "./utils";
 
 const PORT = process.env.PORT || 3333;
@@ -19,21 +27,41 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", baseRoute);
 
 io.on("connection", (socket) => {
-  socket.on("join", ({ name, room }, callback) => {
+  socket.on("join", ({ userName, roomId, roomName }, callback) => {
+    if (!userName || !roomId)
+      return callback({ error: "Missing user name or room ID" });
+
     const { error, user } = addUser({
       id: socket.id,
-      name,
-      room,
+      name: userName,
+      room: roomId,
     });
 
     if (error) return callback(error);
 
-    /** Emit welcome mssage to single client who has just connected */
+    let roomData = { id: roomId, name: "unknown" };
+    if (roomName && roomName !== "unknown") {
+      const addData = addOrGetRoom({
+        id: roomId,
+        name: roomName,
+      });
+      if (addData)
+        roomData = addOrGetRoom({
+          id: roomId,
+          name: roomName,
+        });
+    } else {
+      const getData = getRoom(roomId);
+      if (getData) roomData = getRoom(roomId);
+    }
+
+    /** Emit welcome message to single client who has just connected */
     socket.emit("message", {
       user: botName,
-      text: `${user.name}, welcome to the room ${user.room}`,
+      text: `${user.name}, welcome to ${
+        roomData ? "the room " + roomData.name : "Sprint Planner"
+      }!`,
     });
-
     /** Emit to all in room except for the client that is connecting */
     socket.broadcast.to(user.room).emit("message", {
       user: botName,
@@ -43,7 +71,7 @@ io.on("connection", (socket) => {
     socket.join(user.room);
 
     io.to(user.room).emit("roomData", {
-      room: user.room,
+      room: roomData,
       users: getUsersInRoom(user.room),
     });
 
@@ -59,11 +87,6 @@ io.on("connection", (socket) => {
 
     callback();
   });
-
-  // // Listen for chatMessage
-  // socket.on("chatMessage", (msg) => {
-  //   io.emit("message", msg);
-  // });
 
   // Runs when client disconnects
   socket.on("disconnect", () => {

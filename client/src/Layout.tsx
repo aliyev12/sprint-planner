@@ -5,6 +5,8 @@ import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
 import M from "materialize-css";
 import logo from "./logo-sp-white.png";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Layout.css";
 
 // const ENDPOINT = "http://localhost:3333";
@@ -13,8 +15,8 @@ import "./Layout.css";
 export const Layout = ({ children }) => {
   let _sidenav;
   let history = useHistory();
-  const [name, setName] = React.useState("");
-  const [room, setRoom] = React.useState("JavaScript");
+  const [name, set__Name] = React.useState("");
+  const [room, set__Room] = React.useState("JavaScript");
 
   React.useEffect(() => {
     M.Sidenav.init(_sidenav);
@@ -22,6 +24,17 @@ export const Layout = ({ children }) => {
 
   return (
     <div className="grid-container">
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <header>
         <nav>
           <div className="nav-wrapper blue darken-4">
