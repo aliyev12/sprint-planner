@@ -30,10 +30,12 @@ function App() {
                 return <Join {...routeProps} />;
               }
             }}
-          ></Route>
-          <Route exact path="/">
-            <Home />
-          </Route>
+          />
+          <Route
+            exact
+            path="/"
+            render={(routeProps) => <Home {...routeProps} />}
+          />
         </Switch>
       </Router>
     </Layout>

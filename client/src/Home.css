@@ -1,22 +1,13 @@
-/* .Home.container {
-  height: 100%;
-}
-
-.Home .card .card-content .card-title {
-  margin-bottom: 2rem;
-}
-
-.Home .card .card-content {
-  display: flex;
+.Home {
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-} */
+}
 
-.Home .buttons-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.Home .section-title {
+  font-size: 1.6rem;
+  text-align: center;
+  margin-top: 0;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 .Home .back-to-initial-btn {
@@ -28,13 +19,6 @@
 }
 
 .Home .create-new-room-btn {
-  margin-bottom: 2rem;
-}
-
-.Home .or {
-  margin-bottom: 2rem;
-  font-size: 1.6rem;
-  text-align: center;
 }
 
 .Home .input-field > label {
@@ -42,10 +26,7 @@
 }
 
 .Home .suggestion {
-  display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   color: var(--black-color);
   font-style: italic;
   margin-top: 1rem;
@@ -58,23 +39,6 @@
   margin-top: 0.5rem;
 }
 
-/* .card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-} */
-
-/* .card {
-  max-width: 100%;
-} */
-
-@media (min-width: 600px) {
-  /* .card {
-    max-width: 40rem;
-  } */
-}
-@media (min-width: 992px) {
-}
-@media (min-width: 1200px) {
+.Home .join-btn {
+  margin-left: 2rem;
 }

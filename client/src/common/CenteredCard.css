@@ -3,11 +3,11 @@
 }
 
 .CenteredCard .card {
-  max-width: 100%;
+  width: 100%;
 }
 
 .CenteredCard .card .card-content .card-title {
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
 }
 
 .CenteredCard .card .card-content {
@@ -26,6 +26,6 @@
 
 @media (min-width: 600px) {
   .CenteredCard .card {
-    max-width: 40rem;
+    width: 40rem;
   }
 }

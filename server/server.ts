@@ -88,6 +88,29 @@ io.on("connection", (socket) => {
     callback();
   });
 
+  socket.on("validateRoomExists", ({ roomId }, callback) => {
+    const validationMessage = {
+      error: null,
+      roomExists: false,
+      roomData: null,
+    };
+
+    if (!roomId)
+      return callback({ ...validationMessage, error: "Wrong room ID" });
+
+    const room = getRoom(roomId);
+    if (room) {
+      validationMessage.roomExists = true;
+      validationMessage.roomData = room;
+    }
+
+    // if (user && user.room && user.name) {
+    //   io.to(user.room).emit("message", { user: user.name, text: message });
+    // }
+
+    callback(validationMessage);
+  });
+
   // Runs when client disconnects
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
