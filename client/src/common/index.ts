@@ -1,3 +1,4 @@
 import { CenteredCard } from "./CenteredCard";
+import { Or, Loader, Alert, WrongRoomAlert } from "./Random";
 
-export { CenteredCard };
+export { CenteredCard, Or, Loader, Alert, WrongRoomAlert };

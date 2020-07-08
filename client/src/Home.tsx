@@ -1,16 +1,28 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 import uniqid from "uniqid";
-import { CenteredCard } from "./common";
-import { Context } from "./Context";
+import { CenteredCard, Or, Alert, WrongRoomAlert } from "./common";
+import { Context, HomeStatuses } from "./Context";
 import "./Home.css";
 
-export const Home = () => {
-  const history = useHistory();
-  const { initRoom } = React.useContext(Context);
-  const [status, set__status] = React.useState("initial");
+export const Home = ({ history, location }) => {
+  const { initRoom, homeStatus, changeHomeStatus } = React.useContext(Context);
   const [userName, set__userName] = React.useState("");
   const [roomName, set__roomName] = React.useState("");
+  const [roomIdInput, set__roomIdInput] = React.useState("");
+  const [errorAlert, set__errorAlert] = React.useState(null);
+  const { initial, creatingNewRoom, cameFromJoin, wrongRoomId } = HomeStatuses;
+
+  React.useEffect(() => {
+    if (homeStatus === wrongRoomId) {
+      let triedRoomId = "";
+      if (location.state && location.state.triedRoomId)
+        triedRoomId = location.state.triedRoomId;
+      set__errorAlert(<WrongRoomAlert roomId={triedRoomId} />);
+      setTimeout(() => {
+        set__errorAlert(null);
+      }, 10000);
+    }
+  }, [homeStatus]);
 
   const resetFields = () => {
     set__userName("");
@@ -29,20 +41,30 @@ export const Home = () => {
   };
 
   const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
+  const roomIdValid =
+    roomIdInput && /^20\d{2}-\d{2}-\d{2}-(.+)/gim.test(roomIdInput);
+
+  const sectionTitle = () => {
+    if (homeStatus === creatingNewRoom || homeStatus === cameFromJoin)
+      return "Creating New Room";
+    return "Choose How To Start";
+  };
 
   return (
     <CenteredCard>
-      <div className="Home">
-        {status === "initial" && (
+      <div className="Home flex-centered">
+        {homeStatus === wrongRoomId ? errorAlert : null}
+        <h4 className="section-title">{sectionTitle()}</h4>
+        {homeStatus === initial || homeStatus === wrongRoomId ? (
           <button
             className="waves-effect waves-light btn-large blue darken-4 create-new-room-btn"
-            onClick={() => set__status("creating-new-room")}
+            onClick={() => changeHomeStatus(creatingNewRoom)}
           >
             <i className="material-icons left">add</i>create new room
           </button>
-        )}
+        ) : null}
 
-        {status === "creating-new-room" && (
+        {homeStatus === creatingNewRoom || homeStatus === cameFromJoin ? (
           <>
             <div className="input-field col s12">
               <input
@@ -64,7 +86,7 @@ export const Home = () => {
               />
               <label htmlFor="room-name">Room Name</label>
             </div>
-            <div className="suggestion">
+            <div className="suggestion flex-centered">
               <div className="suggestion-text">
                 Suggested room name: (click to apply)
               </div>
@@ -80,12 +102,17 @@ export const Home = () => {
               </button>
             </div>
 
-            <div className="buttons-container">
+            <div className="flex-centered">
               <button
                 className="waves-effect waves-light btn-small blue darken-4 back-to-initial-btn"
                 onClick={() => {
-                  set__status("initial");
-                  resetFields();
+                  if (homeStatus === cameFromJoin) {
+                    history.goBack();
+                    resetFields();
+                  } else {
+                    changeHomeStatus("initial");
+                    resetFields();
+                  }
                 }}
               >
                 <i className="material-icons left">arrow_back</i>back
@@ -102,17 +129,39 @@ export const Home = () => {
               </button>
             </div>
           </>
-        )}
+        ) : null}
 
-        {status === "initial" && (
+        {homeStatus === initial ||
+        homeStatus === cameFromJoin ||
+        homeStatus === wrongRoomId ? (
           <>
-            <div className="or">or, join existing room:</div>
-            <div className="input-field col s12">
-              <input id="existing-room-id" type="text" className="validate" />
-              <label htmlFor="emexisting-room-id">Room ID</label>
+            <Or />
+            <div className="join-container flex-centered">
+              <div className="input-field  col s12">
+                <input
+                  id="existing-room-id"
+                  type="text"
+                  className="validate"
+                  value={roomIdInput}
+                  onChange={(e) => set__roomIdInput(e.target.value)}
+                />
+                <label htmlFor="existing-room-id">Room ID</label>
+              </div>
+
+              <button
+                disabled={!roomIdValid}
+                className="waves-effect waves-light btn-small blue darken-4 join-btn"
+                onClick={() => {
+                  if (roomIdValid) {
+                    history.push(`/${roomIdInput}`);
+                  }
+                }}
+              >
+                join
+              </button>
             </div>
           </>
-        )}
+        ) : null}
       </div>
     </CenteredCard>
   );

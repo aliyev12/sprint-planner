@@ -1,0 +1,15 @@
+.Random.or {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.Loader {
+  height: 100%;
+}
+
+.Alert.card {
+  font-size: 1.6rem;
+  width: 100%;
+}

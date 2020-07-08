@@ -9,11 +9,9 @@ import { toast } from "react-toastify";
 let socket: SocketIOClient.Socket;
 
 export const Room = (props) => {
+  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
   const { roomState } = React.useContext(Context);
   const { location, match } = props;
-  console.log("props = ", props);
-
-  const ENDPOINT = "localhost:3333";
 
   const [name, set__Name] = useState("");
   const [room, set__Room] = useState("");
@@ -87,7 +85,6 @@ export const Room = (props) => {
     }
   };
 
-  console.log("users = ", users);
   return (
     <div className="container">
       <div className="room-grid-container">
@@ -96,7 +93,7 @@ export const Room = (props) => {
           <ul className="collection">
             {users.map((user, i) => {
               return (
-                <li className="collection-item avatar">
+                <li className="collection-item avatar" key={user.id}>
                   <i className="material-icons circle">account_circle</i>
                   {/* <img src="images/yuna.jpg" alt="" className="circle" /> */}
                   <span className="title">{user.name}</span>
