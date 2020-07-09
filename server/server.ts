@@ -3,18 +3,15 @@ import path from "path";
 import http from "http";
 import socketio from "socket.io";
 import { baseRoute } from "./routes";
-import {
-  addUser,
-  removeUser,
-  getUser,
-  getUsersInRoom,
-  IUser,
-  addOrGetRoom,
-  getRoom,
-} from "./users";
 import { formatMessage, botName } from "./utils";
+import { Users } from "./data/Users";
+import { Rooms } from "./data/Rooms";
 
 const PORT = process.env.PORT || 3333;
+
+// Instantiate in-memody data objects
+const users = new Users();
+const rooms = new Rooms(users);
 
 const app = express();
 const server = http.createServer(app);
@@ -31,7 +28,7 @@ io.on("connection", (socket) => {
     if (!userName || !roomId)
       return callback({ error: "Missing user name or room ID" });
 
-    const { error, user } = addUser({
+    const { error, user } = users.addUser({
       id: socket.id,
       name: userName,
       room: roomId,
@@ -41,18 +38,14 @@ io.on("connection", (socket) => {
 
     let roomData = { id: roomId, name: "unknown" };
     if (roomName && roomName !== "unknown") {
-      const addData = addOrGetRoom({
+      const addData = rooms.addOrGetRoom({
         id: roomId,
         name: roomName,
       });
-      if (addData)
-        roomData = addOrGetRoom({
-          id: roomId,
-          name: roomName,
-        });
+      if (addData) roomData = addData;
     } else {
-      const getData = getRoom(roomId);
-      if (getData) roomData = getRoom(roomId);
+      const getData = rooms.getRoom(roomId);
+      if (getData) roomData = getData;
     }
 
     /** Emit welcome message to single client who has just connected */
@@ -72,14 +65,14 @@ io.on("connection", (socket) => {
 
     io.to(user.room).emit("roomData", {
       room: roomData,
-      users: getUsersInRoom(user.room),
+      users: users.getUsersInRoom(user.room),
     });
 
     callback();
   });
 
   socket.on("sendMessage", (message, callback) => {
-    const user = getUser(socket.id);
+    const user = users.getUser(socket.id);
 
     if (user && user.room && user.name) {
       io.to(user.room).emit("message", { user: user.name, text: message });
@@ -98,22 +91,18 @@ io.on("connection", (socket) => {
     if (!roomId)
       return callback({ ...validationMessage, error: "Wrong room ID" });
 
-    const room = getRoom(roomId);
+    const room = rooms.getRoom(roomId);
     if (room) {
       validationMessage.roomExists = true;
       validationMessage.roomData = room;
     }
-
-    // if (user && user.room && user.name) {
-    //   io.to(user.room).emit("message", { user: user.name, text: message });
-    // }
 
     callback(validationMessage);
   });
 
   // Runs when client disconnects
   socket.on("disconnect", () => {
-    const user = removeUser(socket.id);
+    const user = users.removeUser(socket.id);
     if (user) {
       io.to(user.room).emit("message", {
         user: botName,
@@ -121,7 +110,7 @@ io.on("connection", (socket) => {
       });
       io.to(user.room).emit("roomData", {
         room: user.room,
-        users: getUsersInRoom(user.room),
+        users: users.getUsersInRoom(user.room),
       });
     }
   });

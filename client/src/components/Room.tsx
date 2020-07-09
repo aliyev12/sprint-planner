@@ -3,8 +3,21 @@ import queryString from "query-string";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
 import "./Room.css";
-import { Context } from "./Context";
+import { Context } from "../global/Context";
 import { toast } from "react-toastify";
+
+interface ICategory {
+  id: string;
+  name: string;
+  singular: string;
+  units: { unit: number }[];
+}
+
+interface IRoom {
+  id: string;
+  name: string;
+  categories: ICategory[];
+}
 
 let socket: SocketIOClient.Socket;
 
@@ -17,11 +30,20 @@ export const Room = (props) => {
   const [room, set__Room] = useState("");
 
   const [userName, set__userName] = useState("");
+  const [roomData, set__roomData] = useState();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
   const [message, set__Message] = useState("");
   const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState([]);
+
+  useEffect(() => {
+    console.log("roomData = ", roomData);
+    // stopped at being able to successfully refactor users.ts into two separate classes on backend
+    // build a starting/default categories
+    // and I am able to receive them on client side ^
+    // Next, display cards, checkboxes  and action butons on front end... 🤓
+  }, [roomData]);
 
   useEffect(() => {
     let roomIdParam: string | undefined,
@@ -66,7 +88,9 @@ export const Room = (props) => {
       );
       set__Messages([...messages, message]);
     });
+
     socket.on("roomData", ({ users, room }) => {
+      set__roomData(room);
       set__roomName(room.name);
       set__Users(users);
     });

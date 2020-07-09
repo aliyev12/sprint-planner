@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-import * as serviceWorker from "./serviceWorker";
-import { GlopalProvider } from "./Context";
+import * as serviceWorker from "./global/serviceWorker";
+import { GlopalProvider } from "./global/Context";
 import "./index.css";
 
 ReactDOM.render(

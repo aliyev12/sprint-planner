@@ -1,5 +1,7 @@
 .Home {
+  display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .Home .section-title {
@@ -18,8 +20,8 @@
   margin-left: 1rem;
 }
 
-.Home .create-new-room-btn {
-}
+/* .Home .create-new-room-btn {
+} */
 
 .Home .input-field > label {
   color: black;

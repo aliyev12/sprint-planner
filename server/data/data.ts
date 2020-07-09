@@ -1,3 +1,5 @@
+import fs from "fs";
+
 const users: IUser[] = [];
 const rooms = [];
 
@@ -26,7 +28,17 @@ export const addOrGetRoom = ({ id, name }: any) => {
   if (existingRoom) return existingRoom;
 
   name = name.trim();
-  const newRoom = { id, name };
+  const defaultCategories = JSON.parse(
+    fs.readFileSync(`${__dirname}/defaultCategories.json`, "utf-8")
+  );
+  console.log("defaultCategories = ", defaultCategories);
+  const newRoom = {
+    id,
+    name,
+    categories: defaultCategories,
+  };
+
+  console.log("newRoom = ", newRoom);
   rooms.push(newRoom);
   return newRoom;
 };
