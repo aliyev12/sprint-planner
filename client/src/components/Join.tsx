@@ -1,7 +1,7 @@
 import React from "react";
 import io from "socket.io-client";
-import { CenteredCard, Or, Loader } from "./common";
-import { Context, HomeStatuses } from "./Context";
+import { CenteredCard, Or, Loader } from "../common";
+import { Context, HomeStatuses } from "../global/Context";
 import "./Join.css";
 
 let socket: SocketIOClient.Socket;
@@ -31,8 +31,6 @@ export const Join = ({ location, match, history }) => {
             set__roomId(roomIdParam);
           } else {
             changeHomeStatus(HomeStatuses.wrongRoomId);
-            // history.push("/");
-
             history.push({
               pathname: "/",
               state: { triedRoomId: roomIdParam },
@@ -41,7 +39,7 @@ export const Join = ({ location, match, history }) => {
         }
       );
     }
-    //set__loading(false);
+    set__loading(false);
   }, [location.pathname]);
 
   const handleJoinRoom = () => {

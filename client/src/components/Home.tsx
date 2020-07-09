@@ -1,7 +1,7 @@
 import React from "react";
 import uniqid from "uniqid";
-import { CenteredCard, Or, Alert, WrongRoomAlert } from "./common";
-import { Context, HomeStatuses } from "./Context";
+import { CenteredCard, Or, Alert, WrongRoomAlert } from "../common";
+import { Context, HomeStatuses } from "../global/Context";
 import "./Home.css";
 
 export const Home = ({ history, location }) => {
@@ -52,7 +52,7 @@ export const Home = ({ history, location }) => {
 
   return (
     <CenteredCard>
-      <div className="Home flex-centered">
+      <div className="Home">
         {homeStatus === wrongRoomId ? errorAlert : null}
         <h4 className="section-title">{sectionTitle()}</h4>
         {homeStatus === initial || homeStatus === wrongRoomId ? (

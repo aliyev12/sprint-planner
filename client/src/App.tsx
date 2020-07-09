@@ -5,11 +5,11 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 // import { Context } from "./Context";
 // import io from "socket.io-client";
 // import { Chat } from "./Chat";
-import { Layout } from "./Layout";
-import { Home } from "./Home";
-import { Room } from "./Room";
-import { Context } from "./Context";
-import { Join } from "./Join";
+import { Layout } from "./global/Layout";
+import { Home } from "./components/Home";
+import { Room } from "./components/Room";
+import { Context } from "./global/Context";
+import { Join } from "./components/Join";
 
 // const ENDPOINT = "http://localhost:3333";
 // const socket = io(ENDPOINT);

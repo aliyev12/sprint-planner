@@ -1,0 +1,43 @@
+[
+  {
+    "id": "5f067dbe8f07bae80e22eaf6",
+    "name": "Hours",
+    "singular": "hour",
+    "units": [
+      { "unit": 0.5 },
+      { "unit": 1 },
+      { "unit": 2 },
+      { "unit": 3 },
+      { "unit": 4 },
+      { "unit": 6 },
+      { "unit": 8 },
+      { "unit": 12 },
+      { "unit": 16 },
+      { "unit": 24 }
+    ]
+  },
+  {
+    "id": "5f067dbe6c07eaab0630fac6",
+    "name": "Story Points",
+    "singular": "story point",
+    "units": [
+      { "unit": 1 },
+      { "unit": 2 },
+      { "unit": 3 },
+      { "unit": 4 },
+      { "unit": 5 }
+    ]
+  },
+  {
+    "id": "5f067dbe8f3abb8909a1e717",
+    "name": "Test Hours",
+    "singular": "test hour",
+    "units": [
+      { "unit": 0.5 },
+      { "unit": 1 },
+      { "unit": 2 },
+      { "unit": 3 },
+      { "unit": 4 }
+    ]
+  }
+]
