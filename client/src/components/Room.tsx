@@ -5,15 +5,16 @@ import io from "socket.io-client";
 import "./Room.css";
 import { Context } from "../global/Context";
 import { toast } from "react-toastify";
+import { VotingCards } from "./VotingCards";
 
-interface ICategory {
+export interface ICategory {
   id: string;
   name: string;
   singular: string;
   units: { unit: number }[];
 }
 
-interface IRoom {
+export interface IRoom {
   id: string;
   name: string;
   categories: ICategory[];
@@ -132,6 +133,7 @@ export const Room = (props) => {
 
         <main>
           <h1>{roomName}</h1>
+          {roomData ? <VotingCards roomData={roomData} /> : null}
         </main>
 
         <aside className="issues-aside">
