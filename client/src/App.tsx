@@ -8,19 +8,28 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { Layout } from "./Layout";
 import { Home } from "./Home";
 import { Room } from "./Room";
+import { Context } from "./Context";
+import { Join } from "./Join";
 
 // const ENDPOINT = "http://localhost:3333";
 // const socket = io(ENDPOINT);
 
 function App() {
+  const { roomState } = React.useContext(Context);
   return (
     <Layout>
       <Router>
         <Switch>
           <Route
             exact
-            path="/room"
-            render={(routeProps) => <Room {...routeProps} />}
+            path="/:roomId"
+            render={(routeProps) => {
+              if (roomState && roomState.userName) {
+                return <Room {...routeProps} />;
+              } else {
+                return <Join {...routeProps} />;
+              }
+            }}
           ></Route>
           <Route exact path="/">
             <Home />

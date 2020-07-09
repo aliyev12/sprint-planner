@@ -1,124 +1,119 @@
 import React from "react";
-// import queryString from "query-string";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
-import io from "socket.io-client";
-import M from "materialize-css";
+import uniqid from "uniqid";
+import { CenteredCard } from "./common";
+import { Context } from "./Context";
 import "./Home.css";
 
-// const ENDPOINT = "http://localhost:3333";
-// const socket = io(ENDPOINT);
-
 export const Home = () => {
-  let _sidenav;
-  let history = useHistory();
-  const [name, setName] = React.useState("");
-  const [room, setRoom] = React.useState("JavaScript");
+  const history = useHistory();
+  const { initRoom } = React.useContext(Context);
+  const [status, set__status] = React.useState("initial");
+  const [userName, set__userName] = React.useState("");
+  const [roomName, set__roomName] = React.useState("");
 
-  React.useEffect(() => {
-    M.Sidenav.init(_sidenav);
-  }, []);
+  const resetFields = () => {
+    set__userName("");
+    set__roomName("");
+  };
+
+  const handleCreateNewRoom = () => {
+    // example: 2020-07-20-23bhb2h3b
+    const newRoomId = `${
+      new Date().toISOString().split("T")[0]
+    }-${uniqid.time()}`;
+
+    initRoom({ userName, roomId: newRoomId, roomName });
+    history.push(`/${newRoomId}`);
+    resetFields();
+  };
+
+  const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
 
   return (
-    <div className="Home container">
-      <div className="card-container">
-        <div className="card hoverable">
-          <div className="card-content black-text">
-            <span className="card-title center">Sprint Planner</span>
+    <CenteredCard>
+      <div className="Home">
+        {status === "initial" && (
+          <button
+            className="waves-effect waves-light btn-large blue darken-4 create-new-room-btn"
+            onClick={() => set__status("creating-new-room")}
+          >
+            <i className="material-icons left">add</i>create new room
+          </button>
+        )}
 
-            <a className="waves-effect waves-light btn-large blue darken-4 create-new-room-btn">
-              <i className="material-icons left">add</i>create new room
-            </a>
+        {status === "creating-new-room" && (
+          <>
+            <div className="input-field col s12">
+              <input
+                id="user-name"
+                type="text"
+                className="validate"
+                value={userName}
+                onChange={(e) => set__userName(e.target.value)}
+              />
+              <label htmlFor="user-name">Your Name</label>
+            </div>
+            <div className="input-field col s12">
+              <input
+                id="room-name"
+                type="text"
+                className="validate"
+                value={roomName}
+                onChange={(e) => set__roomName(e.target.value)}
+              />
+              <label htmlFor="room-name">Room Name</label>
+            </div>
+            <div className="suggestion">
+              <div className="suggestion-text">
+                Suggested room name: (click to apply)
+              </div>
+              <button
+                className="waves-effect waves-teal btn-small btn-flat suggestion-btn"
+                onClick={() => {
+                  const roomNameInput = document.getElementById("room-name");
+                  if (roomNameInput) roomNameInput.focus();
+                  set__roomName(suggestedRoomName);
+                }}
+              >
+                {suggestedRoomName}
+              </button>
+            </div>
+
+            <div className="buttons-container">
+              <button
+                className="waves-effect waves-light btn-small blue darken-4 back-to-initial-btn"
+                onClick={() => {
+                  set__status("initial");
+                  resetFields();
+                }}
+              >
+                <i className="material-icons left">arrow_back</i>back
+              </button>
+              <button
+                disabled={!userName || !roomName}
+                className="waves-effect waves-light btn-small blue darken-4 ready-to-create-btn"
+                onClick={handleCreateNewRoom}
+              >
+                <i className="material-icons right">arrow_forward</i>start
+                <span role="img" aria-label="rocket">
+                  🚀
+                </span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {status === "initial" && (
+          <>
             <div className="or">or, join existing room:</div>
             <div className="input-field col s12">
-              <input id="email" type="email" className="validate " />
-              <label htmlFor="email">Room ID</label>
+              <input id="existing-room-id" type="text" className="validate" />
+              <label htmlFor="emexisting-room-id">Room ID</label>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-    </div>
+    </CenteredCard>
   );
 };
-
-// const Comp = () => {
-//   return (
-//     <div className="join-container">
-//       <header className="join-header">
-//         <h1>
-//           <i className="fas fa-smile"></i> ChatCord
-//         </h1>
-//       </header>
-//       <main className="join-main">
-//         {/* <form
-//         action="chat.html"
-//         onSubmit={(e) => {
-//           e.preventDefault();
-//           if (inputs.username) history.push("/chat");
-//         }}
-//       > */}
-//         <div>
-//           <div className="form-control">
-//             <label htmlFor="username">Username</label>
-//             <input
-//               // value={inputs.username}
-//               value={name}
-//               onChange={(e) => setName(e.target.value)}
-//               // onChange={(e) =>
-//               //   setInputs({
-//               //     ...inputs,
-//               //     username: e.target.value,
-//               //   })
-//               // }
-//               type="text"
-//               name="username"
-//               id="username"
-//               placeholder="Enter username..."
-//               required
-//             />
-//           </div>
-//           <div className="form-control">
-//             <label htmlFor="room">Room</label>
-//             <select
-//               name="room"
-//               id="room"
-//               // value={inputs.room}
-//               value={room}
-//               onChange={(e) => setRoom(e.target.value)}
-//               // onChange={(e) =>
-//               //   setInputs({
-//               //     ...inputs,
-//               //     room: e.target.value,
-//               //   })
-//               // }
-//             >
-//               <option value="JavaScript">JavaScript</option>
-//               <option value="Python">Python</option>
-//               <option value="PHP">PHP</option>
-//               <option value="C#">C#</option>
-//               <option value="Ruby">Ruby</option>
-//               <option value="Java">Java</option>
-//             </select>
-//           </div>
-//           {/* <Link
-//           onClick={(e) => (!name || !room ? e.preventDefault() : null)}
-//           to={`/chat?name=${name}&room=${room}`}
-//         > */}
-//           <button
-//             type="submit"
-//             className="btn"
-//             onClick={() => {
-//               if (name && room) {
-//                 history.push(`/chat?name=${name}&room=${room}`);
-//               }
-//             }}
-//           >
-//             Join Chat
-//           </button>
-//           {/* </Link> */}
-//         </div>
-//         {/* </form> */}
-//       </main>
-//     </div>
-//   );
-// };

@@ -1,0 +1,31 @@
+.CenteredCard.container {
+  height: 100%;
+}
+
+.CenteredCard .card {
+  max-width: 100%;
+}
+
+.CenteredCard .card .card-content .card-title {
+  margin-bottom: 2rem;
+}
+
+.CenteredCard .card .card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.CenteredCard .card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+@media (min-width: 600px) {
+  .CenteredCard .card {
+    max-width: 40rem;
+  }
+}

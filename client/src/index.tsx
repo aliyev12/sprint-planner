@@ -1,15 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-// import { GlopalProvider, Context } from "./Context";
+import { GlopalProvider } from "./Context";
+import "./index.css";
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <GlopalProvider> */}
-    <App />
-    {/* </GlopalProvider> */}
+    <GlopalProvider>
+      <App />
+    </GlopalProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
