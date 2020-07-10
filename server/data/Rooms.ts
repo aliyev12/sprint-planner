@@ -14,6 +14,11 @@ interface IRoom {
   categories: ICategory[];
 }
 
+interface IAddCardResult {
+  room: IRoom | null;
+  error: string | null;
+}
+
 export class Rooms {
   users: Users;
   rooms: IRoom[];
@@ -46,18 +51,54 @@ export class Rooms {
     return newRoom;
   }
 
-  sortUnitsInCategory(categoryId) {}
+  sortUnitsInCategory(units: { unit: number }[]) {
+    units.sort(function compare(a, b) {
+      if (a.unit < b.unit) {
+        return -1;
+      }
+      if (a.unit > b.unit) {
+        return 1;
+      }
+      return 0;
+    });
+  }
 
-  addCardToCategory(roomId: string, categoryId: string, unit: number) {
-    // keep implementing this method..
-    let updatedRoom: IRoom | null = null;
-    updatedRoom = this.rooms.find((r) => r.id === roomId);
-    if (!updatedRoom) return null;
+  addCardToCategory(
+    roomId: string,
+    categoryId: string,
+    unit: number
+  ): IAddCardResult {
+    const result: IAddCardResult = {
+      room: null,
+      error: null,
+    };
 
-    const foundCategory = updatedRoom.categories.find(
+    result.room = this.rooms.find((r) => r.id === roomId);
+
+    if (!result.room) {
+      result.error = "Room with provided ID does not exist";
+      return result;
+    }
+
+    const foundCategory = result.room.categories.find(
       (c) => c.id === categoryId
     );
-    if (foundCategory) {
+    if (!foundCategory) {
+      result.error = "Category with provided ID does not exist";
+      return result;
     }
+
+    foundCategory.units.push({ unit });
+    this.sortUnitsInCategory(foundCategory.units);
+    // foundCategory.units.sort(function compare(a, b) {
+    //   if (a.unit < b.unit) {
+    //     return -1;
+    //   }
+    //   if (a.unit > b.unit) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // });
+    return result;
   }
 }

@@ -1,14 +1,24 @@
 import React from "react";
+import io from "socket.io-client";
 import { ICategory } from "./Room";
 import "./VotingCards.css";
 import { Context, ERoomStatus } from "../global/Context";
 
+// let socket: SocketIOClient.Socket;
+
 interface Props {
   category: ICategory;
+  handleNewCard: (id: string, u: number) => void;
 }
 
-export const VotingCards = ({ category }: Props) => {
+export const VotingCards = ({ category, handleNewCard }: Props) => {
+  // const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
+
   const { roomStatus, set__roomStatus } = React.useContext(Context);
+
+  React.useEffect(() => {
+    // socket = io(ENDPOINT);
+  }, []);
 
   if (!category) return null;
   return (
@@ -19,7 +29,9 @@ export const VotingCards = ({ category }: Props) => {
             <button
               title="Add new card"
               className="btn-floating btn-small waves-effect waves-light green add-card-btn"
-              onClick={() => {}}
+              onClick={() => {
+                handleNewCard(category.id, 11);
+              }}
             >
               <i className="material-icons">add</i>
             </button>

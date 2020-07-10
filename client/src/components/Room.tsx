@@ -101,6 +101,8 @@ export const Room = (props) => {
     socket.on(
       "roomData",
       ({ users, room }: { users: IUser[]; room: IRoom }) => {
+        console.log("#### room = ", room);
+        console.log("#### users = ", users);
         set__roomData(room);
         set__roomName(room.name);
         set__Users(users);
@@ -113,11 +115,28 @@ export const Room = (props) => {
     };
   }, [messages]);
 
-  // function for sending messages
-  const sendMessage = (event) => {
-    event.preventDefault();
-    if (message) {
-      socket.emit("sendMessage", message, () => set__Message(""));
+  // // function for sending messages
+  // const sendMessage = (event) => {
+  //   event.preventDefault();
+  //   if (message) {
+  //     socket.emit("sendMessage", message, () => set__Message(""));
+  //   }
+  // };
+
+  const handleNewCard = (categoryId: string, unit: number) => {
+    console.log("in handleNewCard ... ");
+    if (roomId) {
+      socket.emit(
+        "addNewCard",
+        {
+          roomId,
+          categoryId,
+          unit,
+        },
+        (updatedRooms) => {
+          console.log("updatedRooms = ", updatedRooms);
+        }
+      );
     }
   };
 
@@ -135,7 +154,10 @@ export const Room = (props) => {
         <main>
           <h4>Current Category</h4>
           {roomData && roomData.categories ? (
-            <Categories categories={roomData.categories} />
+            <Categories
+              categories={roomData.categories}
+              handleNewCard={handleNewCard}
+            />
           ) : null}
         </main>
 

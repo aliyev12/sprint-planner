@@ -100,6 +100,41 @@ io.on("connection", (socket) => {
     callback(validationMessage);
   });
 
+  socket.on("addNewCard", ({ roomId, categoryId, unit }, callback) => {
+    // addCardToCategory
+    // roomId: string,
+    // categoryId: string,
+    // unit: number
+
+    const result = rooms.addCardToCategory(roomId, categoryId, unit);
+
+    io.to(roomId).emit("roomData", {
+      room: result.room,
+      users: users.getUsersInRoom(roomId),
+    });
+
+    callback(result);
+
+    // !!! Emit new updated roomsDate to everyone!
+
+    // const validationMessage = {
+    //   error: null,
+    //   roomExists: false,
+    //   roomData: null,
+    // };
+
+    // if (!roomId)
+    //   return callback({ ...validationMessage, error: "Wrong room ID" });
+
+    // const room = rooms.getRoom(roomId);
+    // if (room) {
+    //   validationMessage.roomExists = true;
+    //   validationMessage.roomData = room;
+    // }
+
+    // callback(validationMessage);
+  });
+
   // Runs when client disconnects
   socket.on("disconnect", () => {
     const user = users.removeUser(socket.id);
