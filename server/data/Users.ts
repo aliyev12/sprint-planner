@@ -16,11 +16,11 @@ export class Users {
     name = name.trim().toLowerCase();
     room = room.trim().toLowerCase();
 
-    const existingUser = this.users.find(
-      (u) => u.room === room && u.name === name
-    );
+    // const existingUser = this.users.find(
+    //   (u) => u.room === room && u.name === name
+    // );
 
-    if (existingUser) return { error: "Username is taken" };
+    // if (existingUser) return { error: "Username is taken" };
 
     const user = { id, name, room };
     this.users.push(user);

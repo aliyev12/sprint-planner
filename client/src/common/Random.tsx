@@ -29,12 +29,9 @@ export const Alert = ({
   type = "error",
   text = "Something went wrong",
 }: any) => {
-  const alertTypes = {
-    error: "red accent-4",
-  };
   return (
-    <div className={`Alert card ${alertTypes[type]} black-text`}>
-      <div className="card-content white-text">{text}</div>
+    <div className={`Alert ${type} card`}>
+      <div className="card-content">{text}</div>
     </div>
   );
 };

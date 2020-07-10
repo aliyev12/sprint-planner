@@ -1,0 +1,6 @@
+.Users.collection .collection-item.avatar {
+  min-height: 5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import io from "socket.io-client";
 import { CenteredCard, Or, Loader } from "../common";
-import { Context, HomeStatuses } from "../global/Context";
+import { Context, EHomeStatuses } from "../global/Context";
 import "./Join.css";
 
 let socket: SocketIOClient.Socket;
@@ -30,7 +30,7 @@ export const Join = ({ location, match, history }) => {
           if (roomExists) {
             set__roomId(roomIdParam);
           } else {
-            changeHomeStatus(HomeStatuses.wrongRoomId);
+            changeHomeStatus(EHomeStatuses.wrongRoomId);
             history.push({
               pathname: "/",
               state: { triedRoomId: roomIdParam },
@@ -80,7 +80,7 @@ export const Join = ({ location, match, history }) => {
         <button
           className="waves-effect waves-light btn-small blue darken-4 "
           onClick={() => {
-            changeHomeStatus(HomeStatuses.cameFromJoin);
+            changeHomeStatus(EHomeStatuses.cameFromJoin);
             history.push("/");
           }}
         >

@@ -1,10 +1,21 @@
 import React from "react";
 
-export enum HomeStatuses {
+export enum EHomeStatuses {
   initial = "initial",
   creatingNewRoom = "creating-new-room",
   cameFromJoin = "came-from-join",
   wrongRoomId = "wrong-room-id",
+}
+
+export enum ERoomStatus {
+  initial = "initial",
+  editingCards = "editing-cards",
+  editingCategories = "editing-categories",
+}
+
+export enum ETheme {
+  dark = "dark",
+  light = "light",
 }
 
 export interface IRoomState {
@@ -22,20 +33,25 @@ const EMPTY_ROOM_STATE: IRoomState = {
 const Context = React.createContext({
   initRoom: (r: IRoomState): void => {},
   roomState: { ...EMPTY_ROOM_STATE },
-  homeStatus: "initial",
+  homeStatus: EHomeStatuses.initial,
   changeHomeStatus: (s: string): void => {},
+  theme: ETheme.dark,
+  set__theme: (t: ETheme): void => {},
+  roomStatus: ERoomStatus.initial,
+  set__roomStatus: (r: ERoomStatus): void => {},
 });
 
 const GlopalProvider = ({ children }) => {
   const [roomState, set__roomState] = React.useState({ ...EMPTY_ROOM_STATE });
-  const [homeStatus, set__homeStatus] = React.useState("initial");
+  const [homeStatus, set__homeStatus] = React.useState(EHomeStatuses.initial);
+  const [roomStatus, set__roomStatus] = React.useState(ERoomStatus.initial);
+  const [theme, set__theme] = React.useState<ETheme>(ETheme.dark);
 
   const initRoom = (newRoomData: IRoomState): void => {
     set__roomState(newRoomData);
   };
 
-  const changeHomeStatus = (newStatus: string) => {
-    console.log("newStatus = ", newStatus);
+  const changeHomeStatus = (newStatus: EHomeStatuses) => {
     set__homeStatus(newStatus);
   };
 
@@ -46,6 +62,10 @@ const GlopalProvider = ({ children }) => {
         roomState,
         homeStatus,
         changeHomeStatus,
+        theme,
+        set__theme,
+        roomStatus,
+        set__roomStatus,
       }}
     >
       {children}

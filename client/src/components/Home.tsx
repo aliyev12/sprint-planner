@@ -1,7 +1,7 @@
 import React from "react";
 import uniqid from "uniqid";
 import { CenteredCard, Or, Alert, WrongRoomAlert } from "../common";
-import { Context, HomeStatuses } from "../global/Context";
+import { Context, EHomeStatuses } from "../global/Context";
 import "./Home.css";
 
 export const Home = ({ history, location }) => {
@@ -10,7 +10,7 @@ export const Home = ({ history, location }) => {
   const [roomName, set__roomName] = React.useState("");
   const [roomIdInput, set__roomIdInput] = React.useState("");
   const [errorAlert, set__errorAlert] = React.useState(null);
-  const { initial, creatingNewRoom, cameFromJoin, wrongRoomId } = HomeStatuses;
+  const { initial, creatingNewRoom, cameFromJoin, wrongRoomId } = EHomeStatuses;
 
   React.useEffect(() => {
     if (homeStatus === wrongRoomId) {

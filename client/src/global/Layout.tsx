@@ -8,11 +8,13 @@ import logo from "./logo-sp-white.png";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Layout.css";
+import { Context, ETheme } from "./Context";
 
 // const ENDPOINT = "http://localhost:3333";
 // const socket = io(ENDPOINT);
 
 export const Layout = ({ children }) => {
+  const { theme, set__theme } = React.useContext(Context);
   let _sidenav;
   let history = useHistory();
   const [name, set__Name] = React.useState("");
@@ -23,7 +25,7 @@ export const Layout = ({ children }) => {
   }, []);
 
   return (
-    <div className="grid-container">
+    <div className={`${theme}-theme grid-container`}>
       <ToastContainer
         position="top-right"
         autoClose={4000}
@@ -57,7 +59,19 @@ export const Layout = ({ children }) => {
                   <a href="collapsible.html">Javascript</a>
                 </li>
                 <li>
-                  <a href="mobile.html">Mobile</a>
+                  <button
+                    className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
+                    // style={{ backgroundColor: "var(--main-color)" }}
+                    onClick={() =>
+                      set__theme(
+                        theme === ETheme.light ? ETheme.dark : ETheme.light
+                      )
+                    }
+                  >
+                    <i className="material-icons">
+                      {theme === ETheme.light ? "brightness_2" : "wb_sunny"}
+                    </i>
+                  </button>
                 </li>
               </ul>
             </div>

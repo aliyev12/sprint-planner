@@ -32,12 +32,12 @@
   text-align: center;
 }
 
-.Room .collection .collection-item.avatar {
+/* .Room .collection .collection-item.avatar {
   min-height: 50px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-}
+} */
 
 .Room h4 {
   margin-bottom: 2rem;
