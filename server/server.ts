@@ -28,13 +28,13 @@ io.on("connection", (socket) => {
     if (!userName || !roomId)
       return callback({ error: "Missing user name or room ID" });
 
-    const { error, user } = users.addUser({
+    const { user } = users.addUser({
       id: socket.id,
       name: userName,
       room: roomId,
     });
 
-    if (error) return callback(error);
+    // if (error) return callback(error);
 
     let roomData = { id: roomId, name: "unknown" };
     if (roomName && roomName !== "unknown") {

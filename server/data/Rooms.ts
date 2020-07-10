@@ -45,4 +45,19 @@ export class Rooms {
     this.rooms.push(newRoom);
     return newRoom;
   }
+
+  sortUnitsInCategory(categoryId) {}
+
+  addCardToCategory(roomId: string, categoryId: string, unit: number) {
+    // keep implementing this method..
+    let updatedRoom: IRoom | null = null;
+    updatedRoom = this.rooms.find((r) => r.id === roomId);
+    if (!updatedRoom) return null;
+
+    const foundCategory = updatedRoom.categories.find(
+      (c) => c.id === categoryId
+    );
+    if (foundCategory) {
+    }
+  }
 }

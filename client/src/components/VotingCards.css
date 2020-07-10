@@ -2,6 +2,66 @@
   margin-top: 3rem;
 }
 
-.btn-flat.voting-card-btn:focus {
+.VotingCards .add-btn-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.VotingCards .voting-card-col {
+  position: relative;
+}
+
+.VotingCards .card {
+  position: relative;
+  margin: 3rem;
+  min-width: 10rem;
+}
+
+.VotingCards .voting-card-btn {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  text-transform: unset;
+  color: var(--theme-text);
+  background-color: var(--theme-background);
+}
+
+.VotingCards .voting-card-btn.btn-flat.disabled,
+.VotingCards .voting-card-btn.btn-flat.btn-flat[disabled] {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-text) !important;
+}
+
+.VotingCards .btn-flat.voting-card-btn:focus {
+  background-color: var(--theme-background);
+}
+
+.VotingCards .card-content {
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   background-color: transparent;
+}
+
+.VotingCards .del-backdrop {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #ff000029;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.VotingCards .del-card-btn {
+  position: absolute;
+  top: 30px;
+  z-index: 2;
+  right: 0;
+}
+
+.VotingCards .add-card-btn .material-icons,
+.VotingCards .del-card-btn .material-icons {
+  font-size: 26px;
 }

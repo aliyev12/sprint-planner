@@ -1,3 +1,30 @@
+.dark-theme {
+  --theme-background: var(--black-color);
+  --theme-text: white;
+  --theme-box-shadow: 0 2px 2px 0 rgba(255, 255, 255, 0.14),
+    0 3px 1px -2px rgba(255, 255, 255, 0.12),
+    0 1px 5px 0 rgba(255, 255, 255, 0.2);
+  --theme-box-shadow-hover: 0 8px 17px 0 rgba(255, 255, 255, 0.2),
+    0 6px 20px 0 rgba(255, 255, 255, 0.19);
+}
+
+.light-theme {
+  --theme-background: white;
+  --theme-text: var(--black-color);
+  --theme-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  --theme-box-shadow-hover: 0 8px 17px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.dark-theme,
+.light-theme,
+.page-content {
+  height: 100%;
+  color: var(--theme-text);
+  background-color: var(--theme-background);
+}
+
 .grid-container {
   display: grid;
 
@@ -8,7 +35,6 @@
 
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
-  grid-gap: 10px;
   height: 100vh;
 }
 
@@ -41,21 +67,54 @@ footer {
   align-items: center;
 }
 
+.theme-switch-btn {
+  background-color: transparent;
+}
+
+.theme-switch-btn .material-icons {
+  color: white;
+}
+
+/* Overrite Libraries Styles */
+.card,
+.toast,
+.dropdown-content,
+.collapsible,
+.sidenav {
+  box-shadow: var(--theme-box-shadow);
+}
+
+.hoverable:hover {
+  box-shadow: var(--theme-box-shadow-hover);
+}
+
+.card-content {
+  background-color: var(--theme-background);
+}
+
+.input-field > input,
+.input-field > label {
+  color: var(--theme-text);
+}
+
+.collection .collection-item {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+}
+
+.collection a.collection-item {
+  color: var(--theme-text);
+}
+
+/* Overwrite Toastify__toast styles */
 .Toastify__toast-container {
   font-size: 1.6rem;
   color: var(--black-color);
 }
-/* .Toastify__toast--default {
-}
-.Toastify__toast--info {
-} */
+
 .Toastify__toast--success {
   background: var(--success-color__light);
 }
-/* .Toastify__toast--warning {
-}
-.Toastify__toast--error {
-} */
 
 @media (max-width: 768px) {
   .grid-container {

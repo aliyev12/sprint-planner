@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 import { VotingCards } from "./VotingCards";
 import { Categories } from "./Categories";
 import { RoomActions } from "./RoomActions";
+import { Users } from "./Users";
+import Issues from "./Issues";
 
 export interface ICategory {
   id: string;
@@ -127,25 +129,7 @@ export const Room = (props) => {
         </section>
         <aside className="users-aside">
           <h4>Users</h4>
-          <ul className="collection">
-            {users && users.length
-              ? users.map((user, i) => {
-                  return (
-                    <li
-                      className="collection-item avatar  grey lighten-2 black-text"
-                      key={user.id}
-                    >
-                      <i className="material-icons circle">account_circle</i>
-                      {/* <img src="images/yuna.jpg" alt="" className="circle" /> */}
-                      <span className="title">{user.name}</span>
-                      <a href="#!" className="secondary-content">
-                        <i className="material-icons">grade</i>
-                      </a>
-                    </li>
-                  );
-                })
-              : null}
-          </ul>
+          <Users users={users} />
         </aside>
 
         <main>
@@ -159,23 +143,7 @@ export const Room = (props) => {
           <h4>Actions</h4>
           <RoomActions />
           <h4>Issues</h4>
-          <div className="collection">
-            <a href="#!" className="collection-item black-text">
-              Alvin
-            </a>
-            <a
-              href="#!"
-              className="collection-item white-text active blue darken-4"
-            >
-              Alvin
-            </a>
-            <a href="#!" className="collection-item black-text">
-              Alvin
-            </a>
-            <a href="#!" className="collection-item black-text">
-              Alvin
-            </a>
-          </div>
+          <Issues />
         </aside>
       </div>
     </div>
