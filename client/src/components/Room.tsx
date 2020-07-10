@@ -6,6 +6,8 @@ import "./Room.css";
 import { Context } from "../global/Context";
 import { toast } from "react-toastify";
 import { VotingCards } from "./VotingCards";
+import { Categories } from "./Categories";
+import { RoomActions } from "./RoomActions";
 
 export interface ICategory {
   id: string;
@@ -20,6 +22,12 @@ export interface IRoom {
   categories: ICategory[];
 }
 
+export interface IUser {
+  id: string;
+  name: string;
+  room: string;
+}
+
 let socket: SocketIOClient.Socket;
 
 export const Room = (props) => {
@@ -31,19 +39,17 @@ export const Room = (props) => {
   const [room, set__Room] = useState("");
 
   const [userName, set__userName] = useState("");
-  const [roomData, set__roomData] = useState();
+  const [roomData, set__roomData] = useState<IRoom | undefined>();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
   const [message, set__Message] = useState("");
   const [messages, set__Messages] = useState([]);
-  const [users, set__Users] = useState([]);
+  const [users, set__Users] = useState<IUser[]>([]);
 
   useEffect(() => {
     console.log("roomData = ", roomData);
-    // stopped at being able to successfully refactor users.ts into two separate classes on backend
-    // build a starting/default categories
-    // and I am able to receive them on client side ^
-    // Next, display cards, checkboxes  and action butons on front end... 🤓
+
+    // Next, build a dropdown of categories, and make each votingcards component belong to whichever category is active 🤓
   }, [roomData]);
 
   useEffect(() => {
@@ -90,11 +96,14 @@ export const Room = (props) => {
       set__Messages([...messages, message]);
     });
 
-    socket.on("roomData", ({ users, room }) => {
-      set__roomData(room);
-      set__roomName(room.name);
-      set__Users(users);
-    });
+    socket.on(
+      "roomData",
+      ({ users, room }: { users: IUser[]; room: IRoom }) => {
+        set__roomData(room);
+        set__roomName(room.name);
+        set__Users(users);
+      }
+    );
 
     return () => {
       socket.off("message");
@@ -111,33 +120,45 @@ export const Room = (props) => {
   };
 
   return (
-    <div className="container">
+    <div className="Room container">
       <div className="room-grid-container">
+        <section className="room-name">
+          <h1>{roomName}</h1>
+        </section>
         <aside className="users-aside">
-          <h2>Users</h2>
+          <h4>Users</h4>
           <ul className="collection">
-            {users.map((user, i) => {
-              return (
-                <li className="collection-item avatar" key={user.id}>
-                  <i className="material-icons circle">account_circle</i>
-                  {/* <img src="images/yuna.jpg" alt="" className="circle" /> */}
-                  <span className="title">{user.name}</span>
-                  <a href="#!" className="secondary-content">
-                    <i className="material-icons">grade</i>
-                  </a>
-                </li>
-              );
-            })}
+            {users && users.length
+              ? users.map((user, i) => {
+                  return (
+                    <li
+                      className="collection-item avatar  grey lighten-2 black-text"
+                      key={user.id}
+                    >
+                      <i className="material-icons circle">account_circle</i>
+                      {/* <img src="images/yuna.jpg" alt="" className="circle" /> */}
+                      <span className="title">{user.name}</span>
+                      <a href="#!" className="secondary-content">
+                        <i className="material-icons">grade</i>
+                      </a>
+                    </li>
+                  );
+                })
+              : null}
           </ul>
         </aside>
 
         <main>
-          <h1>{roomName}</h1>
-          {roomData ? <VotingCards roomData={roomData} /> : null}
+          <h4>Current Category</h4>
+          {roomData && roomData.categories ? (
+            <Categories categories={roomData.categories} />
+          ) : null}
         </main>
 
         <aside className="issues-aside">
-          <h2>Issues</h2>
+          <h4>Actions</h4>
+          <RoomActions />
+          <h4>Issues</h4>
           <div className="collection">
             <a href="#!" className="collection-item black-text">
               Alvin

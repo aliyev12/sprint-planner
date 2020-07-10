@@ -1,41 +1,69 @@
-.room-grid-container {
+.Room .room-grid-container {
   display: grid;
-  grid-template-areas: "users content issues";
+  grid-template-areas:
+    "room-name room-name room-name"
+    "users content issues";
   grid-template-columns: 200px 1fr 200px;
-  grid-template-rows: 1fr;
-  grid-gap: 10px;
+  grid-template-rows: auto 1fr;
+  grid-gap: 25px;
 }
 
-aside.users-aside {
+.Room section.room-name {
+  grid-area: room-name;
+}
+
+.Room aside.users-aside {
   grid-area: users;
   margin-left: 0.5rem;
+  padding-right: 2rem;
 }
 
-main {
+.Room main {
   grid-area: content;
 }
 
-aside.issues-aside {
+.Room aside.issues-aside {
   grid-area: issues;
   margin-right: 0.5rem;
+  padding-left: 2rem;
+}
+
+.Room .room-name h1 {
+  text-align: center;
+}
+
+.Room .collection .collection-item.avatar {
+  min-height: 50px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.Room h4 {
+  margin-bottom: 2rem;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--main-color);
 }
 
 @media (max-width: 768px) {
-  .room-grid-container {
+  .Room .room-grid-container {
     grid-template-areas:
+      "room-name"
       "users"
       "content"
       "issues";
 
     grid-template-columns: 1fr;
     grid-template-rows:
+      1fr /* Room Name */
       minmax(75px, auto) /* Users */
       1fr /* Content */
       minmax(75px, auto); /* Issues */
   }
 
-  aside.users-aside,
-  aside.issues-aside {
+  .Room aside.users-aside,
+  .Room aside.issues-aside {
     margin: 0;
   }
 }

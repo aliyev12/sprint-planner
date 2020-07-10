@@ -1,0 +1,29 @@
+.Categories .input-field > label {
+  color: black;
+}
+
+.Categories .input-field {
+  flex-basis: 50%;
+  margin-top: 0;
+}
+
+.Categories .select-wrapper + label {
+  top: -48px;
+  font-size: 20px;
+}
+
+.Categories .select-wrapper input.select-dropdown {
+  color: white;
+}
+
+.Categories .select-wrapper .caret {
+  fill: white;
+}
+
+.Categories .dropdown-content {
+  background-color: var(--grey-lighten-2);
+}
+.Categories .dropdown-content li > span {
+  font-size: 16px;
+  color: black;
+}

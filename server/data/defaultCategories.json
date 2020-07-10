@@ -12,7 +12,6 @@
       { "unit": 6 },
       { "unit": 8 },
       { "unit": 12 },
-      { "unit": 16 },
       { "unit": 24 }
     ]
   },
@@ -21,6 +20,7 @@
     "name": "Story Points",
     "singular": "story point",
     "units": [
+      { "unit": 0 },
       { "unit": 1 },
       { "unit": 2 },
       { "unit": 3 },
@@ -37,7 +37,8 @@
       { "unit": 1 },
       { "unit": 2 },
       { "unit": 3 },
-      { "unit": 4 }
+      { "unit": 4 },
+      { "unit": 6 }
     ]
   }
 ]

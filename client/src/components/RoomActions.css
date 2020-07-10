@@ -1,0 +1,22 @@
+.RoomActions {
+}
+
+.RoomActions .buttons-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.RoomActions .buttons-container button.room-action-btn {
+  margin-bottom: 2rem;
+  padding: 0 1.6rem;
+}
+
+.RoomActions .dropdown-content {
+  background-color: var(--grey-lighten-2);
+}
+
+.RoomActions .edit-dropdown-btn {
+  width: 100%;
+  height: 100%;
+}

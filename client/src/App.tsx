@@ -1,6 +1,7 @@
 import React from "react";
 // import queryString from "query-string";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import M from "materialize-css";
 // import { useHistory } from "react-router-dom";
 // import { Context } from "./Context";
 // import io from "socket.io-client";
@@ -16,6 +17,11 @@ import { Join } from "./components/Join";
 
 function App() {
   const { roomState } = React.useContext(Context);
+
+  // React.useEffect(() => {
+  //   M.AutoInit();
+  // }, []);
+
   return (
     <Layout>
       <Router>

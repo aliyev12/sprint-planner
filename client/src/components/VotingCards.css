@@ -1,3 +1,7 @@
+.VotingCards {
+  margin-top: 3rem;
+}
+
 .btn-flat.voting-card-btn:focus {
   background-color: transparent;
 }
