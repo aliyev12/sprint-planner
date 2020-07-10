@@ -1,6 +1,11 @@
 import fs from "fs";
 import { Users } from "./Users";
 
+export enum EAction {
+  add = "add",
+  delete = "delete",
+}
+
 interface ICategory {
   id: string;
   name: string;
@@ -63,10 +68,11 @@ export class Rooms {
     });
   }
 
-  addCardToCategory(
+  updateCategoryCards(
     roomId: string,
     categoryId: string,
-    unit: number
+    unit: number,
+    action: EAction
   ): IAddCardResult {
     const result: IAddCardResult = {
       room: null,
@@ -76,7 +82,7 @@ export class Rooms {
     result.room = this.rooms.find((r) => r.id === roomId);
 
     if (!result.room) {
-      result.error = "Room with provided ID does not exist";
+      result.error = `Room with provided ID ${roomId} does not exist. Please refresh your page.`;
       return result;
     }
 
@@ -88,17 +94,27 @@ export class Rooms {
       return result;
     }
 
-    foundCategory.units.push({ unit });
+    if (action === EAction.add) {
+      const foundUnit = foundCategory.units.find((u) => u.unit === unit);
+      if (foundUnit) {
+        result.error = `Unit ${unit} ${foundCategory.singular}${
+          unit === 1 ? "" : "s"
+        } already exists`;
+        return result;
+      }
+      foundCategory.units.push({ unit });
+    } else if (action === EAction.delete) {
+      const index = foundCategory.units.findIndex((u) => u.unit === unit);
+      if (index === -1) {
+        result.error = `Unit ${unit} ${foundCategory.singular}${
+          unit === 1 ? "" : "s"
+        } does not exist`;
+        return result;
+      }
+      foundCategory.units.splice(index, 1);
+    }
+
     this.sortUnitsInCategory(foundCategory.units);
-    // foundCategory.units.sort(function compare(a, b) {
-    //   if (a.unit < b.unit) {
-    //     return -1;
-    //   }
-    //   if (a.unit > b.unit) {
-    //     return 1;
-    //   }
-    //   return 0;
-    // });
     return result;
   }
 }

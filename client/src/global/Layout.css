@@ -113,7 +113,12 @@ footer {
 }
 
 .Toastify__toast--success {
-  background: var(--success-color__light);
+  background: var(--success-color);
+  color: white;
+}
+
+.Toastify__toast--error {
+  color: white;
 }
 
 @media (max-width: 768px) {

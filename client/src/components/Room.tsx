@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import queryString from "query-string";
+import M from "materialize-css";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
 import "./Room.css";
@@ -10,6 +11,11 @@ import { Categories } from "./Categories";
 import { RoomActions } from "./RoomActions";
 import { Users } from "./Users";
 import Issues from "./Issues";
+
+export enum EAction {
+  add = "add",
+  delete = "delete",
+}
 
 export interface ICategory {
   id: string;
@@ -28,6 +34,11 @@ export interface IUser {
   id: string;
   name: string;
   room: string;
+}
+
+export interface IAddCardResult {
+  room: IRoom | null;
+  error: string | null;
 }
 
 let socket: SocketIOClient.Socket;
@@ -123,18 +134,24 @@ export const Room = (props) => {
   //   }
   // };
 
-  const handleNewCard = (categoryId: string, unit: number) => {
-    console.log("in handleNewCard ... ");
+  const updateCategoryCards = (
+    categoryId: string,
+    unit: number,
+    action: EAction
+  ) => {
     if (roomId) {
       socket.emit(
-        "addNewCard",
+        "updateCategoryCards",
         {
           roomId,
           categoryId,
           unit,
+          action,
         },
-        (updatedRooms) => {
-          console.log("updatedRooms = ", updatedRooms);
+        (addCardResult: IAddCardResult) => {
+          if (addCardResult.error) {
+            toast.error(addCardResult.error);
+          }
         }
       );
     }
@@ -156,7 +173,7 @@ export const Room = (props) => {
           {roomData && roomData.categories ? (
             <Categories
               categories={roomData.categories}
-              handleNewCard={handleNewCard}
+              updateCategoryCards={updateCategoryCards}
             />
           ) : null}
         </main>

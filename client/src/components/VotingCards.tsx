@@ -1,6 +1,6 @@
 import React from "react";
 import io from "socket.io-client";
-import { ICategory } from "./Room";
+import { ICategory, EAction } from "./Room";
 import "./VotingCards.css";
 import { Context, ERoomStatus } from "../global/Context";
 
@@ -8,10 +8,10 @@ import { Context, ERoomStatus } from "../global/Context";
 
 interface Props {
   category: ICategory;
-  handleNewCard: (id: string, u: number) => void;
+  updateCategoryCards: (id: string, u: number, a: EAction) => void;
 }
 
-export const VotingCards = ({ category, handleNewCard }: Props) => {
+export const VotingCards = ({ category, updateCategoryCards }: Props) => {
   // const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
 
   const { roomStatus, set__roomStatus } = React.useContext(Context);
@@ -30,7 +30,7 @@ export const VotingCards = ({ category, handleNewCard }: Props) => {
               title="Add new card"
               className="btn-floating btn-small waves-effect waves-light green add-card-btn"
               onClick={() => {
-                handleNewCard(category.id, 11);
+                updateCategoryCards(category.id, 0.2, EAction.add);
               }}
             >
               <i className="material-icons">add</i>
@@ -46,7 +46,9 @@ export const VotingCards = ({ category, handleNewCard }: Props) => {
                   <button
                     title="Delete card"
                     className="btn-floating btn-small waves-effect waves-light red del-card-btn"
-                    onClick={() => {}}
+                    onClick={() => {
+                      updateCategoryCards(category.id, unit, EAction.delete);
+                    }}
                   >
                     <i className="material-icons">delete</i>
                   </button>
