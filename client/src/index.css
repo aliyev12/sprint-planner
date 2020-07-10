@@ -8,6 +8,7 @@
   --error-color: #d50000; /* red accent-4 */
   --error-color-light: #ffcdd2; /* red lighten-4 */
   --black-color: #333333;
+  --grey-lighten-2: #e0e0e0; /*  grey lighten-2 */
 }
 
 *,
@@ -24,6 +25,11 @@ html {
   font-family: "Roboto", sans-serif;
 }
 
+body {
+  color: white;
+  background-color: var(--black-color);
+}
+
 .grid {
   display: grid;
   grid-template-columns: 100px auto 100px;
@@ -35,6 +41,16 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.card,
+.toast,
+.dropdown-content,
+.collapsible,
+.sidenav {
+  box-shadow: rgba(255, 255, 255, 0.2) 0px 2px 4px -1px,
+    rgba(255, 255, 255, 0.14) 0px 4px 5px 0px,
+    rgba(255, 255, 255, 0.12) 0px 1px 10px 0px !important;
 }
 
 @media (min-width: 600px) {

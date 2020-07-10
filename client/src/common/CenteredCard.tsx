@@ -11,7 +11,7 @@ export const CenteredCard = ({ children, title = "Sprint Planner" }: Props) => {
     <div className="CenteredCard container">
       <div className="card-container">
         <div className="card hoverable">
-          <div className="card-content black-text">
+          <div className="card-content black-text grey lighten-2">
             <h3 className="card-title center">{title}</h3>
             {children}
           </div>

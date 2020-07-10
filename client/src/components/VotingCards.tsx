@@ -1,23 +1,18 @@
 import React from "react";
-import { ICategory, IRoom } from "./Room";
+import { ICategory } from "./Room";
 import "./VotingCards.css";
 
 interface Props {
-  roomData: IRoom;
+  category: ICategory;
 }
 
-export const VotingCards = ({ roomData }: Props) => {
-  console.log("roomData from VotingCards = ", roomData);
+export const VotingCards = ({ category }: Props) => {
+  if (!category) return null;
   return (
     <div className="VotingCards">
-      <section className="actions">
-        <button className="waves-effect waves-light btn">
-          <i className="material-icons right">create</i>Edit Categories
-        </button>
-      </section>
       <section className="voting-cards">
         <div className="row">
-          {roomData.categories[0].units.map(({ unit }, i) => {
+          {category.units.map(({ unit }, i) => {
             return (
               <div className="col s12 m6 xl4" key={unit}>
                 <div
@@ -25,7 +20,7 @@ export const VotingCards = ({ roomData }: Props) => {
                   style={{ margin: "3rem", minWidth: "10rem" }}
                 >
                   <button
-                    className="waves-effect waves-teal btn-flat voting-card-btn"
+                    className="waves-effect waves-teal btn-flat voting-card-btn grey lighten-2"
                     style={{
                       display: "flex",
                       width: "100%",
@@ -44,7 +39,7 @@ export const VotingCards = ({ roomData }: Props) => {
                     >
                       <span className="card-title">{unit}</span>
                       <span className="card-title">
-                        {roomData.categories[0].singular}
+                        {category.singular}
                         {unit === 1 ? "" : "s"}
                       </span>
                     </div>
