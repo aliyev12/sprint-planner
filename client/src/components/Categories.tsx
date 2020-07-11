@@ -1,15 +1,15 @@
 import React from "react";
 import M from "materialize-css";
-import { ICategory } from "./Room";
+import { ICategory, EAction } from "./Room";
 import { VotingCards } from "./VotingCards";
 import "./Categories.css";
 
 interface Props {
   categories: ICategory[];
-  handleNewCard: (id: string, u: number) => void;
+  updateCategoryCards: (id: string, u: number, a: EAction) => void;
 }
 
-export const Categories = ({ categories, handleNewCard }: Props) => {
+export const Categories = ({ categories, updateCategoryCards }: Props) => {
   let _categoriesSelectRef;
   const [currentCategoryId, set__currentCategoryId] = React.useState("");
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
@@ -53,7 +53,7 @@ export const Categories = ({ categories, handleNewCard }: Props) => {
       {categories && categories.length ? (
         <VotingCards
           category={getCurrentCategory()}
-          handleNewCard={handleNewCard}
+          updateCategoryCards={updateCategoryCards}
         />
       ) : null}
     </div>

@@ -13,7 +13,7 @@ export class Users {
   }
 
   addUser({ id, name, room }: IUser) {
-    name = name.trim().toLowerCase();
+    name = name.trim();
     room = room.trim().toLowerCase();
 
     // const existingUser = this.users.find(

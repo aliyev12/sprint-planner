@@ -5,7 +5,7 @@ import socketio from "socket.io";
 import { baseRoute } from "./routes";
 import { formatMessage, botName } from "./utils";
 import { Users } from "./data/Users";
-import { Rooms } from "./data/Rooms";
+import { Rooms, EAction } from "./data/Rooms";
 
 const PORT = process.env.PORT || 3333;
 
@@ -100,40 +100,26 @@ io.on("connection", (socket) => {
     callback(validationMessage);
   });
 
-  socket.on("addNewCard", ({ roomId, categoryId, unit }, callback) => {
-    // addCardToCategory
-    // roomId: string,
-    // categoryId: string,
-    // unit: number
+  socket.on(
+    "updateCategoryCards",
+    ({ roomId, categoryId, unit, action }, callback) => {
+      const result = rooms.updateCategoryCards(
+        roomId,
+        categoryId,
+        unit,
+        action
+      );
 
-    const result = rooms.addCardToCategory(roomId, categoryId, unit);
+      if (result && result.room) {
+        io.to(roomId).emit("roomData", {
+          room: result.room,
+          users: users.getUsersInRoom(roomId),
+        });
+      }
 
-    io.to(roomId).emit("roomData", {
-      room: result.room,
-      users: users.getUsersInRoom(roomId),
-    });
-
-    callback(result);
-
-    // !!! Emit new updated roomsDate to everyone!
-
-    // const validationMessage = {
-    //   error: null,
-    //   roomExists: false,
-    //   roomData: null,
-    // };
-
-    // if (!roomId)
-    //   return callback({ ...validationMessage, error: "Wrong room ID" });
-
-    // const room = rooms.getRoom(roomId);
-    // if (room) {
-    //   validationMessage.roomExists = true;
-    //   validationMessage.roomData = room;
-    // }
-
-    // callback(validationMessage);
-  });
+      callback(result);
+    }
+  );
 
   // Runs when client disconnects
   socket.on("disconnect", () => {

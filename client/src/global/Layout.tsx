@@ -28,8 +28,8 @@ export const Layout = ({ children }) => {
     <div className={`${theme}-theme grid-container`}>
       <ToastContainer
         position="top-right"
-        autoClose={4000}
-        hideProgressBar={false}
+        autoClose={3000}
+        hideProgressBar={true}
         newestOnTop={false}
         closeOnClick
         rtl={false}
