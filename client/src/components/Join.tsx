@@ -1,7 +1,8 @@
 import React from "react";
 import io from "socket.io-client";
-import { CenteredCard, Or, Loader } from "../common";
-import { Context, EHomeStatuses } from "../global/Context";
+import { CenteredCard, Loader, Or } from "../common";
+import { EHomeStatuses } from "../common/models";
+import { Context } from "../global/Context";
 import "./Join.css";
 
 let socket: SocketIOClient.Socket;
@@ -40,7 +41,9 @@ export const Join = ({ location, match, history }) => {
       );
     }
     set__loading(false);
-  }, [location.pathname]);
+
+    return () => socket.off("validateRoomExists");
+  }, [ENDPOINT, location.pathname]);
 
   const handleJoinRoom = () => {
     if (roomId) {

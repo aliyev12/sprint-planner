@@ -1,10 +1,42 @@
+/* Context Models */
+export enum EHomeStatuses {
+  initial = "initial",
+  creatingNewRoom = "creating-new-room",
+  cameFromJoin = "came-from-join",
+  wrongRoomId = "wrong-room-id",
+}
+
+export enum ERoomStatus {
+  initial = "initial",
+  editingCards = "editing-cards",
+  editingCategories = "editing-categories",
+}
+
+export enum ETheme {
+  dark = "dark",
+  light = "light",
+}
+
+export interface IRoomState {
+  userName: string;
+  roomId: string;
+  roomName?: string;
+}
+
+export interface IEditCategory {
+  [key: string]: {
+    name: string;
+    singular: string;
+  };
+}
+
+/* Component Models */
 export enum EAction {
   add = "add",
   delete = "delete",
   update = "update",
   start = "start",
   end = "end",
-  save = "save",
 }
 
 export interface ICategory {
@@ -49,22 +81,13 @@ export interface IRoom {
   issues: IIsue[];
 }
 
+export interface IUser {
+  id: string;
+  name: string;
+  room: string;
+}
+
 export interface IAddCardResult {
   room: IRoom | null;
   error: string | null;
-}
-
-export interface IUpdateCatArgs {
-  roomId: string;
-  action: EAction;
-  categoryId?: string;
-  values?: {
-    name: string;
-    singular: string;
-  };
-}
-
-export interface IAddRoomProps {
-  id: string;
-  name: string;
 }

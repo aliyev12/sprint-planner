@@ -1,35 +1,12 @@
 import React from "react";
-
-export enum EHomeStatuses {
-  initial = "initial",
-  creatingNewRoom = "creating-new-room",
-  cameFromJoin = "came-from-join",
-  wrongRoomId = "wrong-room-id",
-}
-
-export enum ERoomStatus {
-  initial = "initial",
-  editingCards = "editing-cards",
-  editingCategories = "editing-categories",
-}
-
-export enum ETheme {
-  dark = "dark",
-  light = "light",
-}
-
-export interface IRoomState {
-  userName: string;
-  roomId: string;
-  roomName?: string;
-}
-
-export interface IEditCategory {
-  [key: string]: {
-    name: string;
-    singular: string;
-  };
-}
+import {
+  EHomeStatuses,
+  ERoomStatus,
+  ETheme,
+  IEditCategory,
+  IRoomState,
+  ICurrentSession,
+} from "../common/models";
 
 const EMPTY_ROOM_STATE: IRoomState = {
   userName: "",
@@ -48,6 +25,10 @@ const Context = React.createContext({
   set__roomStatus: (r: ERoomStatus): void => {},
   editCategoriesValues: null,
   set__editCategoriesValues: (c: IEditCategory | null) => {},
+  currentSession: null,
+  set__currentSession: (c: ICurrentSession) => {},
+  currentCategoryId: "",
+  set__currentCategoryId: (c: string) => {},
 });
 
 const GlopalProvider = ({ children }) => {
@@ -55,10 +36,15 @@ const GlopalProvider = ({ children }) => {
   const [homeStatus, set__homeStatus] = React.useState(EHomeStatuses.initial);
   const [roomStatus, set__roomStatus] = React.useState(ERoomStatus.initial);
   const [theme, set__theme] = React.useState<ETheme>(ETheme.dark);
+  const [currentCategoryId, set__currentCategoryId] = React.useState("");
   const [
     editCategoriesValues,
     set__editCategoriesValues,
   ] = React.useState<IEditCategory | null>(null);
+  const [
+    currentSession,
+    set__currentSession,
+  ] = React.useState<ICurrentSession | null>(null);
 
   const initRoom = (newRoomData: IRoomState): void => {
     set__roomState(newRoomData);
@@ -81,6 +67,10 @@ const GlopalProvider = ({ children }) => {
         set__roomStatus,
         editCategoriesValues,
         set__editCategoriesValues,
+        currentSession,
+        set__currentSession,
+        currentCategoryId,
+        set__currentCategoryId,
       }}
     >
       {children}

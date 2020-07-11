@@ -1,11 +1,9 @@
 import React from "react";
-import io from "socket.io-client";
-import M from "materialize-css";
-import { ICategory, EAction } from "./Room";
-import "./VotingCards.css";
-import { Context, ERoomStatus } from "../global/Context";
 import { toast } from "react-toastify";
-import { isNumOrFloat } from "../common/utils";
+import { EAction, ERoomStatus, ICategory } from "../common/models";
+import { isNumOrFloat, categoryActive } from "../common/utils";
+import { Context } from "../global/Context";
+import "./VotingCards.css";
 
 // let socket: SocketIOClient.Socket;
 
@@ -15,17 +13,19 @@ interface Props {
 }
 
 export const VotingCards = ({ category, updateCategoryCards }: Props) => {
-  let _floatingActionRef;
   // const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
   const [newUnit, set__newUnit] = React.useState("");
 
-  const { roomStatus, set__roomStatus } = React.useContext(Context);
+  const { roomStatus, set__roomStatus, currentSession } = React.useContext(
+    Context
+  );
 
   React.useEffect(() => {
     // socket = io(ENDPOINT);
   }, []);
 
   if (!category) return null;
+
   return (
     <div className="VotingCards">
       <section className="voting-cards">
@@ -83,7 +83,10 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                 <div
                   style={{
                     pointerEvents:
-                      roomStatus === ERoomStatus.initial ? "auto" : "none",
+                      roomStatus === ERoomStatus.initial &&
+                      categoryActive(currentSession, category.id)
+                        ? "auto"
+                        : "none",
                   }}
                   className="card hoverable waves-effect waves-block waves-light"
                 >
@@ -92,7 +95,10 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                   ) : null}
 
                   <button
-                    disabled={roomStatus !== ERoomStatus.initial}
+                    disabled={
+                      roomStatus !== ERoomStatus.initial ||
+                      !categoryActive(currentSession, category.id)
+                    }
                     className="waves-effect waves-teal btn-flat voting-card-btn"
                   >
                     <div className="card-content flex-centered">

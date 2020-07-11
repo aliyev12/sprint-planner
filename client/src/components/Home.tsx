@@ -1,7 +1,19 @@
 import React from "react";
 import uniqid from "uniqid";
 import { CenteredCard, Or, Alert, WrongRoomAlert } from "../common";
-import { Context, EHomeStatuses } from "../global/Context";
+import { Context } from "../global/Context";
+import {
+  EAction,
+  ICategory,
+  IVote,
+  ISessionCategory,
+  ISession,
+  IIsue,
+  IRoom,
+  IUser,
+  IAddCardResult,
+  EHomeStatuses,
+} from "../common/models";
 import "./Home.css";
 
 export const Home = ({ history, location }) => {

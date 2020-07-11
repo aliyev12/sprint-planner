@@ -15,6 +15,12 @@ export function addOrGetRoom(this: Rooms, { id, name }: IAddRoomProps) {
     id,
     name,
     categories: defaultCategories,
+    currentSession: {
+      active: false,
+      activeCategoryId: "",
+      session: null,
+    },
+    issues: [],
   };
 
   this.rooms.push(newRoom);

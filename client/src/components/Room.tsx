@@ -1,52 +1,27 @@
-import React, { useEffect, useState } from "react";
-import queryString from "query-string";
-import M from "materialize-css";
-import { Link } from "react-router-dom";
-import io from "socket.io-client";
-import "./Room.css";
-import { Context, ERoomStatus } from "../global/Context";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { VotingCards } from "./VotingCards";
+import io from "socket.io-client";
+import {
+  EAction,
+  ERoomStatus,
+  IAddCardResult,
+  IRoom,
+  IUser,
+} from "../common/models";
+import { Context } from "../global/Context";
 import { Categories } from "./Categories";
+import "./Room.css";
 import { RoomActions } from "./RoomActions";
 import { Users } from "./Users";
-import Issues from "./Issues";
-
-export enum EAction {
-  add = "add",
-  delete = "delete",
-  update = "update",
-}
-
-export interface ICategory {
-  id: string;
-  name: string;
-  singular: string;
-  units: { unit: number }[];
-}
-
-export interface IRoom {
-  id: string;
-  name: string;
-  categories: ICategory[];
-}
-
-export interface IUser {
-  id: string;
-  name: string;
-  room: string;
-}
-
-export interface IAddCardResult {
-  room: IRoom | null;
-  error: string | null;
-}
 
 let socket: SocketIOClient.Socket;
 
 export const Room = (props) => {
   const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
-  const { roomState, roomStatus } = React.useContext(Context);
+  const { roomState, roomStatus, set__currentSession } = React.useContext(
+    Context
+  );
+
   const { location, match } = props;
 
   const [name, set__Name] = useState("");
@@ -60,7 +35,7 @@ export const Room = (props) => {
   const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState<IUser[]>([]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let roomIdParam: string | undefined,
       _userName: string | undefined,
       _roomName = "unknown";
@@ -90,7 +65,7 @@ export const Room = (props) => {
     };
   }, [ENDPOINT, location.pathname]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     socket.on("message", (message) => {
       toast.success(
         <span>
@@ -106,6 +81,8 @@ export const Room = (props) => {
     socket.on(
       "roomData",
       ({ users, room }: { users: IUser[]; room: IRoom }) => {
+        console.log("room = ", room);
+        set__currentSession(room.currentSession);
         set__roomData(room);
         set__roomName(room.name);
         set__Users(users);
@@ -117,14 +94,6 @@ export const Room = (props) => {
       socket.off("roomData");
     };
   }, [messages]);
-
-  // // function for sending messages
-  // const sendMessage = (event) => {
-  //   event.preventDefault();
-  //   if (message) {
-  //     socket.emit("sendMessage", message, () => set__Message(""));
-  //   }
-  // };
 
   const updateCategories = (
     action: EAction,
@@ -187,6 +156,8 @@ export const Room = (props) => {
     }
   };
 
+  if (!roomData) return null;
+
   return (
     <div className="Room container">
       <div className="room-grid-container">
@@ -208,6 +179,7 @@ export const Room = (props) => {
           {roomData && roomData.categories ? (
             <Categories
               categories={roomData.categories}
+              currentSession={roomData.currentSession}
               updateCategoryCards={updateCategoryCards}
               updateCategories={updateCategories}
             />
@@ -216,7 +188,7 @@ export const Room = (props) => {
 
         <aside className="issues-aside">
           <h4>Actions</h4>
-          <RoomActions />
+          <RoomActions roomData={roomData} />
           {/* <h4>Issues</h4>
           <Issues /> */}
         </aside>

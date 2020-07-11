@@ -6,9 +6,10 @@ import io from "socket.io-client";
 import M from "materialize-css";
 import logo from "./logo-sp-white.png";
 import { ToastContainer } from "react-toastify";
+import { Context } from "./Context";
+import { ETheme } from "../common/models";
 import "react-toastify/dist/ReactToastify.css";
 import "./Layout.css";
-import { Context, ETheme } from "./Context";
 
 // const ENDPOINT = "http://localhost:3333";
 // const socket = io(ENDPOINT);

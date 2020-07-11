@@ -24,6 +24,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // Set Routes
 app.use("/", baseRoute);
 
+/*=======================================================*/
+/*====================  CONNECTION  =====================*/
+/*=======================================================*/
 io.on("connection", (socket) => {
   socket.on("join", ({ userName, roomId, roomName }, callback) => {
     if (!userName || !roomId)
@@ -102,7 +105,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("updateCategories", (args, callback) => {
-    // const { roomId, action, categoryId, values } = args;
     const result = rooms.updateCategories(args);
 
     if (result && result.room) {
@@ -144,9 +146,43 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("handleVotingSession", (args, callback) => {
+    const result = rooms.handleVotingSession(args);
+
+    if (result && result.room) {
+      let message = "";
+      if (args.action === EAction.start) {
+        message = "Start voting!";
+      } else if (args.action === EAction.end) {
+        message = "Voting is over.";
+      } else if (args.action === EAction.save) {
+        message = "Voting session has been saved.";
+      }
+
+      io.to(args.roomId).emit("roomData", {
+        room: result.room,
+        users: users.getUsersInRoom(args.roomId),
+      });
+      socket.broadcast.to(args.roomId).emit("message", {
+        user: botName,
+        text: message,
+      });
+    }
+
+    callback(result);
+  });
+
+  /*=======================================================*/
+  /*====================  DISCONNECT  =====================*/
+  /*=======================================================*/
+  socket.on("disconnecting", () => {
+    rooms.teardownRooms(Object.keys(socket.rooms));
+  });
+
   // Runs when client disconnects
   socket.on("disconnect", () => {
     const user = users.removeUser(socket.id);
+
     if (user) {
       io.to(user.room).emit("message", {
         user: botName,
