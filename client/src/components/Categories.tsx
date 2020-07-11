@@ -3,15 +3,24 @@ import uniqid from "uniqid";
 import M from "materialize-css";
 import { ICategory, EAction } from "./Room";
 import { VotingCards } from "./VotingCards";
-import "./Categories.css";
 import { Context, ERoomStatus } from "../global/Context";
+import "./Categories.css";
 
 interface Props {
   categories: ICategory[];
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
+  updateCategories: (
+    a: EAction,
+    id?: string,
+    values?: { name: string; singular: string }
+  ) => void;
 }
 
-export const Categories = ({ categories, updateCategoryCards }: Props) => {
+export const Categories = ({
+  categories,
+  updateCategoryCards,
+  updateCategories,
+}: Props) => {
   let _categoriesSelectRef;
   const {
     roomStatus,
@@ -41,7 +50,17 @@ export const Categories = ({ categories, updateCategoryCards }: Props) => {
     }
   }, [categories]);
 
-  // console.log("categories = ", categories);
+  const saveIsDisabled = (catId: string) => {
+    const foundCategory = categories.find((c) => c.id === catId);
+    if (!foundCategory) return false;
+    const foundEditCategory = editCategoriesValues[catId];
+    if (
+      foundCategory.name !== foundEditCategory.name ||
+      foundCategory.singular !== foundEditCategory.singular
+    )
+      return false;
+    return true;
+  };
 
   const getCurrentCategory = () =>
     categories.find((c) => c.id === currentCategoryId);
@@ -61,11 +80,11 @@ export const Categories = ({ categories, updateCategoryCards }: Props) => {
     set__editCategoriesValues(newEditCategoriesValues);
   };
 
-  const handleDeleteCategory = (id) => {
-    const newEditCategoriesValues = { ...editCategoriesValues };
-    delete newEditCategoriesValues[id];
-    set__editCategoriesValues(newEditCategoriesValues);
-  };
+  // const handleDeleteCategory = (id) => {
+  //   const newEditCategoriesValues = { ...editCategoriesValues };
+  //   delete newEditCategoriesValues[id];
+  //   set__editCategoriesValues(newEditCategoriesValues);
+  // };
 
   const chooseCurrentCategorySection = () => {
     return (
@@ -131,11 +150,30 @@ export const Categories = ({ categories, updateCategoryCards }: Props) => {
             </div>
           </div>
           <button
+            disabled={saveIsDisabled(id)}
+            type="button"
+            title="Save card"
+            className="btn-floating btn-small waves-effect waves-light blue darken-4  save-category-btn"
+            onClick={() => {
+              updateCategories(EAction.update, id, {
+                name: category.name,
+                singular: category.singular,
+              });
+            }}
+          >
+            <i className="material-icons">save</i>
+          </button>
+
+          <button
             title="Delete card"
+            type="button"
             className="btn-floating btn-small waves-effect waves-light red  del-category-btn"
             onClick={() => {
-              handleDeleteCategory(id);
-              // updateCategoryCards(category.id, unit, EAction.delete);
+              // handleDeleteCategory(id);
+              updateCategories(EAction.delete, id, {
+                name: category.name,
+                singular: category.singular,
+              });
             }}
           >
             <i className="material-icons">delete</i>
@@ -169,7 +207,9 @@ export const Categories = ({ categories, updateCategoryCards }: Props) => {
                 title="Add new category"
                 type="button"
                 className="btn-floating btn-small waves-effect waves-light green add-card-btn"
-                onClick={handleAddCategory}
+                onClick={() => {
+                  updateCategories(EAction.add);
+                }}
               >
                 <i className="material-icons">add</i>
               </button>

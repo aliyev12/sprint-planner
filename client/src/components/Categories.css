@@ -34,6 +34,10 @@
   align-items: center;
 }
 
+.Categories .collection-item button {
+  margin-left: 2rem;
+}
+
 .Categories .category-actions-container {
   display: flex;
 }
@@ -52,8 +56,4 @@
 
 .Categories .category-actions-container .input-field input {
   margin-bottom: 0;
-}
-
-.Categories .category-actions-container .del-category-btn {
-  margin-left: 2rem;
 }

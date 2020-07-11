@@ -38,6 +38,8 @@ TypeScript types:
 
 // Make app responsive on mobile
 
+// Look into options for generating unique IDs on server side instead of generating them on client side
+
 ## Progress
 
 // !! Stopped at trying to switch voting cards into edit mode. Need to : - Add dotted botder around cards when in edit mode - add a trash delete button in top right corder

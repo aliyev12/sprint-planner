@@ -4,7 +4,7 @@ import M from "materialize-css";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
 import "./Room.css";
-import { Context } from "../global/Context";
+import { Context, ERoomStatus } from "../global/Context";
 import { toast } from "react-toastify";
 import { VotingCards } from "./VotingCards";
 import { Categories } from "./Categories";
@@ -15,6 +15,7 @@ import Issues from "./Issues";
 export enum EAction {
   add = "add",
   delete = "delete",
+  update = "update",
 }
 
 export interface ICategory {
@@ -45,7 +46,7 @@ let socket: SocketIOClient.Socket;
 
 export const Room = (props) => {
   const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
-  const { roomState } = React.useContext(Context);
+  const { roomState, roomStatus } = React.useContext(Context);
   const { location, match } = props;
 
   const [name, set__Name] = useState("");
@@ -58,12 +59,6 @@ export const Room = (props) => {
   const [message, set__Message] = useState("");
   const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState<IUser[]>([]);
-
-  useEffect(() => {
-    console.log("roomData = ", roomData);
-
-    // Next, build a dropdown of categories, and make each votingcards component belong to whichever category is active 🤓
-  }, [roomData]);
 
   useEffect(() => {
     let roomIdParam: string | undefined,
@@ -97,7 +92,6 @@ export const Room = (props) => {
 
   useEffect(() => {
     socket.on("message", (message) => {
-      console.log(message);
       toast.success(
         <span>
           <strong style={{ fontWeight: 800, color: "#0e47a1" }}>
@@ -112,8 +106,6 @@ export const Room = (props) => {
     socket.on(
       "roomData",
       ({ users, room }: { users: IUser[]; room: IRoom }) => {
-        console.log("#### room = ", room);
-        console.log("#### users = ", users);
         set__roomData(room);
         set__roomName(room.name);
         set__Users(users);
@@ -134,6 +126,44 @@ export const Room = (props) => {
   //   }
   // };
 
+  const updateCategories = (
+    action: EAction,
+    categoryId?: string,
+    values?: { name: string; singular: string }
+  ) => {
+    if (roomId) {
+      if (action === EAction.add) {
+        socket.emit(
+          "updateCategories",
+          {
+            roomId,
+            action,
+          },
+          (updateCategoriesResult: any) => {
+            if (updateCategoriesResult.error) {
+              toast.error(updateCategoriesResult.error);
+            }
+          }
+        );
+      } else {
+        socket.emit(
+          "updateCategories",
+          {
+            roomId,
+            action,
+            categoryId,
+            values,
+          },
+          (updateCategoriesResult: any) => {
+            if (updateCategoriesResult.error) {
+              toast.error(updateCategoriesResult.error);
+            }
+          }
+        );
+      }
+    }
+  };
+
   const updateCategoryCards = (
     categoryId: string,
     unit: number,
@@ -148,9 +178,9 @@ export const Room = (props) => {
           unit,
           action,
         },
-        (addCardResult: IAddCardResult) => {
-          if (addCardResult.error) {
-            toast.error(addCardResult.error);
+        (updateCardResult: IAddCardResult) => {
+          if (updateCardResult.error) {
+            toast.error(updateCardResult.error);
           }
         }
       );
@@ -169,11 +199,17 @@ export const Room = (props) => {
         </aside>
 
         <main>
-          <h4>Current Category</h4>
+          <h4>
+            {roomStatus === ERoomStatus.editingCategories
+              ? "Categories"
+              : "Current Category"}
+          </h4>
+
           {roomData && roomData.categories ? (
             <Categories
               categories={roomData.categories}
               updateCategoryCards={updateCategoryCards}
+              updateCategories={updateCategories}
             />
           ) : null}
         </main>
@@ -181,8 +217,8 @@ export const Room = (props) => {
         <aside className="issues-aside">
           <h4>Actions</h4>
           <RoomActions />
-          <h4>Issues</h4>
-          <Issues />
+          {/* <h4>Issues</h4>
+          <Issues /> */}
         </aside>
       </div>
     </div>

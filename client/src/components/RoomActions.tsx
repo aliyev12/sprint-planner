@@ -6,8 +6,13 @@ import { Context, ERoomStatus } from "../global/Context";
 interface Props {}
 
 export const RoomActions = (props: Props) => {
-  const { roomStatus, set__roomStatus } = React.useContext(Context);
   let _categoriesDropdownRef;
+  const {
+    roomStatus,
+    set__roomStatus,
+    editCategoriesValues,
+    set__editCategoriesValues,
+  } = React.useContext(Context);
 
   React.useEffect(() => {
     M.Dropdown.init(_categoriesDropdownRef);
@@ -28,6 +33,20 @@ export const RoomActions = (props: Props) => {
     } else {
       return { icon: "", text: "" };
     }
+  };
+
+  const handleDoneSave = () => {
+    set__roomStatus(ERoomStatus.initial);
+    // console.log("in handleDoneSave roomStatus = ", roomStatus);
+    // if (roomStatus === ERoomStatus.editingCategories) {
+    //   console.log("editCategoriesValues = ", editCategoriesValues);
+    // } else if (roomStatus === ERoomStatus.editingCards) {
+    //   set__roomStatus(ERoomStatus.initial);
+    // }
+    // If saving categories:
+    // get inputs for edit categories from context, validate them..
+    // emit a socket with the input values
+    // handle adding/modifying/deleting categories on backend..
   };
 
   return (
@@ -59,17 +78,10 @@ export const RoomActions = (props: Props) => {
           style={doneEditingStyle}
           // disabled={!userName || !roomName}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={() => {
-            // If saving categories:
-            // get inputs for edit categories from context, validate them..
-            // emit a socket with the input values
-            // handle adding/modifying/deleting categories on backend..
-
-            set__roomStatus(ERoomStatus.initial);
-          }}
+          onClick={handleDoneSave}
         >
-          <i className="material-icons right">{doneSaveContent().icon}</i>
-          {doneSaveContent().text}
+          <i className="material-icons right">done</i>
+          Done Editing
         </button>
 
         <button
