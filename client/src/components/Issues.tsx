@@ -1,4 +1,15 @@
 import React from "react";
+import {
+  EAction,
+  ICategory,
+  IVote,
+  ISessionCategory,
+  ISession,
+  IIsue,
+  IRoom,
+  IUser,
+  IAddCardResult,
+} from "../common/models";
 
 interface Props {}
 

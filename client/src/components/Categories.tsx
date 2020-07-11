@@ -1,13 +1,19 @@
-import React from "react";
-import uniqid from "uniqid";
 import M from "materialize-css";
-import { ICategory, EAction } from "./Room";
+import React from "react";
+import {
+  EAction,
+  ERoomStatus,
+  ICategory,
+  ISession,
+  ICurrentSession,
+} from "../common/models";
+import { Context } from "../global/Context";
 import { VotingCards } from "./VotingCards";
-import { Context, ERoomStatus } from "../global/Context";
 import "./Categories.css";
 
 interface Props {
   categories: ICategory[];
+  currentSession: ICurrentSession;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
   updateCategories: (
     a: EAction,
@@ -18,6 +24,7 @@ interface Props {
 
 export const Categories = ({
   categories,
+  currentSession,
   updateCategoryCards,
   updateCategories,
 }: Props) => {
@@ -27,8 +34,10 @@ export const Categories = ({
     set__roomStatus,
     editCategoriesValues,
     set__editCategoriesValues,
+    currentCategoryId,
+    set__currentCategoryId,
   } = React.useContext(Context);
-  const [currentCategoryId, set__currentCategoryId] = React.useState("");
+  // const [currentCategoryId, set__currentCategoryId] = React.useState("");
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
 
   React.useEffect(() => {
@@ -65,26 +74,21 @@ export const Categories = ({
   const getCurrentCategory = () =>
     categories.find((c) => c.id === currentCategoryId);
 
+  // const votingCardsDisabled = () => {
+  //   if (!currentSession) return true;
+
+  //   const currCategory = getCurrentCategory();
+  //   if (!currCategory || !currentSession.sessionCategories) return true;
+  //   currentSession.sessionCategories
+  //     .map((s) => s.categoryId)
+  //     .includes(currCategory.id);
+  // };
+
   const handleChange = (id, type, val) => {
     const newEditCategoriesValues = { ...editCategoriesValues };
     newEditCategoriesValues[id][type] = val;
     set__editCategoriesValues(newEditCategoriesValues);
   };
-
-  const handleAddCategory = () => {
-    const newEditCategoriesValues = { ...editCategoriesValues };
-    const newCategoryId = uniqid();
-    newEditCategoriesValues[newCategoryId] = {};
-    newEditCategoriesValues[newCategoryId].name = "";
-    newEditCategoriesValues[newCategoryId].singular = "";
-    set__editCategoriesValues(newEditCategoriesValues);
-  };
-
-  // const handleDeleteCategory = (id) => {
-  //   const newEditCategoriesValues = { ...editCategoriesValues };
-  //   delete newEditCategoriesValues[id];
-  //   set__editCategoriesValues(newEditCategoriesValues);
-  // };
 
   const chooseCurrentCategorySection = () => {
     return (
@@ -169,7 +173,6 @@ export const Categories = ({
             type="button"
             className="btn-floating btn-small waves-effect waves-light red  del-category-btn"
             onClick={() => {
-              // handleDeleteCategory(id);
               updateCategories(EAction.delete, id, {
                 name: category.name,
                 singular: category.singular,
@@ -229,6 +232,7 @@ export const Categories = ({
 
       {categories && categories.length ? (
         <VotingCards
+          // cardsDisabled={votingCardsDisabled()}
           category={getCurrentCategory()}
           updateCategoryCards={updateCategoryCards}
         />

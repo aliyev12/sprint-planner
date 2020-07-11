@@ -1,22 +1,35 @@
-import React from "react";
 import M from "materialize-css";
+import React from "react";
+import io from "socket.io-client";
+import { ERoomStatus, IRoom, EAction } from "../common/models";
+import { Context } from "../global/Context";
 import "./RoomActions.css";
-import { Context, ERoomStatus } from "../global/Context";
 
-interface Props {}
+let socket: SocketIOClient.Socket;
 
-export const RoomActions = (props: Props) => {
+interface Props {
+  roomData: IRoom;
+}
+
+export const RoomActions = ({ roomData }: Props) => {
+  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
   let _categoriesDropdownRef;
   const {
     roomStatus,
     set__roomStatus,
     editCategoriesValues,
     set__editCategoriesValues,
+    currentSession,
+    currentCategoryId,
   } = React.useContext(Context);
 
   React.useEffect(() => {
+    socket = io(ENDPOINT);
     M.Dropdown.init(_categoriesDropdownRef);
-  }, []);
+    return () => {
+      socket.disconnect();
+    };
+  }, [ENDPOINT]);
 
   const editDropdownStyle = {
     display: roomStatus === ERoomStatus.initial ? "block" : "none",
@@ -54,9 +67,39 @@ export const RoomActions = (props: Props) => {
       <div className="buttons-container">
         <button
           className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
-          onClick={() => {}}
+          onClick={() => {
+            if (currentSession.active) {
+              socket.emit(
+                "handleVotingSession",
+                {
+                  roomId: roomData.id,
+                  action: EAction.end,
+                  categoryId: currentCategoryId,
+                },
+                (result) => {
+                  console.log("result = ", result);
+                }
+              );
+            } else {
+              socket.emit(
+                "handleVotingSession",
+                {
+                  roomId: roomData.id,
+                  action: EAction.start,
+                  categoryId: currentCategoryId,
+                },
+                (result) => {
+                  console.log("result = ", result);
+                }
+              );
+            }
+
+            // currentSession; roomData
+            // currentCategoryId;
+          }}
         >
-          <i className="material-icons right">done_all</i>Vote!
+          <i className="material-icons right">done_all</i>
+          {currentSession.active ? "Done voting" : "Vote!"}
         </button>
 
         <button

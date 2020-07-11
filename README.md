@@ -44,6 +44,8 @@ TypeScript types:
 
 // See if you need to delete rooms from Rooms object on the server (probably yes!). Otherwise, the unused and unaccessible rooms will keep piling up in server memory
 
+// Find a way to intead of sending roomData with every update, to just send specific updates based on whatever is happening. For example, for voting sessions, maybe just emiting and listening on currentSession object.
+
 ## Progress
 
 // !! Stopped at trying to switch voting cards into edit mode. Need to : - Add dotted botder around cards when in edit mode - add a trash delete button in top right corder
