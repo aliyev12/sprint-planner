@@ -100,6 +100,24 @@ io.on("connection", (socket) => {
     callback(validationMessage);
   });
 
+  socket.on("updateCategories", (args, callback) => {
+    // const { roomId, action, categoryId, values } = args;
+    const result = rooms.updateCategories(args);
+
+    if (result && result.room) {
+      io.to(args.roomId).emit("roomData", {
+        room: result.room,
+        users: users.getUsersInRoom(args.roomId),
+      });
+      socket.broadcast.to(args.roomId).emit("message", {
+        user: botName,
+        text: `Categories have been updated`,
+      });
+    }
+
+    callback(result);
+  });
+
   socket.on(
     "updateCategoryCards",
     ({ roomId, categoryId, unit, action }, callback) => {
@@ -114,6 +132,10 @@ io.on("connection", (socket) => {
         io.to(roomId).emit("roomData", {
           room: result.room,
           users: users.getUsersInRoom(roomId),
+        });
+        socket.broadcast.to(roomId).emit("message", {
+          user: botName,
+          text: `Cards have been updated`,
         });
       }
 
@@ -130,7 +152,7 @@ io.on("connection", (socket) => {
         text: `${user.name} has left.`,
       });
       io.to(user.room).emit("roomData", {
-        room: user.room,
+        room: rooms.getRoom(user.room),
         users: users.getUsersInRoom(user.room),
       });
     }
