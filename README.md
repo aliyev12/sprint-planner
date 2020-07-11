@@ -40,6 +40,10 @@ TypeScript types:
 
 // Look into options for generating unique IDs on server side instead of generating them on client side
 
+// Persist user name into local storage in order to prevent the user to provide name again after page is refreshed, to join a room
+
+// See if you need to delete rooms from Rooms object on the server (probably yes!). Otherwise, the unused and unaccessible rooms will keep piling up in server memory
+
 ## Progress
 
 // !! Stopped at trying to switch voting cards into edit mode. Need to : - Add dotted botder around cards when in edit mode - add a trash delete button in top right corder

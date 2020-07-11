@@ -5,7 +5,8 @@ import socketio from "socket.io";
 import { baseRoute } from "./routes";
 import { formatMessage, botName } from "./utils";
 import { Users } from "./data/Users";
-import { Rooms, EAction } from "./data/Rooms";
+import { Rooms } from "./data/Rooms";
+import { EAction } from "./data/models";
 
 const PORT = process.env.PORT || 3333;
 
