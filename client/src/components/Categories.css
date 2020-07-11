@@ -23,3 +23,37 @@
   font-size: 16px;
   color: var(--theme-text);
 }
+
+.Categories .input-field > label {
+  top: -10px;
+  font-size: 16px;
+}
+
+.Categories .collection-item {
+  display: flex;
+  align-items: center;
+}
+
+.Categories .category-actions-container {
+  display: flex;
+}
+
+.Categories .category-actions-container {
+  flex-grow: 1;
+}
+.Categories .category-actions-container .input-field {
+  margin-bottom: 0;
+  margin-right: 2rem;
+}
+
+.Categories .category-actions-container .input-field .input-group-header {
+  font-size: 1.8rem;
+}
+
+.Categories .category-actions-container .input-field input {
+  margin-bottom: 0;
+}
+
+.Categories .category-actions-container .del-category-btn {
+  margin-left: 2rem;
+}

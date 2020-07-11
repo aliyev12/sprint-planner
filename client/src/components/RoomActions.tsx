@@ -20,6 +20,16 @@ export const RoomActions = (props: Props) => {
     display: roomStatus === ERoomStatus.initial ? "none" : "block",
   };
 
+  const doneSaveContent = () => {
+    if (roomStatus === ERoomStatus.editingCategories) {
+      return { icon: "save", text: "Save Changes" };
+    } else if (roomStatus === ERoomStatus.editingCards) {
+      return { icon: "done", text: "Done Editing" };
+    } else {
+      return { icon: "", text: "" };
+    }
+  };
+
   return (
     <div className="RoomActions">
       <div className="buttons-container">
@@ -45,14 +55,21 @@ export const RoomActions = (props: Props) => {
         >
           <i className="material-icons right">refresh</i>Reset
         </button>
-        {roomStatus === ERoomStatus.initial}
         <button
           style={doneEditingStyle}
           // disabled={!userName || !roomName}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={() => set__roomStatus(ERoomStatus.initial)}
+          onClick={() => {
+            // If saving categories:
+            // get inputs for edit categories from context, validate them..
+            // emit a socket with the input values
+            // handle adding/modifying/deleting categories on backend..
+
+            set__roomStatus(ERoomStatus.initial);
+          }}
         >
-          <i className="material-icons right">done</i>Done Editing
+          <i className="material-icons right">{doneSaveContent().icon}</i>
+          {doneSaveContent().text}
         </button>
 
         <button
@@ -73,7 +90,7 @@ export const RoomActions = (props: Props) => {
         >
           <li className="flex-centered">
             <button
-              className="btn-flat edit-dropdown-btn"
+              className="btn-flat edit-dropdown-btn "
               onClick={() => set__roomStatus(ERoomStatus.editingCategories)}
             >
               Edit Categories

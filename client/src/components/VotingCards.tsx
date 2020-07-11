@@ -1,8 +1,11 @@
 import React from "react";
 import io from "socket.io-client";
+import M from "materialize-css";
 import { ICategory, EAction } from "./Room";
 import "./VotingCards.css";
 import { Context, ERoomStatus } from "../global/Context";
+import { toast } from "react-toastify";
+import { isNumOrFloat } from "../common/utils";
 
 // let socket: SocketIOClient.Socket;
 
@@ -12,7 +15,9 @@ interface Props {
 }
 
 export const VotingCards = ({ category, updateCategoryCards }: Props) => {
+  let _floatingActionRef;
   // const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
+  const [newUnit, set__newUnit] = React.useState("");
 
   const { roomStatus, set__roomStatus } = React.useContext(Context);
 
@@ -25,17 +30,38 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
     <div className="VotingCards">
       <section className="voting-cards">
         {roomStatus === ERoomStatus.editingCards ? (
-          <div className="add-btn-container">
+          <form
+            className="add-btn-container"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (isNumOrFloat(newUnit)) {
+                const parsedUnit = parseFloat(newUnit);
+                updateCategoryCards(category.id, parsedUnit, EAction.add);
+              } else {
+                toast.error("Wrong format. Units need to be numbers");
+              }
+              set__newUnit("");
+            }}
+          >
+            <div className="input-field">
+              <input
+                type="text"
+                maxLength={5}
+                className="validate"
+                aria-label="Number of units"
+                value={newUnit}
+                onChange={(e) => set__newUnit(e.target.value)}
+              />
+            </div>
             <button
               title="Add new card"
+              type="submit"
+              disabled={!newUnit || !isNumOrFloat(newUnit)}
               className="btn-floating btn-small waves-effect waves-light green add-card-btn"
-              onClick={() => {
-                updateCategoryCards(category.id, 0.2, EAction.add);
-              }}
             >
               <i className="material-icons">add</i>
             </button>
-          </div>
+          </form>
         ) : null}
 
         <div className="row">
