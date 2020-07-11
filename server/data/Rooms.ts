@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Users } from "./Users";
+import { isNumOrFloat } from "../utils";
 
 export enum EAction {
   add = "add",
@@ -78,6 +79,11 @@ export class Rooms {
       room: null,
       error: null,
     };
+
+    if (!isNumOrFloat(unit) || unit.toString().length > 5) {
+      result.error =
+        "Wrong format. Make sure that numbers have no more than 2 digits on each side of a decimal point.";
+    }
 
     result.room = this.rooms.find((r) => r.id === roomId);
 

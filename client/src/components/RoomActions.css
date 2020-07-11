@@ -14,7 +14,16 @@
 }
 
 .RoomActions .dropdown-content {
-  background-color: var(--grey-lighten-2);
+  background-color: var(--theme-background);
+}
+
+.RoomActions .dropdown-content li .edit-dropdown-btn {
+  color: var(--theme-text);
+}
+
+.RoomActions .dropdown-content li:hover .edit-dropdown-btn,
+.RoomActions .dropdown-content li.active .edit-dropdown-btn {
+  color: var(--theme-background);
 }
 
 .RoomActions .edit-dropdown-btn {

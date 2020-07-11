@@ -24,6 +24,13 @@ export interface IRoomState {
   roomName?: string;
 }
 
+export interface IEditCategory {
+  [key: string]: {
+    name: string;
+    singular: string;
+  };
+}
+
 const EMPTY_ROOM_STATE: IRoomState = {
   userName: "",
   roomId: "",
@@ -39,6 +46,8 @@ const Context = React.createContext({
   set__theme: (t: ETheme): void => {},
   roomStatus: ERoomStatus.initial,
   set__roomStatus: (r: ERoomStatus): void => {},
+  editCategoriesValues: null,
+  set__editCategoriesValues: (c: IEditCategory | null) => {},
 });
 
 const GlopalProvider = ({ children }) => {
@@ -46,6 +55,10 @@ const GlopalProvider = ({ children }) => {
   const [homeStatus, set__homeStatus] = React.useState(EHomeStatuses.initial);
   const [roomStatus, set__roomStatus] = React.useState(ERoomStatus.initial);
   const [theme, set__theme] = React.useState<ETheme>(ETheme.dark);
+  const [
+    editCategoriesValues,
+    set__editCategoriesValues,
+  ] = React.useState<IEditCategory | null>(null);
 
   const initRoom = (newRoomData: IRoomState): void => {
     set__roomState(newRoomData);
@@ -66,6 +79,8 @@ const GlopalProvider = ({ children }) => {
         set__theme,
         roomStatus,
         set__roomStatus,
+        editCategoriesValues,
+        set__editCategoriesValues,
       }}
     >
       {children}

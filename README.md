@@ -34,6 +34,10 @@ TypeScript types:
 
 // Figure out to add a way to prevent users joining by opening bunch of new tabs. One of the solutions could be asking for unique username instead/in addition to name. Another solution could be providing a way for the moderator to set/specify which users are allowed to join. Then it would probably require asking moderator for those user names, and creating separate URL's for each user. Explore options...
 
+// Add server side and client side input validation
+
+// Make app responsive on mobile
+
 ## Progress
 
 // !! Stopped at trying to switch voting cards into edit mode. Need to : - Add dotted botder around cards when in edit mode - add a trash delete button in top right corder

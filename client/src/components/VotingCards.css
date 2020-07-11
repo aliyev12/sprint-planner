@@ -7,6 +7,13 @@
   justify-content: flex-end;
 }
 
+.VotingCards .add-btn-container .input-field {
+  margin-bottom: 0;
+  margin-right: 1.5rem;
+  width: 7rem;
+  flex-basis: unset;
+}
+
 .VotingCards .voting-card-col {
   position: relative;
 }
