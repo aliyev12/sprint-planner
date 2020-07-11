@@ -6,9 +6,10 @@ import "./Categories.css";
 
 interface Props {
   categories: ICategory[];
+  handleNewCard: (id: string, u: number) => void;
 }
 
-export const Categories = ({ categories }: Props) => {
+export const Categories = ({ categories, handleNewCard }: Props) => {
   let _categoriesSelectRef;
   const [currentCategoryId, set__currentCategoryId] = React.useState("");
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
@@ -50,7 +51,10 @@ export const Categories = ({ categories }: Props) => {
       </div>
 
       {categories && categories.length ? (
-        <VotingCards category={getCurrentCategory()} />
+        <VotingCards
+          category={getCurrentCategory()}
+          handleNewCard={handleNewCard}
+        />
       ) : null}
     </div>
   );
