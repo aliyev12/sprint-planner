@@ -147,6 +147,9 @@ io.on("connection", (socket) => {
   );
 
   socket.on("handleVotingSession", (args, callback) => {
+    if (args.action === EAction.vote && args.vote) {
+      args.vote.userId = socket.id;
+    }
     const result = rooms.handleVotingSession(args);
 
     if (result && result.room) {

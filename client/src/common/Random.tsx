@@ -39,10 +39,10 @@ export const Alert = ({
 export const WrongRoomAlert = ({ roomId }) => (
   <Alert
     text={
-      <p>
+      <div>
         Sorry, room with room ID{roomId ? ":" : ""}{" "}
         {roomId ? (
-          <p
+          <div
             style={{
               display: "block",
               padding: "3px 7px",
@@ -52,12 +52,12 @@ export const WrongRoomAlert = ({ roomId }) => (
             className="grey lighten-2 black-text"
           >
             "{roomId}"
-          </p>
+          </div>
         ) : (
           "that you have used"
         )}{" "}
         does not exist.
-      </p>
+      </div>
     }
   />
 );

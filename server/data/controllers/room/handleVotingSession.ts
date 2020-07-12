@@ -1,12 +1,9 @@
 import uniqid from "uniqid";
 import {
-  IAddCardResult,
-  IUpdateCatArgs,
   EAction,
-  ICategory,
-  ISession,
-  ICurrentSession,
+  IAddCardResult,
   IHandleSessionArgs,
+  ISession,
 } from "../../models";
 import { Rooms } from "../../Rooms";
 
@@ -105,34 +102,16 @@ export function handleVotingSession(
       return result;
     }
 
-    foundSessionCat.votes.push(vote);
+    const foundVote = foundSessionCat.votes.find(
+      (v) => v.userId === vote.userId
+    );
+
+    if (foundVote) {
+      foundVote.unit = vote.unit;
+    } else {
+      foundSessionCat.votes.push(vote);
+    }
   }
 
   return result;
 }
-
-/*
-
-export interface ISessionCategory {
-  categoryId: string;
-  votes: IVote[];
-}
-
-
-
-
-export interface IVote {
-  userId: string;
-  unit: number;
-}
-
-
-currentSession:
-active: true
-activeCategoryId: "5f067dbe8f07bae80e22eaf6"
-session:
-  id: "553cm36fkcie8p4e"
-  sessionCategories: Array(1)
-    categoryId: "5f067dbe8f07bae80e22eaf6"
-    votes: []
-*/

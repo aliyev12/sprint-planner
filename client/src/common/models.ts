@@ -37,6 +37,8 @@ export enum EAction {
   update = "update",
   start = "start",
   end = "end",
+  save = "save",
+  vote = "vote",
 }
 
 export interface ICategory {
@@ -87,7 +89,19 @@ export interface IUser {
   room: string;
 }
 
-export interface IAddCardResult {
+export interface IResult {
   room: IRoom | null;
   error: string | null;
+}
+
+export interface IValues {
+  name: string;
+  singular: string;
+}
+
+export interface IUpCatArgs {
+  roomId: string;
+  action: EAction;
+  categoryId?: string;
+  values?: IValues;
 }

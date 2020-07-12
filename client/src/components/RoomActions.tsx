@@ -1,20 +1,17 @@
 import M from "materialize-css";
 import React from "react";
-import io from "socket.io-client";
 import { ERoomStatus, IRoom, EAction } from "../common/models";
 import { Context } from "../global/Context";
 import "./RoomActions.css";
-
-let socket: SocketIOClient.Socket;
 
 interface Props {
   roomData: IRoom;
 }
 
 export const RoomActions = ({ roomData }: Props) => {
-  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
   let _categoriesDropdownRef;
   const {
+    socket,
     roomStatus,
     set__roomStatus,
     editCategoriesValues,
@@ -24,12 +21,8 @@ export const RoomActions = ({ roomData }: Props) => {
   } = React.useContext(Context);
 
   React.useEffect(() => {
-    socket = io(ENDPOINT);
     M.Dropdown.init(_categoriesDropdownRef);
-    return () => {
-      socket.disconnect();
-    };
-  }, [ENDPOINT]);
+  }, []);
 
   const editDropdownStyle = {
     display: roomStatus === ERoomStatus.initial ? "block" : "none",
@@ -38,28 +31,8 @@ export const RoomActions = ({ roomData }: Props) => {
     display: roomStatus === ERoomStatus.initial ? "none" : "block",
   };
 
-  const doneSaveContent = () => {
-    if (roomStatus === ERoomStatus.editingCategories) {
-      return { icon: "save", text: "Save Changes" };
-    } else if (roomStatus === ERoomStatus.editingCards) {
-      return { icon: "done", text: "Done Editing" };
-    } else {
-      return { icon: "", text: "" };
-    }
-  };
-
   const handleDoneSave = () => {
     set__roomStatus(ERoomStatus.initial);
-    // console.log("in handleDoneSave roomStatus = ", roomStatus);
-    // if (roomStatus === ERoomStatus.editingCategories) {
-    //   console.log("editCategoriesValues = ", editCategoriesValues);
-    // } else if (roomStatus === ERoomStatus.editingCards) {
-    //   set__roomStatus(ERoomStatus.initial);
-    // }
-    // If saving categories:
-    // get inputs for edit categories from context, validate them..
-    // emit a socket with the input values
-    // handle adding/modifying/deleting categories on backend..
   };
 
   const handleStartStopVoting = () => {
@@ -164,3 +137,24 @@ export const RoomActions = ({ roomData }: Props) => {
     </div>
   );
 };
+
+// const doneSaveContent = () => {
+//   if (roomStatus === ERoomStatus.editingCategories) {
+//     return { icon: "save", text: "Save Changes" };
+//   } else if (roomStatus === ERoomStatus.editingCards) {
+//     return { icon: "done", text: "Done Editing" };
+//   } else {
+//     return { icon: "", text: "" };
+//   }
+// };
+
+// console.log("in handleDoneSave roomStatus = ", roomStatus);
+// if (roomStatus === ERoomStatus.editingCategories) {
+//   console.log("editCategoriesValues = ", editCategoriesValues);
+// } else if (roomStatus === ERoomStatus.editingCards) {
+//   set__roomStatus(ERoomStatus.initial);
+// }
+// If saving categories:
+// get inputs for edit categories from context, validate them..
+// emit a socket with the input values
+// handle adding/modifying/deleting categories on backend..

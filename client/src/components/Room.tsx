@@ -1,38 +1,27 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import io from "socket.io-client";
-import {
-  EAction,
-  ERoomStatus,
-  IAddCardResult,
-  IRoom,
-  IUser,
-} from "../common/models";
+import { ERoomStatus, IResult, IValues } from "../common/models";
+import { EAction, IRoom, IUser, IUpCatArgs } from "../common/models";
 import { Context } from "../global/Context";
 import { Categories } from "./Categories";
-import "./Room.css";
 import { RoomActions } from "./RoomActions";
 import { Users } from "./Users";
+import { onMessase } from "../common/sockets";
+import "./Room.css";
 
-let socket: SocketIOClient.Socket;
-
-export const Room = (props) => {
-  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
-  const { roomState, roomStatus, set__currentSession } = React.useContext(
-    Context
-  );
-
-  const { location, match } = props;
-
-  const [name, set__Name] = useState("");
-  const [room, set__Room] = useState("");
+export const Room = ({ location, match }) => {
+  const {
+    socket,
+    roomState,
+    roomStatus,
+    set__currentSession,
+  } = React.useContext(Context);
 
   const [userName, set__userName] = useState("");
   const [roomData, set__roomData] = useState<IRoom | undefined>();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
-  const [message, set__Message] = useState("");
-  const [messages, set__Messages] = useState([]);
+  // const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState<IUser[]>([]);
 
   React.useEffect(() => {
@@ -43,13 +32,11 @@ export const Room = (props) => {
     if (roomState.userName) _userName = roomState.userName;
     if (roomState.roomName) _roomName = roomState.roomName;
 
-    socket = io(ENDPOINT);
-
     if (roomIdParam && _userName) {
       set__userName(_userName);
       set__roomId(roomIdParam);
       set__roomName(_roomName);
-
+      console.log("here");
       socket.emit(
         "join",
         { userName: _userName, roomId: roomIdParam, roomName: _roomName },
@@ -59,24 +46,11 @@ export const Room = (props) => {
       );
     }
 
-    return () => {
-      socket.emit("disconnect");
-      socket.off("join");
-    };
-  }, [ENDPOINT, location.pathname]);
+    return () => socket.off("join");
+  }, [location.pathname]);
 
   React.useEffect(() => {
-    socket.on("message", (message) => {
-      toast.success(
-        <span>
-          <strong style={{ fontWeight: 800, color: "#0e47a1" }}>
-            {message.user}:{" "}
-          </strong>
-          {message.text}
-        </span>
-      );
-      set__Messages([...messages, message]);
-    });
+    onMessase(socket);
 
     socket.on(
       "roomData",
@@ -93,44 +67,23 @@ export const Room = (props) => {
       socket.off("message");
       socket.off("roomData");
     };
-  }, [messages]);
+  }, []);
+  // }, [messages]);
 
   const updateCategories = (
     action: EAction,
     categoryId?: string,
-    values?: { name: string; singular: string }
+    values?: IValues
   ) => {
     if (roomId) {
-      if (action === EAction.add) {
-        console.log("socket from room = ", socket);
-        socket.emit(
-          "updateCategories",
-          {
-            roomId,
-            action,
-          },
-          (updateCategoriesResult: any) => {
-            if (updateCategoriesResult.error) {
-              toast.error(updateCategoriesResult.error);
-            }
-          }
-        );
-      } else {
-        socket.emit(
-          "updateCategories",
-          {
-            roomId,
-            action,
-            categoryId,
-            values,
-          },
-          (updateCategoriesResult: any) => {
-            if (updateCategoriesResult.error) {
-              toast.error(updateCategoriesResult.error);
-            }
-          }
-        );
+      const args: IUpCatArgs = { roomId, action };
+      if (action !== EAction.add && categoryId && values) {
+        args.categoryId = categoryId;
+        args.values = values;
       }
+      socket.emit("updateCategories", args, (res: IResult) => {
+        if (res.error) toast.error(res.error);
+      });
     }
   };
 
@@ -148,10 +101,8 @@ export const Room = (props) => {
           unit,
           action,
         },
-        (updateCardResult: IAddCardResult) => {
-          if (updateCardResult.error) {
-            toast.error(updateCardResult.error);
-          }
+        (res: IResult) => {
+          if (res.error) toast.error(res.error);
         }
       );
     }
