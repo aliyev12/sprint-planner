@@ -1,11 +1,9 @@
 import React from "react";
 import { toast } from "react-toastify";
-import { EAction, ERoomStatus, ICategory } from "../common/models";
+import { EAction, ERoomStatus, ICategory, IResult } from "../common/models";
 import { isNumOrFloat, categoryActive } from "../common/utils";
 import { Context } from "../global/Context";
 import "./VotingCards.css";
-
-// let socket: SocketIOClient.Socket;
 
 interface Props {
   category: ICategory;
@@ -13,36 +11,50 @@ interface Props {
 }
 
 export const VotingCards = ({ category, updateCategoryCards }: Props) => {
-  // const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
   const [newUnit, set__newUnit] = React.useState("");
 
-  const { roomStatus, set__roomStatus, currentSession } = React.useContext(
-    Context
-  );
-
-  React.useEffect(() => {
-    // socket = io(ENDPOINT);
-  }, []);
-
+  const {
+    socket,
+    roomState,
+    roomStatus,
+    set__roomStatus,
+    currentSession,
+  } = React.useContext(Context);
   if (!category) return null;
+
+  const handleAddCard = (e) => {
+    e.preventDefault();
+    if (isNumOrFloat(newUnit)) {
+      const parsedUnit = parseFloat(newUnit);
+      updateCategoryCards(category.id, parsedUnit, EAction.add);
+    } else {
+      toast.error("Wrong format. Units need to be numbers");
+    }
+    set__newUnit("");
+  };
+
+  const handleVoteClick = (unit) => {
+    if (socket && roomState.roomId) {
+      socket.emit(
+        "handleVotingSession",
+        {
+          roomId: roomState.roomId,
+          action: EAction.vote,
+          categoryId: category.id,
+          vote: { unit },
+        },
+        (res: IResult) => {
+          if (res.error) toast.error(res.error);
+        }
+      );
+    }
+  };
 
   return (
     <div className="VotingCards">
       <section className="voting-cards">
         {roomStatus === ERoomStatus.editingCards ? (
-          <form
-            className="add-btn-container"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (isNumOrFloat(newUnit)) {
-                const parsedUnit = parseFloat(newUnit);
-                updateCategoryCards(category.id, parsedUnit, EAction.add);
-              } else {
-                toast.error("Wrong format. Units need to be numbers");
-              }
-              set__newUnit("");
-            }}
-          >
+          <form className="add-btn-container" onSubmit={handleAddCard}>
             <div className="input-field">
               <input
                 type="text"
@@ -67,7 +79,10 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
         <div className="row">
           {category.units.map(({ unit }, i) => {
             return (
-              <div className="col s12 m6 xl4 voting-card-col" key={unit}>
+              <div
+                className="col s12 m6 xl4 voting-card-col"
+                key={`${unit}-${i}`}
+              >
                 {roomStatus === ERoomStatus.editingCards ? (
                   <button
                     title="Delete card"
@@ -99,6 +114,8 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                       roomStatus !== ERoomStatus.initial ||
                       !categoryActive(currentSession, category.id)
                     }
+                    onClick={() => handleVoteClick(unit)}
+                    type="button"
                     className="waves-effect waves-teal btn-flat voting-card-btn"
                   >
                     <div className="card-content flex-centered">

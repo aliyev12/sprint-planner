@@ -8,7 +8,7 @@ import {
   IIsue,
   IRoom,
   IUser,
-  IAddCardResult,
+  IResult,
 } from "../common/models";
 
 interface Props {}

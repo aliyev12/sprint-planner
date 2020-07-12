@@ -1,25 +1,15 @@
 import React from "react";
-// import queryString from "query-string";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { useHistory } from "react-router-dom";
-import io from "socket.io-client";
 import M from "materialize-css";
-import logo from "./logo-sp-white.png";
 import { ToastContainer } from "react-toastify";
-import { Context } from "./Context";
 import { ETheme } from "../common/models";
+import { Context } from "./Context";
+import logo from "./logo-sp-white.png";
 import "react-toastify/dist/ReactToastify.css";
 import "./Layout.css";
 
-// const ENDPOINT = "http://localhost:3333";
-// const socket = io(ENDPOINT);
-
 export const Layout = ({ children }) => {
-  const { theme, set__theme } = React.useContext(Context);
   let _sidenav;
-  let history = useHistory();
-  const [name, set__Name] = React.useState("");
-  const [room, set__Room] = React.useState("JavaScript");
+  const { theme, set__theme } = React.useContext(Context);
 
   React.useEffect(() => {
     M.Sidenav.init(_sidenav);
@@ -51,18 +41,11 @@ export const Layout = ({ children }) => {
               </a>
               <ul className="right hide-on-med-and-down">
                 <li>
-                  <a href="sass.html">Sass</a>
-                </li>
-                <li>
-                  <a href="badges.html">Components</a>
-                </li>
-                <li>
-                  <a href="collapsible.html">Javascript</a>
+                  <a href="collapsible.html">Login</a>
                 </li>
                 <li>
                   <button
                     className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
-                    // style={{ backgroundColor: "var(--main-color)" }}
                     onClick={() =>
                       set__theme(
                         theme === ETheme.light ? ETheme.dark : ETheme.light

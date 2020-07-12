@@ -11,7 +11,7 @@ import {
   IIsue,
   IRoom,
   IUser,
-  IAddCardResult,
+  IResult,
   EHomeStatuses,
 } from "../common/models";
 import "./Home.css";
