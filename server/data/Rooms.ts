@@ -52,6 +52,6 @@ export class Rooms {
   }
 
   teardownRooms(activeRoomIds: any) {
-    this.rooms = this.rooms.filter((r) => !activeRoomIds.includes(r.id));
+    this.rooms = this.rooms.filter((r) => activeRoomIds.includes(r.id));
   }
 }
