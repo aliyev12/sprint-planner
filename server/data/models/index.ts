@@ -5,6 +5,7 @@ export enum EAction {
   start = "start",
   end = "end",
   save = "save",
+  vote = "vote",
 }
 
 export interface ICategory {
@@ -62,6 +63,13 @@ export interface IUpdateCatArgs {
     name: string;
     singular: string;
   };
+}
+
+export interface IHandleSessionArgs {
+  roomId: string;
+  action: EAction;
+  categoryId?: string;
+  vote?: IVote;
 }
 
 export interface IAddRoomProps {

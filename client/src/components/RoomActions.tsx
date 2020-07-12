@@ -62,41 +62,41 @@ export const RoomActions = ({ roomData }: Props) => {
     // handle adding/modifying/deleting categories on backend..
   };
 
+  const handleStartStopVoting = () => {
+    if (currentSession.active) {
+      console.log("socket from room actions = ", socket);
+      socket.emit(
+        "handleVotingSession",
+        {
+          roomId: roomData.id,
+          action: EAction.end,
+          categoryId: currentCategoryId,
+        },
+        (result) => {
+          console.log("result = ", result);
+        }
+      );
+    } else {
+      socket.emit(
+        "handleVotingSession",
+        {
+          roomId: roomData.id,
+          action: EAction.start,
+          categoryId: currentCategoryId,
+        },
+        (result) => {
+          console.log("result = ", result);
+        }
+      );
+    }
+  };
+
   return (
     <div className="RoomActions">
       <div className="buttons-container">
         <button
           className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
-          onClick={() => {
-            if (currentSession.active) {
-              socket.emit(
-                "handleVotingSession",
-                {
-                  roomId: roomData.id,
-                  action: EAction.end,
-                  categoryId: currentCategoryId,
-                },
-                (result) => {
-                  console.log("result = ", result);
-                }
-              );
-            } else {
-              socket.emit(
-                "handleVotingSession",
-                {
-                  roomId: roomData.id,
-                  action: EAction.start,
-                  categoryId: currentCategoryId,
-                },
-                (result) => {
-                  console.log("result = ", result);
-                }
-              );
-            }
-
-            // currentSession; roomData
-            // currentCategoryId;
-          }}
+          onClick={handleStartStopVoting}
         >
           <i className="material-icons right">done_all</i>
           {currentSession.active ? "Done voting" : "Vote!"}

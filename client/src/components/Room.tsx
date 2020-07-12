@@ -102,6 +102,7 @@ export const Room = (props) => {
   ) => {
     if (roomId) {
       if (action === EAction.add) {
+        console.log("socket from room = ", socket);
         socket.emit(
           "updateCategories",
           {
