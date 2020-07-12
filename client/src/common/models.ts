@@ -30,6 +30,12 @@ export interface IEditCategory {
   };
 }
 
+export interface IUser {
+  id: string;
+  name: string;
+  room: string;
+}
+
 /* Component Models */
 export enum EAction {
   add = "add",

@@ -29,16 +29,21 @@ app.use("/", baseRoute);
 /*=======================================================*/
 io.on("connection", (socket) => {
   socket.on("join", ({ userName, roomId, roomName }, callback) => {
-    if (!userName || !roomId)
-      return callback({ error: "Missing user name or room ID" });
-
+    const joinResult = {
+      user: null,
+      error: null,
+    };
+    if (!userName || !roomId) {
+      joinResult.error = "Missing user name or room ID";
+      return callback(joinResult);
+    }
     const { user } = users.addUser({
       id: socket.id,
       name: userName,
       room: roomId,
     });
 
-    // if (error) return callback(error);
+    joinResult.user = user;
 
     let roomData = { id: roomId, name: "unknown" };
     if (roomName && roomName !== "unknown") {
@@ -73,7 +78,7 @@ io.on("connection", (socket) => {
       users: users.getUsersInRoom(user.room),
     });
 
-    callback();
+    callback(joinResult);
   });
 
   socket.on("sendMessage", (message, callback) => {
