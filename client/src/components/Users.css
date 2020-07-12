@@ -1,6 +1,38 @@
-.Users.collection .collection-item.avatar {
+/* .Users.collection .collection-item.avatar {
   min-height: 5rem;
   display: flex;
   justify-content: flex-start;
+  align-items: center;
+} */
+.Users.collection .collection-item {
+  min-height: 0;
+  padding: 0;
+}
+
+.Users .user-list-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.2rem;
+}
+
+.Users .user-list-item .user-name-and-icon {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.Users .user-list-item .user-icon {
+  display: flex;
+  align-items: center;
+}
+.Users .user-list-item .user-name {
+  margin-left: 5px;
+  font-size: 1.4rem;
+  white-space: nowrap;
+}
+
+.Users .user-list-item .user-voted {
+  display: flex;
   align-items: center;
 }
