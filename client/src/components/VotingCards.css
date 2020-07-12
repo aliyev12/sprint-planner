@@ -69,14 +69,37 @@
   background-color: #4caf4f2c;
 }
 
-.VotingCards .del-card-btn {
+.VotingCards .card-top-right-btn {
   position: absolute;
   top: 30px;
   z-index: 2;
   right: 0;
 }
 
-.VotingCards .add-card-btn .material-icons,
-.VotingCards .del-card-btn .material-icons {
+.VotingCards .card-top-right-btn .material-icons {
   font-size: 26px;
+}
+
+.VotingCards .add-card-btn .material-icons {
+  font-size: 26px;
+}
+
+.VotingCards .check-card-btn {
+  background-color: var(--success-color);
+}
+
+.VotingCards .check-card-btn:hover {
+  background-color: var(--error-color);
+}
+
+.VotingCards .check-card-btn .close-icon {
+  display: none;
+}
+
+.VotingCards .check-card-btn:hover .close-icon {
+  display: block;
+}
+
+.VotingCards .check-card-btn:hover .check-icon {
+  display: none;
 }

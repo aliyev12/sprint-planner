@@ -37,6 +37,7 @@ export const Users = ({ users }) => {
     <ul className="Users collection">
       {users && users.length
         ? users.map((user, i) => {
+            const userVoted = userDidVote(user.id);
             return (
               <li className="collection-item" key={user.id}>
                 {/* <img src="images/yuna.jpg" alt="" className="circle" /> */}
@@ -49,8 +50,13 @@ export const Users = ({ users }) => {
                     <div className="user-name">{truncate(user.name)}</div>
                   </div>
                   <div className="user-voted green-text">
-                    {userDidVote(user.id) ? (
-                      <i className="material-icons">check_circle</i>
+                    {userVoted ? (
+                      <i
+                        className="material-icons"
+                        title={userVoted ? "User voted" : ""}
+                      >
+                        check_circle
+                      </i>
                     ) : null}
                   </div>
                 </div>
