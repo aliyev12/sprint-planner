@@ -65,7 +65,8 @@ io.on("connection", (socket) => {
       text: `${user.name}, has joined!`,
     });
 
-    socket.join(user.room);
+    socket.join(roomId);
+    // socket.join(user.room);
 
     io.to(user.room).emit("roomData", {
       room: roomData,
@@ -179,11 +180,13 @@ io.on("connection", (socket) => {
   /*====================  DISCONNECT  =====================*/
   /*=======================================================*/
   socket.on("disconnecting", () => {
-    rooms.teardownRooms(Object.keys(socket.rooms));
+    rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
   });
 
   // Runs when client disconnects
   socket.on("disconnect", () => {
+    rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
+
     const user = users.removeUser(socket.id);
 
     if (user) {

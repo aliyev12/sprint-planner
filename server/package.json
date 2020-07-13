@@ -6,6 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon server.ts",
+    "debugg": "cross-env NODE_ENV=development node inspect dist/server.js",
     "build": "tsc -p ."
   },
   "repository": {

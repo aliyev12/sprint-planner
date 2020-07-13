@@ -52,16 +52,14 @@ export const Room = ({ location, match }) => {
   React.useEffect(() => {
     onMessase(socket);
 
-    socket.on(
-      "roomData",
-      ({ users, room }: { users: IUser[]; room: IRoom }) => {
-        console.log("room = ", room);
-        set__currentSession(room.currentSession);
-        set__roomData(room);
-        set__roomName(room.name);
-        set__Users(users);
+    socket.on("roomData", (result: { users: IUser[]; room: IRoom }) => {
+      if (result.users) set__Users(result.users);
+      if (result.room && result.room.currentSession && result.room.name) {
+        set__currentSession(result.room.currentSession);
+        set__roomData(result.room);
+        set__roomName(result.room.name);
       }
-    );
+    });
 
     return () => {
       socket.off("message");
@@ -108,7 +106,7 @@ export const Room = ({ location, match }) => {
     }
   };
 
-  if (!roomData) return null;
+  if (!roomData || !users) return null;
 
   return (
     <div className="Room container">

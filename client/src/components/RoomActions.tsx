@@ -24,6 +24,8 @@ export const RoomActions = ({ roomData }: Props) => {
     M.Dropdown.init(_categoriesDropdownRef);
   }, []);
 
+  if (!currentSession) return null;
+
   // const editMode =
   // !categoryActive(currentSession, category.id) &&
   // roomStatus === ERoomStatus.editingCards;
