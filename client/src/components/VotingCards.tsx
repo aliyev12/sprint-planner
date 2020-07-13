@@ -5,6 +5,13 @@ import { isNumOrFloat, categoryActive } from "../common/utils";
 import { Context } from "../global/Context";
 import "./VotingCards.css";
 
+// Add UI states when a card is voted and not
+// add check button to the top right corner of the card and allow user to check other cards
+// switch done editing button to stats button or something like that to view stats
+// figure out how to deal with current category dropdown while voting
+// See if you need to disable editing etc
+// How do you handle situations when some other users can be on a different categy when voting starts
+
 interface Props {
   category: ICategory;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
@@ -50,10 +57,22 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
     }
   };
 
+  const editMode =
+    !categoryActive(currentSession, category.id) &&
+    roomStatus === ERoomStatus.editingCards;
+
+  const initialMode =
+    roomStatus === ERoomStatus.initial &&
+    categoryActive(currentSession, category.id);
+
+  const disabledMode =
+    roomStatus !== ERoomStatus.initial ||
+    !categoryActive(currentSession, category.id);
+
   return (
     <div className="VotingCards">
       <section className="voting-cards">
-        {roomStatus === ERoomStatus.editingCards ? (
+        {editMode ? (
           <form className="add-btn-container" onSubmit={handleAddCard}>
             <div className="input-field">
               <input
@@ -83,7 +102,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                 className="col s12 m6 xl4 voting-card-col"
                 key={`${unit}-${i}`}
               >
-                {roomStatus === ERoomStatus.editingCards ? (
+                {editMode ? (
                   <button
                     title="Delete card"
                     className="btn-floating btn-small waves-effect waves-light red del-card-btn"
@@ -95,25 +114,30 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                   </button>
                 ) : null}
 
+                {/* <button
+                  title="Uncheck card"
+                  className="btn-floating btn-small waves-effect waves-light green del-card-btn"
+                  onClick={() => {
+                    // updateCategoryCards(category.id, unit, EAction.delete);
+                  }}
+                >
+                  <i className="material-icons">check</i>
+                </button> */}
+
                 <div
                   style={{
-                    pointerEvents:
-                      roomStatus === ERoomStatus.initial &&
-                      categoryActive(currentSession, category.id)
-                        ? "auto"
-                        : "none",
+                    pointerEvents: initialMode ? "auto" : "none",
                   }}
                   className="card hoverable waves-effect waves-block waves-light"
                 >
-                  {roomStatus === ERoomStatus.editingCards ? (
-                    <div className="del-backdrop" />
+                  {editMode ? (
+                    <div className="card-backdrop del-backdrop" />
                   ) : null}
 
+                  {/* <div className="card-backdrop voted-backdrop" /> */}
+
                   <button
-                    disabled={
-                      roomStatus !== ERoomStatus.initial ||
-                      !categoryActive(currentSession, category.id)
-                    }
+                    disabled={disabledMode}
                     onClick={() => handleVoteClick(unit)}
                     type="button"
                     className="waves-effect waves-teal btn-flat voting-card-btn"

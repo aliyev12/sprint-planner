@@ -61,6 +61,9 @@ export function handleVotingSession(
   } else if (action === EAction.end) {
     result.room.currentSession.active = false;
     result.room.currentSession.activeCategoryId = "";
+  } else if (action === EAction.reset) {
+    result.room.currentSession.active = false;
+    result.room.currentSession.activeCategoryId = "";
     result.room.currentSession.session = null;
   } else if (action === EAction.vote) {
     // Check if there currently is an active session

@@ -36,7 +36,7 @@ export const Room = ({ location, match }) => {
       set__userName(_userName);
       set__roomId(roomIdParam);
       set__roomName(_roomName);
-      console.log("here");
+
       socket.emit(
         "join",
         { userName: _userName, roomId: roomIdParam, roomName: _roomName },

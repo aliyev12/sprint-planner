@@ -17,6 +17,12 @@ const EMPTY_ROOM_STATE: IRoomState = {
   roomName: "",
 };
 
+const EMPTY_CURRENT_SESSION: ICurrentSession = {
+  active: false,
+  activeCategoryId: "",
+  session: null,
+};
+
 const Context = React.createContext({
   socket: undefined,
   initRoom: (r: IRoomState): void => {},
@@ -29,7 +35,7 @@ const Context = React.createContext({
   set__roomStatus: (r: ERoomStatus): void => {},
   editCategoriesValues: null,
   set__editCategoriesValues: (c: IEditCategory | null) => {},
-  currentSession: null,
+  currentSession: EMPTY_CURRENT_SESSION,
   set__currentSession: (c: ICurrentSession) => {},
   currentCategoryId: "",
   set__currentCategoryId: (c: string) => {},
@@ -47,10 +53,9 @@ const GlopalProvider = ({ children }) => {
     editCategoriesValues,
     set__editCategoriesValues,
   ] = React.useState<IEditCategory | null>(null);
-  const [
-    currentSession,
-    set__currentSession,
-  ] = React.useState<ICurrentSession | null>(null);
+  const [currentSession, set__currentSession] = React.useState<ICurrentSession>(
+    EMPTY_CURRENT_SESSION
+  );
 
   React.useEffect(() => {
     socket = io(ENDPOINT);

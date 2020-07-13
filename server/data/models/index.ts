@@ -6,6 +6,7 @@ export enum EAction {
   end = "end",
   save = "save",
   vote = "vote",
+  reset = "reset",
 }
 
 export interface ICategory {

@@ -1,6 +1,6 @@
 import M from "materialize-css";
 import React from "react";
-import { ERoomStatus, IRoom, EAction } from "../common/models";
+import { ERoomStatus, IRoom, EAction, IResult } from "../common/models";
 import { Context } from "../global/Context";
 import "./RoomActions.css";
 
@@ -24,77 +24,111 @@ export const RoomActions = ({ roomData }: Props) => {
     M.Dropdown.init(_categoriesDropdownRef);
   }, []);
 
+  // const editMode =
+  // !categoryActive(currentSession, category.id) &&
+  // roomStatus === ERoomStatus.editingCards;
+
   const editDropdownStyle = {
-    display: roomStatus === ERoomStatus.initial ? "block" : "none",
-  };
-  const doneEditingStyle = {
-    display: roomStatus === ERoomStatus.initial ? "none" : "block",
+    display:
+      !currentSession.active &&
+      !currentSession.session &&
+      roomStatus === ERoomStatus.initial
+        ? "block"
+        : "none",
   };
 
-  const handleDoneSave = () => {
-    set__roomStatus(ERoomStatus.initial);
+  const doneEditingStyle = {
+    display:
+      currentSession.active || roomStatus === ERoomStatus.initial
+        ? "none"
+        : "block",
   };
 
   const handleStartStopVoting = () => {
-    if (currentSession.active) {
-      console.log("socket from room actions = ", socket);
-      socket.emit(
-        "handleVotingSession",
-        {
-          roomId: roomData.id,
-          action: EAction.end,
-          categoryId: currentCategoryId,
-        },
-        (result) => {
-          console.log("result = ", result);
-        }
-      );
-    } else {
-      socket.emit(
-        "handleVotingSession",
-        {
-          roomId: roomData.id,
-          action: EAction.start,
-          categoryId: currentCategoryId,
-        },
-        (result) => {
-          console.log("result = ", result);
-        }
-      );
-    }
+    set__roomStatus(ERoomStatus.initial);
+
+    let votingAction = EAction.start;
+    if (afterVoteMode()) votingAction = EAction.reset;
+    if (currentSession.active) votingAction = EAction.end;
+
+    socket.emit(
+      "handleVotingSession",
+      {
+        roomId: roomData.id,
+        action: votingAction,
+        categoryId: currentCategoryId,
+      },
+      (result: IResult) => {
+        console.log("result = ", result);
+      }
+    );
+  };
+
+  const afterVoteMode = () => {
+    if (currentSession.active === false && currentSession.session) return true;
+    return false;
+  };
+
+  const voteActionText = () => {
+    if (afterVoteMode())
+      return {
+        txt: "Reset",
+        ico: "refresh",
+        title: "Reset recent voting session",
+      };
+    if (!currentSession.active)
+      return {
+        txt: "Vote",
+        ico: "done_all",
+        title: "Start new voting session",
+      };
+    if (currentSession.active)
+      return {
+        txt: "Done voting",
+        ico: "done_all",
+        title: "End current voting session",
+      };
+    console.error(
+      "fix voteActionText() funciton. None of the conditions for text and icon have been met."
+    );
+    return { txt: "error", ico: "done_all" };
   };
 
   return (
     <div className="RoomActions">
       <div className="buttons-container">
-        <button
-          className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
-          onClick={handleStartStopVoting}
-        >
-          <i className="material-icons right">done_all</i>
-          {currentSession.active ? "Done voting" : "Vote!"}
-        </button>
+        {voteActionText().txt !== "error" ? (
+          <button
+            title={voteActionText().title}
+            className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
+            onClick={handleStartStopVoting}
+          >
+            <i className="material-icons right">{voteActionText().ico}</i>
+            {voteActionText().txt}
+          </button>
+        ) : null}
 
         <button
-          // disabled={!userName || !roomName}
+          disabled={!afterVoteMode()}
+          title={!afterVoteMode() ? "Vote first to view stats" : "View stats"}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {}}
         >
           <i className="material-icons right">pie_chart</i>Stats
         </button>
 
-        <button
+        {/* <button
           // disabled={!userName || !roomName}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {}}
         >
           <i className="material-icons right">refresh</i>Reset
-        </button>
+        </button> */}
         <button
           style={doneEditingStyle}
           // disabled={!userName || !roomName}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={handleDoneSave}
+          onClick={() => set__roomStatus(ERoomStatus.initial)}
         >
           <i className="material-icons right">done</i>
           Done Editing
