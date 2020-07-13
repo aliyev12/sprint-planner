@@ -105,12 +105,16 @@ export function handleVotingSession(
       return result;
     }
 
-    const foundVote = foundSessionCat.votes.find(
+    const voteIndex = foundSessionCat.votes.findIndex(
       (v) => v.userId === vote.userId
     );
 
-    if (foundVote) {
-      foundVote.unit = vote.unit;
+    if (voteIndex !== -1) {
+      if (foundSessionCat.votes[voteIndex].unit === vote.unit) {
+        foundSessionCat.votes.splice(voteIndex, 1);
+      } else {
+        foundSessionCat.votes[voteIndex].unit = vote.unit;
+      }
     } else {
       foundSessionCat.votes.push(vote);
     }

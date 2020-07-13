@@ -41,7 +41,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
     set__newUnit("");
   };
 
-  const handleVoteClick = (unit) => {
+  const handleVoteClick = (unit: number) => {
     if (socket && roomState.roomId) {
       socket.emit(
         "handleVotingSession",
@@ -123,7 +123,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                 {editMode ? (
                   <button
                     title="Delete card"
-                    className="btn-floating btn-small waves-effect waves-light red del-card-btn"
+                    className="btn-floating btn-small waves-effect waves-light red card-top-right-btn del-card-btn"
                     onClick={() => {
                       updateCategoryCards(category.id, unit, EAction.delete);
                     }}
@@ -135,12 +135,13 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                 {currVote ? (
                   <button
                     title="Uncheck card"
-                    className="btn-floating btn-small waves-effect waves-light green del-card-btn"
+                    className="btn-floating btn-small waves-effect waves-light card-top-right-btn check-card-btn"
                     onClick={() => {
-                      // updateCategoryCards(category.id, unit, EAction.delete);
+                      handleVoteClick(unit);
                     }}
                   >
-                    <i className="material-icons">check</i>
+                    <i className="material-icons check-icon">check</i>
+                    <i className="material-icons close-icon">close</i>
                   </button>
                 ) : null}
 
@@ -153,10 +154,6 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                   {editMode ? (
                     <div className="card-backdrop del-backdrop" />
                   ) : null}
-
-                  {/* {isCurrentVote(unit) ? (
-                    <div className="card-backdrop voted-backdrop" />
-                  ) : null} */}
 
                   <button
                     disabled={disabledMode}
