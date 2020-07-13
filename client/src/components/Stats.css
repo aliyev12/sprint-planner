@@ -1,8 +1,14 @@
 .Stats {
-  padding: 3rem;
+  padding: 0 3rem 3rem;
+  flex-direction: column;
 }
 
 .Stats .pie-chart-container {
   max-width: 40rem;
   width: 100%;
+}
+
+.Stats .pie-chart-container h5 {
+  margin-bottom: 3rem;
+  text-align: center;
 }

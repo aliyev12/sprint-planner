@@ -52,4 +52,7 @@ TypeScript types:
 
 ## Progress
 
-// handle stats - bring in some charting library. Create a new route preferrably to go and view the stats
+// handle 50% situations
+// disable view stats when there were no votes
+// add a Winner is 2 hours on top of h5
+// toast an error when clicking DOne without any votes, and skip the reset status
