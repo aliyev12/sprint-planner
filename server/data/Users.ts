@@ -1,10 +1,5 @@
 import fs from "fs";
-
-export interface IUser {
-  id: string;
-  name: string;
-  room: string;
-}
+import { IUser } from "./models";
 
 export class Users {
   users: IUser[];

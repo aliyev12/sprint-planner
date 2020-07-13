@@ -22,6 +22,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
 
   const {
     socket,
+    currentUser,
     roomState,
     roomStatus,
     set__roomStatus,
@@ -69,6 +70,27 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
     roomStatus !== ERoomStatus.initial ||
     !categoryActive(currentSession, category.id);
 
+  const isCurrentVote = (unit) => {
+    if (!categoryActive(currentSession, category.id) || !currentSession.session)
+      return false;
+    const foundSessionCat = currentSession.session.sessionCategories.find(
+      (s) => s.categoryId === category.id
+    );
+    if (!foundSessionCat) return false;
+    const yourVote = foundSessionCat.votes.find(
+      (v) => v.userId === currentUser.id
+    );
+
+    if (!yourVote) return false;
+    if (yourVote.unit !== unit) return false;
+    console.log("yourVote = ", yourVote);
+    console.log("unit = ", unit);
+    console.log("currentUser = ", currentUser);
+    console.log("category = ", category);
+    console.log("currentSession = ", currentSession);
+    return true;
+  };
+
   return (
     <div className="VotingCards">
       <section className="voting-cards">
@@ -97,6 +119,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
 
         <div className="row">
           {category.units.map(({ unit }, i) => {
+            const currVote = isCurrentVote(unit);
             return (
               <div
                 className="col s12 m6 xl4 voting-card-col"
@@ -114,15 +137,17 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                   </button>
                 ) : null}
 
-                {/* <button
-                  title="Uncheck card"
-                  className="btn-floating btn-small waves-effect waves-light green del-card-btn"
-                  onClick={() => {
-                    // updateCategoryCards(category.id, unit, EAction.delete);
-                  }}
-                >
-                  <i className="material-icons">check</i>
-                </button> */}
+                {currVote ? (
+                  <button
+                    title="Uncheck card"
+                    className="btn-floating btn-small waves-effect waves-light green del-card-btn"
+                    onClick={() => {
+                      // updateCategoryCards(category.id, unit, EAction.delete);
+                    }}
+                  >
+                    <i className="material-icons">check</i>
+                  </button>
+                ) : null}
 
                 <div
                   style={{
@@ -134,7 +159,9 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                     <div className="card-backdrop del-backdrop" />
                   ) : null}
 
-                  {/* <div className="card-backdrop voted-backdrop" /> */}
+                  {/* {isCurrentVote(unit) ? (
+                    <div className="card-backdrop voted-backdrop" />
+                  ) : null} */}
 
                   <button
                     disabled={disabledMode}
@@ -142,7 +169,12 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                     type="button"
                     className="waves-effect waves-teal btn-flat voting-card-btn"
                   >
-                    <div className="card-content flex-centered">
+                    <div
+                      className="card-content flex-centered"
+                      style={{
+                        backgroundColor: currVote ? "#4caf4f2c" : "transparent",
+                      }}
+                    >
                       <span className="card-title">{unit}</span>
                       <span className="card-title">
                         {category.singular}

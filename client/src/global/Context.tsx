@@ -6,6 +6,7 @@ import {
   IEditCategory,
   IRoomState,
   ICurrentSession,
+  IUser,
 } from "../common/models";
 import io from "socket.io-client";
 
@@ -25,6 +26,8 @@ const EMPTY_CURRENT_SESSION: ICurrentSession = {
 
 const Context = React.createContext({
   socket: undefined,
+  currentUser: null,
+  set__currentUser: (u: IUser) => {},
   initRoom: (r: IRoomState): void => {},
   roomState: { ...EMPTY_ROOM_STATE },
   homeStatus: EHomeStatuses.initial,
@@ -44,6 +47,7 @@ const Context = React.createContext({
 const GlopalProvider = ({ children }) => {
   const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
 
+  const [currentUser, set__currentUser] = React.useState<IUser | null>(null);
   const [roomState, set__roomState] = React.useState({ ...EMPTY_ROOM_STATE });
   const [homeStatus, set__homeStatus] = React.useState(EHomeStatuses.initial);
   const [roomStatus, set__roomStatus] = React.useState(ERoomStatus.initial);
@@ -78,6 +82,8 @@ const GlopalProvider = ({ children }) => {
     <Context.Provider
       value={{
         socket,
+        currentUser,
+        set__currentUser,
         initRoom,
         roomState,
         homeStatus,

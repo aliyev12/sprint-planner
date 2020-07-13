@@ -9,6 +9,12 @@ export enum EAction {
   reset = "reset",
 }
 
+export interface IUser {
+  id: string;
+  name: string;
+  room: string;
+}
+
 export interface ICategory {
   id: string;
   name: string;

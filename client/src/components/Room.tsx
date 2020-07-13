@@ -12,6 +12,8 @@ import "./Room.css";
 export const Room = ({ location, match }) => {
   const {
     socket,
+    currentUser,
+    set__currentUser,
     roomState,
     roomStatus,
     set__currentSession,
@@ -40,8 +42,10 @@ export const Room = ({ location, match }) => {
       socket.emit(
         "join",
         { userName: _userName, roomId: roomIdParam, roomName: _roomName },
-        (error) => {
-          if (error) alert(error);
+        (res: { user?: IUser; error?: string }) => {
+          console.log("res = ", res);
+          if (res.error) toast.error(res.error);
+          if (res.user) set__currentUser(res.user);
         }
       );
     }
@@ -54,6 +58,7 @@ export const Room = ({ location, match }) => {
 
     socket.on("roomData", (result: { users: IUser[]; room: IRoom }) => {
       if (result.users) set__Users(result.users);
+      console.log("roomData result = ", result);
       if (result.room && result.room.currentSession && result.room.name) {
         set__currentSession(result.room.currentSession);
         set__roomData(result.room);
@@ -106,7 +111,7 @@ export const Room = ({ location, match }) => {
     }
   };
 
-  if (!roomData || !users) return null;
+  if (!currentUser || !roomData || !users) return null;
 
   return (
     <div className="Room container">
