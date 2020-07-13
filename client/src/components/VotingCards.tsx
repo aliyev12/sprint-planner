@@ -83,11 +83,6 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
 
     if (!yourVote) return false;
     if (yourVote.unit !== unit) return false;
-    console.log("yourVote = ", yourVote);
-    console.log("unit = ", unit);
-    console.log("currentUser = ", currentUser);
-    console.log("category = ", category);
-    console.log("currentSession = ", currentSession);
     return true;
   };
 
