@@ -62,11 +62,11 @@
 }
 
 .VotingCards .del-backdrop {
-  background-color: #ff000029;
+  background-color: var(--red-tranps);
 }
 
 .VotingCards .voted-backdrop {
-  background-color: #4caf4f2c;
+  background-color: var(--green-transp);
 }
 
 .VotingCards .card-top-right-btn {

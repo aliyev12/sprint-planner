@@ -36,3 +36,13 @@ export const truncate = (
   }
   return str;
 };
+
+export const triggedDomEvent = (
+  id: string = "select-current-category",
+  type: string = "change"
+) => {
+  const evt = document.createEvent("HTMLEvents");
+  evt.initEvent(type, false, true);
+  const element = document.getElementById(id);
+  if (element) element.dispatchEvent(evt);
+};

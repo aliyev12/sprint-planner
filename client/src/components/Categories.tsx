@@ -1,5 +1,5 @@
-import M from "materialize-css";
 import React from "react";
+import M from "materialize-css";
 import {
   EAction,
   ERoomStatus,
@@ -100,6 +100,7 @@ export const Categories = ({
       >
         <select
           aria-label="Current Category"
+          id="select-current-category"
           ref={(categoriesSelectRef) => {
             _categoriesSelectRef = categoriesSelectRef;
           }}

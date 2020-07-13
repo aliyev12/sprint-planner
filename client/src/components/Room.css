@@ -42,8 +42,13 @@
 .Room h4 {
   margin-bottom: 2rem;
   text-align: center;
+  padding-top: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--main-color);
+}
+
+.Room h4.active-category {
+  background-color: var(--green-transp);
 }
 
 @media (max-width: 768px) {

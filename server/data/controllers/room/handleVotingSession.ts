@@ -60,7 +60,7 @@ export function handleVotingSession(
     result.room.currentSession.session = newSession;
   } else if (action === EAction.end) {
     result.room.currentSession.active = false;
-    result.room.currentSession.activeCategoryId = "";
+    // result.room.currentSession.activeCategoryId = "";
   } else if (action === EAction.reset) {
     result.room.currentSession.active = false;
     result.room.currentSession.activeCategoryId = "";
@@ -93,7 +93,12 @@ export function handleVotingSession(
       return result;
     }
 
-    if (!vote.userId || !vote.unit || isNaN(vote.unit)) {
+    if (
+      !vote.userId ||
+      vote.unit === null ||
+      vote.unit === undefined ||
+      isNaN(vote.unit)
+    ) {
       result.error = "Please provide vote with unit and user ID.";
       return result;
     }

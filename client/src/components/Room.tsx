@@ -8,15 +8,19 @@ import { RoomActions } from "./RoomActions";
 import { Users } from "./Users";
 import { onMessase } from "../common/sockets";
 import "./Room.css";
+import { triggedDomEvent } from "../common/utils";
 
 export const Room = ({ location, match }) => {
   const {
     socket,
     currentUser,
+    currentCategoryId,
+    currentSession,
     set__currentUser,
     roomState,
     roomStatus,
     set__currentSession,
+    set__currentCategoryId,
   } = React.useContext(Context);
 
   const [userName, set__userName] = useState("");
@@ -63,6 +67,11 @@ export const Room = ({ location, match }) => {
         set__currentSession(result.room.currentSession);
         set__roomData(result.room);
         set__roomName(result.room.name);
+
+        if (result.room.currentSession.activeCategoryId) {
+          set__currentCategoryId(result.room.currentSession.activeCategoryId);
+          triggedDomEvent();
+        }
       }
     });
 
@@ -111,6 +120,25 @@ export const Room = ({ location, match }) => {
     }
   };
 
+  const categoriesTitle = () => {
+    console.log("roomData = ", roomData);
+    console.log("currentCategoryId = ", currentCategoryId);
+    if (currentSession.active && currentSession.activeCategoryId) {
+      const currentCategory = roomData.categories.find(
+        (c) => c.id === currentSession.activeCategoryId
+      );
+      return (
+        <h4 className="active-category">
+          Voting is currently in session for: {currentCategory.name}
+        </h4>
+      );
+    } else if (roomStatus === ERoomStatus.editingCategories) {
+      return <h4>Categories</h4>;
+    } else {
+      return <h4>Current Category</h4>;
+    }
+  };
+
   if (!currentUser || !roomData || !users) return null;
 
   return (
@@ -125,11 +153,7 @@ export const Room = ({ location, match }) => {
         </aside>
 
         <main>
-          <h4>
-            {roomStatus === ERoomStatus.editingCategories
-              ? "Categories"
-              : "Current Category"}
-          </h4>
+          {categoriesTitle()}
 
           {roomData && roomData.categories ? (
             <Categories
