@@ -5,13 +5,6 @@ import { isNumOrFloat, categoryActive } from "../common/utils";
 import { Context } from "../global/Context";
 import "./VotingCards.css";
 
-// Add UI states when a card is voted and not
-// add check button to the top right corner of the card and allow user to check other cards
-// switch done editing button to stats button or something like that to view stats
-// figure out how to deal with current category dropdown while voting
-// See if you need to disable editing etc
-// How do you handle situations when some other users can be on a different categy when voting starts
-
 interface Props {
   category: ICategory;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
@@ -71,8 +64,9 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
     !categoryActive(currentSession, category.id);
 
   const isCurrentVote = (unit) => {
-    if (!categoryActive(currentSession, category.id) || !currentSession.session)
-      return false;
+    // if (!categoryActive(currentSession, category.id) || !currentSession.session)
+    //   return false;
+    if (!currentSession.session) return false;
     const foundSessionCat = currentSession.session.sessionCategories.find(
       (s) => s.categoryId === category.id
     );
@@ -84,6 +78,17 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
     if (!yourVote) return false;
     if (yourVote.unit !== unit) return false;
     return true;
+  };
+
+  const cardStyle = (unit: number) => {
+    const style = { backgroundColor: "transparent" };
+    if (currentSession.active && isCurrentVote(unit)) {
+      style.backgroundColor = "var(--green-transp)";
+    } else if (!currentSession.active && isCurrentVote(unit)) {
+      style.backgroundColor = "var(--blue-transp)";
+    }
+
+    return style;
   };
 
   return (
@@ -132,7 +137,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                   </button>
                 ) : null}
 
-                {currVote ? (
+                {currVote && currentSession.active ? (
                   <button
                     title="Uncheck card"
                     className="btn-floating btn-small waves-effect waves-light card-top-right-btn check-card-btn"
@@ -163,9 +168,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
                   >
                     <div
                       className="card-content flex-centered"
-                      style={{
-                        backgroundColor: currVote ? "#4caf4f2c" : "transparent",
-                      }}
+                      style={cardStyle(unit)}
                     >
                       <span className="card-title">{unit}</span>
                       <span className="card-title">

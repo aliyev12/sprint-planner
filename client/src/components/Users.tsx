@@ -16,18 +16,12 @@ export const Users = ({ users }) => {
   if (!currentUser || !currentSession) return null;
 
   const userDidVote = (userId) => {
-    if (
-      !currentSession.active ||
-      !currentSession.session ||
-      !currentSession.activeCategoryId
-    )
-      return false;
+    if (!currentSession.session) return false;
 
-    const foundSessionCat = currentSession.session.sessionCategories.find(
-      (s) => s.categoryId === currentSession.activeCategoryId
-    );
-    if (!foundSessionCat) return false;
-    const userVote = foundSessionCat.votes.find((v) => v.userId === userId);
+    let userVote = null;
+    currentSession.session.sessionCategories.forEach((s) => {
+      userVote = s.votes.find((v) => v.userId === userId);
+    });
 
     if (!userVote) return false;
     return true;

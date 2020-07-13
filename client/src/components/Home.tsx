@@ -1,22 +1,13 @@
 import React from "react";
 import uniqid from "uniqid";
-import { CenteredCard, Or, Alert, WrongRoomAlert } from "../common";
+import M from "materialize-css";
+import { CenteredCard, Or, WrongRoomAlert } from "../common";
+import { EHomeStatuses } from "../common/models";
 import { Context } from "../global/Context";
-import {
-  EAction,
-  ICategory,
-  IVote,
-  ISessionCategory,
-  ISession,
-  IIsue,
-  IRoom,
-  IUser,
-  IResult,
-  EHomeStatuses,
-} from "../common/models";
 import "./Home.css";
 
 export const Home = ({ history, location }) => {
+  const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
   const { initRoom, homeStatus, changeHomeStatus } = React.useContext(Context);
   const [userName, set__userName] = React.useState("");
   const [roomName, set__roomName] = React.useState("");
@@ -36,6 +27,10 @@ export const Home = ({ history, location }) => {
     }
   }, [homeStatus]);
 
+  React.useEffect(() => {
+    set__roomName(suggestedRoomName);
+  }, []);
+
   const resetFields = () => {
     set__userName("");
     set__roomName("");
@@ -52,7 +47,6 @@ export const Home = ({ history, location }) => {
     resetFields();
   };
 
-  const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
   const roomIdValid =
     roomIdInput && /^20\d{2}-\d{2}-\d{2}-(.+)/gim.test(roomIdInput);
 
@@ -96,9 +90,11 @@ export const Home = ({ history, location }) => {
                 value={roomName}
                 onChange={(e) => set__roomName(e.target.value)}
               />
-              <label htmlFor="room-name">Room Name</label>
+              <label htmlFor="room-name" className="active">
+                Room Name
+              </label>
             </div>
-            <div className="suggestion flex-centered">
+            {/* <div className="suggestion flex-centered">
               <div className="suggestion-text">
                 Suggested room name: (click to apply)
               </div>
@@ -112,7 +108,7 @@ export const Home = ({ history, location }) => {
               >
                 {suggestedRoomName}
               </button>
-            </div>
+            </div> */}
 
             <div className="flex-centered">
               <button

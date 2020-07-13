@@ -48,5 +48,7 @@ TypeScript types:
 
 ## Progress
 
-// !! Stopped at trying to switch voting cards into edit mode. Need to : - Add dotted botder around cards when in edit mode - add a trash delete button in top right corder
--- handle state machine for edit state
+-> // change Current Category title to say somehting like, voting in session for hours..
+// change a background color of active category in the dropdown
+// when done voting is clicked, change a background of a voted card to be blue without any pointer events etc (which is already there in place)
+// handle stats - bring in some charting library. Create a new route preferrably to go and view the stats
