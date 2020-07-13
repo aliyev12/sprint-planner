@@ -5,6 +5,7 @@ import { Join } from "./components/Join";
 import { Room } from "./components/Room";
 import { Context } from "./global/Context";
 import { Layout } from "./global/Layout";
+import { Overview } from "./components/Overview";
 
 function App() {
   const { socket, roomState } = React.useContext(Context);
@@ -27,6 +28,11 @@ function App() {
                 return <Join {...routeProps} />;
               }
             }}
+          />
+          <Route
+            exact
+            path="/:roomId/overview"
+            render={(routeProps) => <Overview {...routeProps} />}
           />
           <Route
             exact

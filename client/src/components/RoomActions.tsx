@@ -3,6 +3,7 @@ import React from "react";
 import { ERoomStatus, IRoom, EAction, IResult } from "../common/models";
 import { Context } from "../global/Context";
 import "./RoomActions.css";
+import { useHistory } from "react-router-dom";
 
 interface Props {
   roomData: IRoom;
@@ -19,6 +20,8 @@ export const RoomActions = ({ roomData }: Props) => {
     currentSession,
     currentCategoryId,
   } = React.useContext(Context);
+
+  const history = useHistory();
 
   React.useEffect(() => {
     M.Dropdown.init(_categoriesDropdownRef);
@@ -39,11 +42,15 @@ export const RoomActions = ({ roomData }: Props) => {
         : "none",
   };
 
-  const doneEditingStyle = {
-    display:
-      currentSession.active || roomStatus === ERoomStatus.initial
-        ? "none"
-        : "block",
+  const doneEditingStyle = () => {
+    const style = { display: "block" };
+    if (
+      currentSession.active ||
+      roomStatus === ERoomStatus.initial ||
+      roomStatus === ERoomStatus.viewingStats
+    )
+      style.display = "none";
+    return style;
   };
 
   const handleStartStopVoting = () => {
@@ -96,6 +103,24 @@ export const RoomActions = ({ roomData }: Props) => {
     return { txt: "error", ico: "done_all" };
   };
 
+  const viewStatsText = () => {
+    if (roomStatus === ERoomStatus.viewingStats) {
+      return {
+        txt: "Back to cards",
+        ico: "arrow_back",
+        icoPos: "left",
+        title: "Go back to cards",
+      };
+    } else {
+      return {
+        txt: "View stats",
+        ico: "pie_chart",
+        icoPos: "right",
+        title: "View stats",
+      };
+    }
+  };
+
   return (
     <div className="RoomActions">
       <div className="buttons-container">
@@ -112,11 +137,20 @@ export const RoomActions = ({ roomData }: Props) => {
 
         <button
           disabled={!afterVoteMode()}
-          title={!afterVoteMode() ? "Vote first to view stats" : "View stats"}
+          title={voteActionText().title}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={() => {}}
+          onClick={() => {
+            if (roomStatus === ERoomStatus.viewingStats) {
+              set__roomStatus(ERoomStatus.initial);
+            } else {
+              set__roomStatus(ERoomStatus.viewingStats);
+            }
+          }}
         >
-          <i className="material-icons right">pie_chart</i>Stats
+          <i className={`material-icons ${viewStatsText().icoPos}`}>
+            {viewStatsText().ico}
+          </i>
+          {viewStatsText().txt}
         </button>
 
         {/* <button
@@ -127,7 +161,7 @@ export const RoomActions = ({ roomData }: Props) => {
           <i className="material-icons right">refresh</i>Reset
         </button> */}
         <button
-          style={doneEditingStyle}
+          style={doneEditingStyle()}
           // disabled={!userName || !roomName}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => set__roomStatus(ERoomStatus.initial)}

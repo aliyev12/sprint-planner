@@ -46,9 +46,10 @@ TypeScript types:
 
 // Find a way to intead of sending roomData with every update, to just send specific updates based on whatever is happening. For example, for voting sessions, maybe just emiting and listening on currentSession object.
 
+// See if you can use only one state/status for room. For example, decide which components need to ask how depending on just one status - roomStatus.... instead of also depending on currentSession.active...
+
+// Style the way it looks when you share a link with room ID in slack. Make it look nice, having maybe name of the room etc
+
 ## Progress
 
--> // change Current Category title to say somehting like, voting in session for hours..
-// change a background color of active category in the dropdown
-// when done voting is clicked, change a background of a voted card to be blue without any pointer events etc (which is already there in place)
 // handle stats - bring in some charting library. Create a new route preferrably to go and view the stats
