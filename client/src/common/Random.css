@@ -13,3 +13,7 @@
   font-size: 1.6rem;
   width: 100%;
 }
+
+.Alert .card-content {
+  text-align: center;
+}

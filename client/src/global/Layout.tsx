@@ -40,9 +40,9 @@ export const Layout = ({ children }) => {
                 <i className="material-icons">menu</i>
               </a>
               <ul className="right hide-on-med-and-down">
-                <li>
-                  <a href="collapsible.html">Login</a>
-                </li>
+                {/* <li>
+                  <a href="#">Login</a>
+                </li> */}
                 <li>
                   <button
                     className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
@@ -69,17 +69,20 @@ export const Layout = ({ children }) => {
             _sidenav = sidenav;
           }}
         >
+          {/* <li>
+            <a href="#">Login</a>
+          </li> */}
           <li>
-            <a href="sass.html">Sass</a>
-          </li>
-          <li>
-            <a href="badges.html">Components</a>
-          </li>
-          <li>
-            <a href="collapsible.html">Javascript</a>
-          </li>
-          <li>
-            <a href="mobile.html">Mobile</a>
+            <button
+              className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
+              onClick={() =>
+                set__theme(theme === ETheme.light ? ETheme.dark : ETheme.light)
+              }
+            >
+              <i className="material-icons">
+                {theme === ETheme.light ? "brightness_2" : "wb_sunny"}
+              </i>
+            </button>
           </li>
         </ul>
       </header>
@@ -90,7 +93,7 @@ export const Layout = ({ children }) => {
         <div className="footer-copyright">
           <div className="container">
             <div className="copyright-text">
-              © {new Date().getFullYear()} Copyright Abdul Aliyev
+              © {new Date().getFullYear()} Copyright Sprint Planner
             </div>
             <a className="grey-text text-lighten-4 right" href="/">
               <img src={logo} width="50" alt="Sprint Planner Logo" />

@@ -45,7 +45,8 @@ export const Join = ({ location, match, history }) => {
     return () => socket.off("validateRoomExists");
   }, [ENDPOINT, location.pathname]);
 
-  const handleJoinRoom = () => {
+  const handleJoinRoom = (e) => {
+    e.preventDefault();
     if (roomId) {
       initRoom({ userName, roomId });
       history.push(`/${roomId}`);
@@ -59,7 +60,7 @@ export const Join = ({ location, match, history }) => {
 
   return (
     <CenteredCard>
-      <div className="Join flex-centered">
+      <form className="Join flex-centered" onSubmit={handleJoinRoom}>
         <div className="input-field col s12">
           <input
             id="user-name"
@@ -71,8 +72,9 @@ export const Join = ({ location, match, history }) => {
           <label htmlFor="user-name">Your Name</label>
         </div>
         <button
+          disabled={!userName}
+          type="submit"
           className="waves-effect waves-light btn-large blue darken-4 join-room-btn"
-          onClick={handleJoinRoom}
         >
           <i className="material-icons right">arrow_forward</i>join
           <span role="img" aria-label="rocket">
@@ -81,6 +83,7 @@ export const Join = ({ location, match, history }) => {
         </button>
         <Or text="create a new room:" />
         <button
+          type="button"
           className="waves-effect waves-light btn-small blue darken-4 "
           onClick={() => {
             changeHomeStatus(EHomeStatuses.cameFromJoin);
@@ -89,7 +92,7 @@ export const Join = ({ location, match, history }) => {
         >
           <i className="material-icons left">add</i>create new room
         </button>
-      </div>
+      </form>
     </CenteredCard>
   );
 };

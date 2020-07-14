@@ -46,3 +46,9 @@ export const triggedDomEvent = (
   const element = document.getElementById(id);
   if (element) element.dispatchEvent(evt);
 };
+
+export const extractRoomId = (str: string): string => {
+  const matched = str.match(/20\d{2}-\d{2}-\d{2}-(.+)/gim);
+  if (matched && matched.length) return matched[0];
+  return str;
+};
