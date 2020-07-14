@@ -16,7 +16,11 @@ const users = new Users();
 const rooms = new Rooms(users);
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://sprintplannerapp.herokuapp.com/",
+  })
+);
 const server = http.createServer(app);
 const io = socketio(server);
 
