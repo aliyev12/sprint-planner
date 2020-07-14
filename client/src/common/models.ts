@@ -113,3 +113,22 @@ export interface IUpCatArgs {
   categoryId?: string;
   values?: IValues;
 }
+
+export interface ISlice {
+  title: string;
+  value: number;
+  color: string;
+}
+
+export interface ITopVote {
+  unit: string;
+  count: number;
+  perc: number;
+  singleUnit: string;
+}
+
+export interface IStatResult {
+  pie?: ISlice[];
+  topVote?: ITopVote;
+  error?: string;
+}
