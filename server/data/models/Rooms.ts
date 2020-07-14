@@ -2,10 +2,10 @@ import {
   addOrGetRoom,
   updateCategories,
   handleVotingSession,
-} from "./controllers/room";
-import { updateCategoryCards } from "./controllers/room";
-import { EAction, IAddCardResult, IAddRoomProps } from "./models";
-import { IRoom, IUpdateCatArgs } from "./models";
+} from "../controllers/room";
+import { updateCategoryCards } from "../controllers/room";
+import { EAction, IAddCardResult, IAddRoomProps } from ".";
+import { IRoom, IUpdateCatArgs } from ".";
 import { Users } from "./Users";
 
 export class Rooms {

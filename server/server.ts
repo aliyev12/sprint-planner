@@ -4,8 +4,8 @@ import http from "http";
 import socketio from "socket.io";
 import { baseRoute } from "./routes";
 import { formatMessage, botName } from "./utils";
-import { Users } from "./data/Users";
-import { Rooms } from "./data/Rooms";
+import { Users } from "./data/models/Users";
+import { Rooms } from "./data/models/Rooms";
 import { EAction } from "./data/models";
 
 const PORT = process.env.PORT || 3333;
