@@ -1,6 +1,4 @@
-import { CenteredCard } from "./CenteredCard";
-import { Or, Loader, Alert, WrongRoomAlert } from "./Random";
-// import { calcPercentage } from "./statsHelpers";
 export * from "./statsHelpers";
-
-export { CenteredCard, Or, Loader, Alert, WrongRoomAlert };
+export * from "./utils";
+export * from "./CenteredCard";
+export * from "./Random";

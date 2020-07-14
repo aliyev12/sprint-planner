@@ -111,6 +111,15 @@ footer {
   background-color: var(--theme-text);
 }
 
+.btn:focus,
+.btn-large:focus,
+.btn-small:focus,
+.btn-floating:focus,
+button:focus {
+  outline: 2px solid var(--theme-text);
+  background-color: var(--teal-lighten-1) !important;
+}
+
 /* Overwrite Toastify__toast styles */
 .Toastify__toast-container {
   font-size: 1.6rem;

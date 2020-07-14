@@ -1,7 +1,6 @@
 import React from "react";
 import uniqid from "uniqid";
-import M from "materialize-css";
-import { CenteredCard, Or, WrongRoomAlert } from "../common";
+import { CenteredCard, extractRoomId, Or, WrongRoomAlert } from "../common";
 import { EHomeStatuses } from "../common/models";
 import { Context } from "../global/Context";
 import "./Home.css";
@@ -23,7 +22,7 @@ export const Home = ({ history, location }) => {
       set__errorAlert(<WrongRoomAlert roomId={triedRoomId} />);
       setTimeout(() => {
         set__errorAlert(null);
-      }, 10000);
+      }, 10000 * 100);
     }
   }, [homeStatus]);
 
@@ -36,7 +35,8 @@ export const Home = ({ history, location }) => {
     set__roomName("");
   };
 
-  const handleCreateNewRoom = () => {
+  const handleCreateNewRoom = (e: any) => {
+    e.preventDefault();
     // example: 2020-07-20-23bhb2h3b
     const newRoomId = `${
       new Date().toISOString().split("T")[0]
@@ -48,7 +48,7 @@ export const Home = ({ history, location }) => {
   };
 
   const roomIdValid =
-    roomIdInput && /^20\d{2}-\d{2}-\d{2}-(.+)/gim.test(roomIdInput);
+    roomIdInput && /20\d{2}-\d{2}-\d{2}-(.+)/gim.test(roomIdInput);
 
   const sectionTitle = () => {
     if (homeStatus === creatingNewRoom || homeStatus === cameFromJoin)
@@ -63,6 +63,7 @@ export const Home = ({ history, location }) => {
         <h4 className="section-title">{sectionTitle()}</h4>
         {homeStatus === initial || homeStatus === wrongRoomId ? (
           <button
+            type="button"
             className="waves-effect waves-light btn-large blue darken-4 create-new-room-btn"
             onClick={() => changeHomeStatus(creatingNewRoom)}
           >
@@ -71,7 +72,7 @@ export const Home = ({ history, location }) => {
         ) : null}
 
         {homeStatus === creatingNewRoom || homeStatus === cameFromJoin ? (
-          <>
+          <form onSubmit={handleCreateNewRoom}>
             <div className="input-field col s12">
               <input
                 id="user-name"
@@ -94,24 +95,10 @@ export const Home = ({ history, location }) => {
                 Room Name
               </label>
             </div>
-            {/* <div className="suggestion flex-centered">
-              <div className="suggestion-text">
-                Suggested room name: (click to apply)
-              </div>
-              <button
-                className="waves-effect waves-teal btn-small btn-flat suggestion-btn"
-                onClick={() => {
-                  const roomNameInput = document.getElementById("room-name");
-                  if (roomNameInput) roomNameInput.focus();
-                  set__roomName(suggestedRoomName);
-                }}
-              >
-                {suggestedRoomName}
-              </button>
-            </div> */}
 
             <div className="flex-centered">
               <button
+                type="button"
                 className="waves-effect waves-light btn-small blue darken-4 back-to-initial-btn"
                 onClick={() => {
                   if (homeStatus === cameFromJoin) {
@@ -126,9 +113,9 @@ export const Home = ({ history, location }) => {
                 <i className="material-icons left">arrow_back</i>back
               </button>
               <button
+                type="submit"
                 disabled={!userName || !roomName}
                 className="waves-effect waves-light btn-small blue darken-4 ready-to-create-btn"
-                onClick={handleCreateNewRoom}
               >
                 <i className="material-icons right">arrow_forward</i>start
                 <span role="img" aria-label="rocket">
@@ -136,7 +123,7 @@ export const Home = ({ history, location }) => {
                 </span>
               </button>
             </div>
-          </>
+          </form>
         ) : null}
 
         {homeStatus === initial ||
@@ -144,33 +131,55 @@ export const Home = ({ history, location }) => {
         homeStatus === wrongRoomId ? (
           <>
             <Or />
-            <div className="join-container flex-centered">
+            <form
+              className="join-container flex-centered"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (roomIdValid) {
+                  history.push(`/${roomIdInput}`);
+                }
+              }}
+            >
               <div className="input-field  col s12">
                 <input
                   id="existing-room-id"
                   type="text"
                   className="validate"
                   value={roomIdInput}
-                  onChange={(e) => set__roomIdInput(e.target.value)}
+                  onChange={(e) =>
+                    set__roomIdInput(extractRoomId(e.target.value))
+                  }
                 />
                 <label htmlFor="existing-room-id">Room ID</label>
               </div>
 
               <button
+                type="submit"
                 disabled={!roomIdValid}
                 className="waves-effect waves-light btn-small blue darken-4 join-btn"
-                onClick={() => {
-                  if (roomIdValid) {
-                    history.push(`/${roomIdInput}`);
-                  }
-                }}
               >
                 join
               </button>
-            </div>
+            </form>
           </>
         ) : null}
       </div>
     </CenteredCard>
   );
 };
+
+// {/* <div className="suggestion flex-centered">
+//   <div className="suggestion-text">
+//     Suggested room name: (click to apply)
+//   </div>
+//   <button
+//     className="waves-effect waves-teal btn-small btn-flat suggestion-btn"
+//     onClick={() => {
+//       const roomNameInput = document.getElementById("room-name");
+//       if (roomNameInput) roomNameInput.focus();
+//       set__roomName(suggestedRoomName);
+//     }}
+//   >
+//     {suggestedRoomName}
+//   </button>
+// </div> */}

@@ -26,13 +26,7 @@ TypeScript types:
 
 ## Future enhancements:
 
-// Allow users to paste full url to Join input section on the home screen and strip out the rest os the url automatically leaving only the room ID.
-
-// Switch all inputs on home page and join page to be wrapped with a form so that the buttons could be activated with a return/enter key press
-
-// Replace toastify with Materialize toast
-
-// Figure out to add a way to prevent users joining by opening bunch of new tabs. One of the solutions could be asking for unique username instead/in addition to name. Another solution could be providing a way for the moderator to set/specify which users are allowed to join. Then it would probably require asking moderator for those user names, and creating separate URL's for each user. Explore options...
+// Figure out how to add a way to prevent users from joining by opening bunch of new tabs. One of the solutions could be asking for unique username instead/in addition to name. Another solution could be providing a way for the moderator to set/specify which users are allowed to join. Then it would probably require asking moderator for those user names, and creating separate URL's for each user. Explore options...
 
 // Add server side and client side input validation
 
@@ -40,9 +34,7 @@ TypeScript types:
 
 // Look into options for generating unique IDs on server side instead of generating them on client side
 
-// Persist user name into local storage in order to prevent the user to provide name again after page is refreshed, to join a room
-
-// See if you need to delete rooms from Rooms object on the server (probably yes!). Otherwise, the unused and unaccessible rooms will keep piling up in server memory
+// Persist user name into local storage in order to prevent users from providing name again after page is refreshed, to join a room
 
 // Find a way to intead of sending roomData with every update, to just send specific updates based on whatever is happening. For example, for voting sessions, maybe just emiting and listening on currentSession object.
 
@@ -58,6 +50,6 @@ TypeScript types:
 
 // Add forever or whatever the other one is called.. to restart the server everytime it crushes
 
-// Copy some of the error handling functionality from travel portal node server
+// Reuse some of the error handling functionality from travel portal node server
 
 ## Progress
