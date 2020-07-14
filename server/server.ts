@@ -16,19 +16,17 @@ const users = new Users();
 const rooms = new Rooms(users);
 
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
+
+// Set Routes
+app.use("/", baseRoute);
+
 app.use(
   cors({
     origin: "https://sprintplannerapp.herokuapp.com/",
   })
 );
-const server = http.createServer(app);
-const io = socketio(server);
-
-// Set static folder
-app.use(express.static(path.join(__dirname, "public")));
-
-// Set Routes
-app.use("/", baseRoute);
 
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
