@@ -4,6 +4,8 @@ import { ERoomStatus, IRoom, EAction, IResult } from "../common/models";
 import { Context } from "../global/Context";
 import "./RoomActions.css";
 import { useHistory } from "react-router-dom";
+import { statsData } from "../common";
+import { toast } from "react-toastify";
 
 interface Props {
   roomData: IRoom;
@@ -57,8 +59,9 @@ export const RoomActions = ({ roomData }: Props) => {
     set__roomStatus(ERoomStatus.initial);
 
     let votingAction = EAction.start;
+    if (currentSession.active && !votesExist()) votingAction = EAction.reset;
     if (afterVoteMode()) votingAction = EAction.reset;
-    if (currentSession.active) votingAction = EAction.end;
+    if (currentSession.active && votesExist()) votingAction = EAction.end;
 
     socket.emit(
       "handleVotingSession",
@@ -68,9 +71,24 @@ export const RoomActions = ({ roomData }: Props) => {
         categoryId: currentCategoryId,
       },
       (result: IResult) => {
-        console.log("result = ", result);
+        // console.log("result = ", result);
       }
     );
+  };
+
+  const votesExist = () => {
+    if (
+      !currentSession ||
+      !currentSession.session ||
+      !currentSession.session.sessionCategories ||
+      !Array.isArray(currentSession.session.sessionCategories)
+    )
+      return false;
+    const foundSessionCat = currentSession.session.sessionCategories.find(
+      (s) => s.categoryId === currentSession.activeCategoryId
+    );
+    if (!foundSessionCat) return false;
+    return foundSessionCat.votes.length > 0;
   };
 
   const afterVoteMode = () => {

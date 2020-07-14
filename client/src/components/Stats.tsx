@@ -29,8 +29,50 @@ export const Stats = ({ roomData }: Props) => {
     return false;
   };
 
+  // finish styling trophywith something nice looking
+  const votingResultTxt = () => {
+    if (stats && stats.topVote) {
+      const vote = `${stats.topVote.unit} ${stats.topVote.singleUnit}${
+        parseFloat(stats.topVote.unit) === 1 ? "" : "s"
+      }`;
+      const partStr = ` users voted for ${vote}`;
+      const trophy = (
+        <div className="trophy-container flex-centered">
+          <div className="trophy">
+            <span>Winner:</span>
+            <div className="crown-vote">
+              <span role="img" aria-label="crown" className="crown">
+                👑
+              </span>
+              <span className="winning-vote">{vote}</span>
+            </div>
+          </div>
+        </div>
+      );
+      if (stats.topVote.tie) {
+        return <h5>Tie vote! Reset and try again</h5>;
+      } else if (stats.topVote.perc === 100) {
+        return (
+          <>
+            {trophy}
+            <h5>All of the{partStr}</h5>
+          </>
+        );
+      } else {
+        return (
+          <>
+            {trophy}
+            <h5>
+              {stats.topVote.perc}% of{partStr}
+            </h5>
+          </>
+        );
+      }
+    }
+    return null;
+  };
+
   const stats = statsData(currentSession, roomData);
-  console.log("stats = ", stats);
   return (
     <div className="Stats flex-centered">
       <div className="pie-chart-container">
@@ -38,13 +80,7 @@ export const Stats = ({ roomData }: Props) => {
           statsData.bind(null, currentSession, roomData)
         ) ? (
           <>
-            {stats && stats.topVote ? (
-              <h5>
-                {stats.topVote.perc}% of users voted for {stats.topVote.unit}{" "}
-                {stats.topVote.singleUnit}
-                {parseFloat(stats.topVote.unit) === 1 ? "" : "s"}
-              </h5>
-            ) : null}
+            {votingResultTxt()}
             <PieChart
               data={stats.pie}
               animate

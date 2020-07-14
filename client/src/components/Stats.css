@@ -12,3 +12,26 @@
   margin-bottom: 3rem;
   text-align: center;
 }
+
+.Stats .trophy {
+  display: flex;
+  font-size: 2rem;
+}
+
+.Stats .trophy .crown-vote {
+  position: relative;
+  margin-left: 1rem;
+  color: var(--success-color);
+}
+
+.Stats .trophy .crown {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: calc(100% / 2 - 10px);
+  top: -20px;
+}
+
+.Stats .trophy .winning-vote {
+  color: var(--success-color);
+}

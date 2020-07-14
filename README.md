@@ -50,9 +50,14 @@ TypeScript types:
 
 // Style the way it looks when you share a link with room ID in slack. Make it look nice, having maybe name of the room etc
 
-## Progress
+// Disable Join button when no name has been provided and wrap it with a form to allow tabbing and Enter
 
-// handle 50% situations
-// disable view stats when there were no votes
-// add a Winner is 2 hours on top of h5
-// toast an error when clicking DOne without any votes, and skip the reset status
+// Persist choice of theme to localStorage
+
+// Add some conditions on server side to limit up to a certain number of rooms/users etc to not overload the server
+
+// Add forever or whatever the other one is called.. to restart the server everytime it crushes
+
+// Copy some of the error handling functionality from travel portal node server
+
+## Progress
