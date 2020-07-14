@@ -1,0 +1,8 @@
+.Stats {
+  padding: 3rem;
+}
+
+.Stats .pie-chart-container {
+  max-width: 40rem;
+  width: 100%;
+}

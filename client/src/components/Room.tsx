@@ -9,8 +9,9 @@ import { Users } from "./Users";
 import { onMessase } from "../common/sockets";
 import "./Room.css";
 import { triggedDomEvent } from "../common/utils";
+import { Stats } from "./Stats";
 
-export const Room = ({ location, match }) => {
+export const Room = ({ location, match, history }) => {
   const {
     socket,
     currentUser,
@@ -47,7 +48,7 @@ export const Room = ({ location, match }) => {
         "join",
         { userName: _userName, roomId: roomIdParam, roomName: _roomName },
         (res: { user?: IUser; error?: string }) => {
-          console.log("res = ", res);
+          // console.log("res = ", res);
           if (res.error) toast.error(res.error);
           if (res.user) set__currentUser(res.user);
         }
@@ -62,7 +63,7 @@ export const Room = ({ location, match }) => {
 
     socket.on("roomData", (result: { users: IUser[]; room: IRoom }) => {
       if (result.users) set__Users(result.users);
-      console.log("roomData result = ", result);
+      // console.log("roomData result = ", result);
       if (result.room && result.room.currentSession && result.room.name) {
         set__currentSession(result.room.currentSession);
         set__roomData(result.room);
@@ -121,8 +122,8 @@ export const Room = ({ location, match }) => {
   };
 
   const categoriesTitle = () => {
-    console.log("roomData = ", roomData);
-    console.log("currentCategoryId = ", currentCategoryId);
+    // console.log("roomData = ", roomData);
+    // console.log("currentCategoryId = ", currentCategoryId);
     if (currentSession.active && currentSession.activeCategoryId) {
       const currentCategory = roomData.categories.find(
         (c) => c.id === currentSession.activeCategoryId
@@ -134,12 +135,14 @@ export const Room = ({ location, match }) => {
       );
     } else if (roomStatus === ERoomStatus.editingCategories) {
       return <h4>Categories</h4>;
+    } else if (roomStatus === ERoomStatus.viewingStats) {
+      return <h4>Voting Results</h4>;
     } else {
       return <h4>Current Category</h4>;
     }
   };
 
-  if (!currentUser || !roomData || !users) return null;
+  if (!currentUser || !roomData || !roomData.categories || !users) return null;
 
   return (
     <div className="Room container">
@@ -154,15 +157,16 @@ export const Room = ({ location, match }) => {
 
         <main>
           {categoriesTitle()}
-
-          {roomData && roomData.categories ? (
+          {roomStatus === ERoomStatus.viewingStats ? (
+            <Stats roomData={roomData} />
+          ) : (
             <Categories
               categories={roomData.categories}
               currentSession={roomData.currentSession}
               updateCategoryCards={updateCategoryCards}
               updateCategories={updateCategories}
             />
-          ) : null}
+          )}
         </main>
 
         <aside className="issues-aside">

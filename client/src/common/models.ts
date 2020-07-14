@@ -10,6 +10,7 @@ export enum ERoomStatus {
   initial = "initial",
   editingCards = "editing-cards",
   editingCategories = "editing-categories",
+  viewingStats = "viewing-stats",
 }
 
 export enum ETheme {
