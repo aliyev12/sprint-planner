@@ -7,16 +7,18 @@ const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = __importDefault(require("socket.io"));
+const cors_1 = __importDefault(require("cors"));
 const routes_1 = require("./routes");
 const utils_1 = require("./utils");
-const Users_1 = require("./data/Users");
-const Rooms_1 = require("./data/Rooms");
+const Users_1 = require("./data/models/Users");
+const Rooms_1 = require("./data/models/Rooms");
 const models_1 = require("./data/models");
 const PORT = process.env.PORT || 3333;
 // Instantiate in-memody data objects
 const users = new Users_1.Users();
 const rooms = new Rooms_1.Rooms(users);
 const app = express_1.default();
+app.use(cors_1.default());
 const server = http_1.default.createServer(app);
 const io = socket_io_1.default(server);
 // Set static folder
@@ -28,14 +30,20 @@ app.use("/", routes_1.baseRoute);
 /*=======================================================*/
 io.on("connection", (socket) => {
     socket.on("join", ({ userName, roomId, roomName }, callback) => {
-        if (!userName || !roomId)
-            return callback({ error: "Missing user name or room ID" });
+        const joinResult = {
+            user: null,
+            error: null,
+        };
+        if (!userName || !roomId) {
+            joinResult.error = "Missing user name or room ID";
+            return callback(joinResult);
+        }
         const { user } = users.addUser({
             id: socket.id,
             name: userName,
             room: roomId,
         });
-        // if (error) return callback(error);
+        joinResult.user = user;
         let roomData = { id: roomId, name: "unknown" };
         if (roomName && roomName !== "unknown") {
             const addData = rooms.addOrGetRoom({
@@ -60,12 +68,13 @@ io.on("connection", (socket) => {
             user: utils_1.botName,
             text: `${user.name}, has joined!`,
         });
-        socket.join(user.room);
+        socket.join(roomId);
+        // socket.join(user.room);
         io.to(user.room).emit("roomData", {
             room: roomData,
             users: users.getUsersInRoom(user.room),
         });
-        callback();
+        callback(joinResult);
     });
     socket.on("sendMessage", (message, callback) => {
         const user = users.getUser(socket.id);
@@ -148,10 +157,11 @@ io.on("connection", (socket) => {
     /*====================  DISCONNECT  =====================*/
     /*=======================================================*/
     socket.on("disconnecting", () => {
-        rooms.teardownRooms(Object.keys(socket.rooms));
+        rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
     });
     // Runs when client disconnects
     socket.on("disconnect", () => {
+        rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
         const user = users.removeUser(socket.id);
         if (user) {
             io.to(user.room).emit("message", {
