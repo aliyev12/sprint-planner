@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import http from "http";
-import socketio from "socket.io";
+// import socketio from "socket.io";
 import cors from "cors";
 import { baseRoute } from "./routes";
 import { formatMessage, botName } from "./utils";
@@ -17,26 +17,8 @@ const rooms = new Rooms(users);
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
-
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-
-  if (req.method === "OPTIONS") {
-    res.header(
-      "Access-Control-Allow-Methods",
-      "PUT, POST, PATCH, DELETE, OPTIONS"
-    );
-    res.header("Access-Control-Max-Age", "120");
-    return res.status(200).json({});
-  }
-
-  next();
-});
+// const io = socketio(server);
+var io = require("socket.io")(server, { origins: "*:*" });
 
 // Set Routes
 app.use("/", baseRoute);
