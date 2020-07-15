@@ -19,6 +19,7 @@ const rooms = new Rooms_1.Rooms(users);
 const app = express_1.default();
 const server = http_1.default.createServer(app);
 const io = socket_io_1.default(server);
+io.origins("*:*");
 // Set Routes
 app.use("/", routes_1.baseRoute);
 app.use(cors_1.default({
