@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const path_1 = __importDefault(require("path"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = __importDefault(require("socket.io"));
 const cors_1 = __importDefault(require("cors"));
@@ -18,15 +17,13 @@ const PORT = process.env.PORT || 3333;
 const users = new Users_1.Users();
 const rooms = new Rooms_1.Rooms(users);
 const app = express_1.default();
+const server = http_1.default.createServer(app);
+const io = socket_io_1.default(server);
+// Set Routes
+app.use("/", routes_1.baseRoute);
 app.use(cors_1.default({
     origin: "https://sprintplannerapp.herokuapp.com/",
 }));
-const server = http_1.default.createServer(app);
-const io = socket_io_1.default(server);
-// Set static folder
-app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
-// Set Routes
-app.use("/", routes_1.baseRoute);
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
 /*=======================================================*/
