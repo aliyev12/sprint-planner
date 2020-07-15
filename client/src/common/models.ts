@@ -125,6 +125,7 @@ export interface ITopVote {
   count: number;
   perc: number;
   singleUnit: string;
+  tie: boolean;
 }
 
 export interface IStatResult {

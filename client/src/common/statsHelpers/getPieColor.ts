@@ -1,4 +1,4 @@
-export const getPieColor = (index) => {
+export const getPieColor = (index: number): string => {
   const pieColors = [
     "#90caf9", // blue
     "#ef9a9a", // red
