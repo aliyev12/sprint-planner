@@ -1,6 +1,6 @@
 import { IAddCardResult, EAction } from "../../models";
 import { isNumOrFloat } from "../../../utils";
-import { Rooms } from "../../Rooms";
+import { Rooms } from "../../models/Rooms";
 
 export function updateCategoryCards(
   this: Rooms,

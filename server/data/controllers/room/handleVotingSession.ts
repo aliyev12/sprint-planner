@@ -5,7 +5,7 @@ import {
   IHandleSessionArgs,
   ISession,
 } from "../../models";
-import { Rooms } from "../../Rooms";
+import { Rooms } from "../../models/Rooms";
 
 export function handleVotingSession(
   this: Rooms,

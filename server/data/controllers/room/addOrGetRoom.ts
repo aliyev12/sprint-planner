@@ -1,6 +1,6 @@
 import fs from "fs";
 import { IAddRoomProps } from "../../models";
-import { Rooms } from "../../Rooms";
+import { Rooms } from "../../models/Rooms";
 
 export function addOrGetRoom(this: Rooms, { id, name }: IAddRoomProps) {
   const existingRoom = this.rooms.find((r) => r.id === id);

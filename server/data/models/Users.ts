@@ -1,5 +1,5 @@
 import fs from "fs";
-import { IUser } from "./models";
+import { IUser } from ".";
 
 export class Users {
   users: IUser[];

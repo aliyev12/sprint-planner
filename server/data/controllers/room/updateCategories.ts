@@ -5,7 +5,7 @@ import {
   EAction,
   ICategory,
 } from "../../models";
-import { Rooms } from "../../Rooms";
+import { Rooms } from "../../models/Rooms";
 
 export function updateCategories(
   this: Rooms,
