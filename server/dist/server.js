@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
-const socket_io_1 = __importDefault(require("socket.io"));
+// import socketio from "socket.io";
 const cors_1 = __importDefault(require("cors"));
 const routes_1 = require("./routes");
 const utils_1 = require("./utils");
@@ -18,17 +18,8 @@ const users = new Users_1.Users();
 const rooms = new Rooms_1.Rooms(users);
 const app = express_1.default();
 const server = http_1.default.createServer(app);
-const io = socket_io_1.default(server);
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    if (req.method === "OPTIONS") {
-        res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, OPTIONS");
-        res.header("Access-Control-Max-Age", "120");
-        return res.status(200).json({});
-    }
-    next();
-});
+// const io = socketio(server);
+var io = require("socket.io")(server, { origins: "*:*" });
 // Set Routes
 app.use("/", routes_1.baseRoute);
 app.use(cors_1.default({
