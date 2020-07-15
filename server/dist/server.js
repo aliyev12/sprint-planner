@@ -18,7 +18,9 @@ const PORT = process.env.PORT || 3333;
 const users = new Users_1.Users();
 const rooms = new Rooms_1.Rooms(users);
 const app = express_1.default();
-app.use(cors_1.default());
+app.use(cors_1.default({
+    origin: "https://sprintplannerapp.herokuapp.com/",
+}));
 const server = http_1.default.createServer(app);
 const io = socket_io_1.default(server);
 // Set static folder

@@ -1,5 +1,11 @@
 # Sprint Planner
 
+// Client deploy:
+git subtree push --prefix client heroku master
+
+// Server deploy:
+git subtree push --prefix server sprintplannerappserver master
+
 ## Dependency Packages:
 
 Main dependencies:
