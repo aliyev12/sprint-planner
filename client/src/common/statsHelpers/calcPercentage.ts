@@ -41,18 +41,23 @@ export const calcPercentage = (
   // { "12": 2, "4": 3 } => voteCount
   // ["12", "4"] => voteCountKeys
   if (voteCountKeys.length > 1) {
-    let hasEqualVotes = false,
-      prev = null;
-    for (let i = 0; i < voteCountKeys.length; i++) {
-      const key = voteCountKeys[i];
-      if (prev && voteCount[key] === prev) {
-        hasEqualVotes = true;
-        break;
-      }
-      prev = voteCount[key];
-    }
+    // let hasEqualVotes = false,
+    //   prev = null;
+    // for (let i = 0; i < voteCountKeys.length; i++) {
+    //   const key = voteCountKeys[i];
+    //   if (prev && voteCount[key] === prev) {
+    //     hasEqualVotes = true;
+    //     break;
+    //   }
+    //   prev = voteCount[key];
+    // }
+    let isTie = false;
+    const sortedVotes = voteCountKeys.map((k) => voteCount[k]).sort();
+    const last1Sorted = sortedVotes[sortedVotes.length - 1];
+    const last2Sorted = sortedVotes[sortedVotes.length - 2];
+    if (last1Sorted === last2Sorted) isTie = true;
 
-    if (hasEqualVotes) {
+    if (isTie) {
       max = {
         ...max,
         perc: Math.floor(100 / voteCountKeys.length),

@@ -10,6 +10,7 @@ import {
 import { Context } from "../global/Context";
 import { VotingCards } from "./VotingCards";
 import "./Categories.css";
+import { allCatChangesSaved } from "../common/categoriesHelpers";
 
 interface Props {
   categories: ICategory[];
@@ -37,14 +38,23 @@ export const Categories = ({
     currentCategoryId,
     set__currentCategoryId,
   } = React.useContext(Context);
-  // const [currentCategoryId, set__currentCategoryId] = React.useState("");
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
 
   React.useEffect(() => {
     M.FormSelect.init(_categoriesSelectRef);
     if (categories && categories.length) {
-      set__currentCategoryId(categories[0].id);
-      set__currentCategoryName(categories[0].name);
+      let newCatId = categories[0].id;
+      let newCatname = categories[0].name;
+      if (currentCategoryId) {
+        const foundCat = categories.find((c) => c.id === currentCategoryId);
+        if (foundCat) {
+          newCatId = foundCat.id;
+          newCatname = foundCat.name;
+        }
+      }
+
+      set__currentCategoryId(newCatId);
+      set__currentCategoryName(newCatname);
 
       const newEditCategoriesValues = {};
 
@@ -59,30 +69,8 @@ export const Categories = ({
     }
   }, [categories]);
 
-  const saveIsDisabled = (catId: string) => {
-    const foundCategory = categories.find((c) => c.id === catId);
-    if (!foundCategory) return false;
-    const foundEditCategory = editCategoriesValues[catId];
-    if (
-      foundCategory.name !== foundEditCategory.name ||
-      foundCategory.singular !== foundEditCategory.singular
-    )
-      return false;
-    return true;
-  };
-
   const getCurrentCategory = () =>
     categories.find((c) => c.id === currentCategoryId);
-
-  // const votingCardsDisabled = () => {
-  //   if (!currentSession) return true;
-
-  //   const currCategory = getCurrentCategory();
-  //   if (!currCategory || !currentSession.sessionCategories) return true;
-  //   currentSession.sessionCategories
-  //     .map((s) => s.categoryId)
-  //     .includes(currCategory.id);
-  // };
 
   const handleChange = (id, type, val) => {
     const newEditCategoriesValues = { ...editCategoriesValues };
@@ -132,56 +120,65 @@ export const Categories = ({
 
       return (
         <li key={id} className="collection-item">
-          <div className="category-actions-container">
-            <div className="input-field">
-              <input
-                id={nameId}
-                type="text"
-                className="validate"
-                aria-label="Category Name"
-                value={category.name}
-                onChange={(e) => handleChange(id, "name", e.target.value)}
-              />
-            </div>
-            <div className="input-field">
-              <input
-                id={singularId}
-                type="text"
-                className="validate"
-                aria-label="Single Unit"
-                value={category.singular}
-                onChange={(e) => handleChange(id, "singular", e.target.value)}
-              />
-            </div>
-          </div>
-          <button
-            disabled={saveIsDisabled(id)}
-            type="button"
-            title="Save card"
-            className="btn-floating btn-small waves-effect waves-light blue darken-4  save-category-btn"
-            onClick={() => {
+          <form
+            className="flex-centered cat-inputs-form"
+            onSubmit={(e) => {
+              e.preventDefault();
               updateCategories(EAction.update, id, {
                 name: category.name,
                 singular: category.singular,
               });
             }}
           >
-            <i className="material-icons">save</i>
-          </button>
+            <div className="category-actions-container">
+              <div className="input-field">
+                <input
+                  id={nameId}
+                  type="text"
+                  className="validate"
+                  aria-label="Category Name"
+                  value={category.name}
+                  onChange={(e) => handleChange(id, "name", e.target.value)}
+                />
+              </div>
+              <div className="input-field">
+                <input
+                  id={singularId}
+                  type="text"
+                  className="validate"
+                  aria-label="Single Unit"
+                  value={category.singular}
+                  onChange={(e) => handleChange(id, "singular", e.target.value)}
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={allCatChangesSaved(
+                id,
+                categories,
+                editCategoriesValues
+              )}
+              title="Save card"
+              className="btn-floating btn-small waves-effect waves-light blue darken-4 save-category-btn"
+            >
+              <i className="material-icons">save</i>
+            </button>
 
-          <button
-            title="Delete card"
-            type="button"
-            className="btn-floating btn-small waves-effect waves-light red  del-category-btn"
-            onClick={() => {
-              updateCategories(EAction.delete, id, {
-                name: category.name,
-                singular: category.singular,
-              });
-            }}
-          >
-            <i className="material-icons">delete</i>
-          </button>
+            <button
+              type="button"
+              title="Delete card"
+              className="btn-floating btn-small waves-effect waves-light red  del-category-btn"
+              onClick={() => {
+                updateCategories(EAction.delete, id, {
+                  name: category.name,
+                  singular: category.singular,
+                });
+              }}
+            >
+              <i className="material-icons">delete</i>
+            </button>
+          </form>
         </li>
       );
     });
@@ -196,7 +193,7 @@ export const Categories = ({
             roomStatus === ERoomStatus.editingCategories ? "block" : "none",
         }}
       >
-        <form className="col s12">
+        <div className="col s12">
           <ul className="collection">
             <li key={"header-row"} className="collection-item">
               <div className="category-actions-container">
@@ -220,7 +217,7 @@ export const Categories = ({
             </li>
             {editCategoryListItems()}
           </ul>
-        </form>
+        </div>
       </div>
     );
   };
@@ -233,7 +230,6 @@ export const Categories = ({
 
       {categories && categories.length ? (
         <VotingCards
-          // cardsDisabled={votingCardsDisabled()}
           category={getCurrentCategory()}
           updateCategoryCards={updateCategoryCards}
         />

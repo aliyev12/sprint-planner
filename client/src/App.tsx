@@ -34,11 +34,14 @@ function App() {
             path="/:roomId/overview"
             render={(routeProps) => <Overview {...routeProps} />}
           />
-          <Route
+          <Route exact path="/">
+            <Home />
+          </Route>
+          {/* <Route
             exact
             path="/"
             render={(routeProps) => <Home {...routeProps} />}
-          />
+          /> */}
         </Switch>
       </Router>
     </Layout>

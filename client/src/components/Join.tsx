@@ -1,6 +1,6 @@
 import React from "react";
 import io from "socket.io-client";
-import { CenteredCard, Loader, Or } from "../common";
+import { CenteredCard, Loader, Or, getEndpoint } from "../common";
 import { EHomeStatuses } from "../common/models";
 import { Context } from "../global/Context";
 import "./Join.css";
@@ -8,7 +8,7 @@ import "./Join.css";
 let socket: SocketIOClient.Socket;
 
 export const Join = ({ location, match, history }) => {
-  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
+  const ENDPOINT = getEndpoint() || "localhost:3333";
   const { initRoom, changeHomeStatus } = React.useContext(Context);
   const [userName, set__userName] = React.useState("");
   const [roomId, set__roomId] = React.useState("");
