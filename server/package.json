@@ -7,7 +7,7 @@
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon server.ts",
     "debugg": "cross-env NODE_ENV=development node inspect dist/server.js",
-    "build": "tsc -p ."
+    "build": "tsc -p . && cp data/controllers/room/defaultCategories.json  dist/data/controllers/room/defaultCategories.json"
   },
   "repository": {
     "type": "git",
