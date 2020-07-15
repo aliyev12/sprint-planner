@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import http from "http";
 import socketio from "socket.io";
+import cors from "cors";
 import { baseRoute } from "./routes";
 import { formatMessage, botName } from "./utils";
 import { Users } from "./data/models/Users";
@@ -15,6 +16,7 @@ const users = new Users();
 const rooms = new Rooms(users);
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = socketio(server);
 

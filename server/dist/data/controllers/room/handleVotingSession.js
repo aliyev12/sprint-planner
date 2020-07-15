@@ -48,7 +48,7 @@ function handleVotingSession(args) {
     }
     else if (action === models_1.EAction.end) {
         result.room.currentSession.active = false;
-        result.room.currentSession.activeCategoryId = "";
+        // result.room.currentSession.activeCategoryId = "";
     }
     else if (action === models_1.EAction.reset) {
         result.room.currentSession.active = false;
@@ -74,7 +74,10 @@ function handleVotingSession(args) {
             result.error = "Session category has not been found.";
             return result;
         }
-        if (!vote.userId || !vote.unit || isNaN(vote.unit)) {
+        if (!vote.userId ||
+            vote.unit === null ||
+            vote.unit === undefined ||
+            isNaN(vote.unit)) {
             result.error = "Please provide vote with unit and user ID.";
             return result;
         }
@@ -83,9 +86,14 @@ function handleVotingSession(args) {
             result.error = "User with specified user ID has not been found.";
             return result;
         }
-        const foundVote = foundSessionCat.votes.find((v) => v.userId === vote.userId);
-        if (foundVote) {
-            foundVote.unit = vote.unit;
+        const voteIndex = foundSessionCat.votes.findIndex((v) => v.userId === vote.userId);
+        if (voteIndex !== -1) {
+            if (foundSessionCat.votes[voteIndex].unit === vote.unit) {
+                foundSessionCat.votes.splice(voteIndex, 1);
+            }
+            else {
+                foundSessionCat.votes[voteIndex].unit = vote.unit;
+            }
         }
         else {
             foundSessionCat.votes.push(vote);
