@@ -9,8 +9,8 @@ import {
 } from "../common/models";
 import { Context } from "../global/Context";
 import { VotingCards } from "./VotingCards";
-import "./Categories.css";
 import { allCatChangesSaved } from "../common/categoriesHelpers";
+import "./Categories.css";
 
 interface Props {
   categories: ICategory[];

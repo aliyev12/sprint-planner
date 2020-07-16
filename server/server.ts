@@ -1,10 +1,13 @@
 import express from "express";
 import path from "path";
 import http from "http";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 // import socketio from "socket.io";
 import cors from "cors";
+import xss from "xss-clean";
 import { baseRoute } from "./routes";
-import { formatMessage, botName } from "./utils";
+import { formatMessage, botName, toMilliseconds } from "./utils";
 import { Users } from "./data/models/Users";
 import { Rooms } from "./data/models/Rooms";
 import { EAction } from "./data/models";
@@ -15,7 +18,28 @@ const PORT = process.env.PORT || 3333;
 const users = new Users();
 const rooms = new Rooms(users);
 
+// Listen for an uncaughtException and if one takes place - shutdown the server
+process.on("uncaughtException", (err) => {
+  gracefullyShutdownServer(null, err, "UNCAUGHT EXCEPTION");
+});
+
 const app = express();
+
+// Data sanitization agains XSS attacks
+// Prevent cross site scripting by replacing html special characters with something else: <script => &lt;script
+app.use(xss());
+
+// Limit requests from same API
+const limiter = rateLimit({
+  max: 100,
+  windowMs: toMilliseconds("1 hour"),
+  message: "Too many requests from this IP, please try again in an hour.",
+});
+app.use("/api", limiter);
+
+// Set security HTTP headers
+app.use(helmet());
+
 const server = http.createServer(app);
 // const io = socketio(server);
 var io = require("socket.io")(server, { origins: "*:*" });
@@ -23,11 +47,8 @@ var io = require("socket.io")(server, { origins: "*:*" });
 // Set Routes
 app.use("/", baseRoute);
 
-app.use(
-  cors({
-    origin: "https://sprintplannerapp.herokuapp.com/",
-  })
-);
+// Use cors to avoid cors error in browser
+app.use(cors());
 
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
@@ -218,6 +239,27 @@ server.listen(PORT, () =>
     ` Server running in ${process.env.NODE_ENV} on port ${PORT} `
   )
 );
+
+// This function will exit node process and shutdown the server
+const gracefullyShutdownServer = (serv, err, errorType) => {
+  const error = `${errorType}!,${
+    serv ? " gracefully" : ""
+  } shutting down the server. Error: ${err.name}: ${err.message}.`;
+  console.log(error);
+  console.log(err);
+  if (serv) {
+    serv.close(() => {
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+};
+
+/* ERROR EVENT LISTENERS HAVE TO BE AT THE BOTTOM OF THE FILE! */
+process.on("unhandledRejection", (err) => {
+  gracefullyShutdownServer(server, err, "UNHANDLED REJECTION");
+});
 
 /*
   // Ways to emit a message:

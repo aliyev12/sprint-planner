@@ -9,7 +9,7 @@ import "./Layout.css";
 
 export const Layout = ({ children }) => {
   let _sidenav;
-  const { theme, set__theme } = React.useContext(Context);
+  const { theme, set__theme, currentUser } = React.useContext(Context);
 
   React.useEffect(() => {
     M.Sidenav.init(_sidenav);
@@ -43,6 +43,11 @@ export const Layout = ({ children }) => {
                 {/* <li>
                   <a href="#">Login</a>
                 </li> */}
+                {currentUser ? (
+                  <li className="username-list-item">
+                    <span>{currentUser.name}</span>
+                  </li>
+                ) : null}
                 <li>
                   <button
                     className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
