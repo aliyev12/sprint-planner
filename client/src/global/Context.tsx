@@ -9,6 +9,7 @@ import {
   IUser,
 } from "../common/models";
 import io from "socket.io-client";
+import { getEndpoint } from "../common";
 
 let socket: SocketIOClient.Socket;
 
@@ -45,7 +46,7 @@ const Context = React.createContext({
 });
 
 const GlopalProvider = ({ children }) => {
-  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
+  const ENDPOINT = getEndpoint() || "localhost:3333";
 
   const [currentUser, set__currentUser] = React.useState<IUser | null>(null);
   const [roomState, set__roomState] = React.useState({ ...EMPTY_ROOM_STATE });

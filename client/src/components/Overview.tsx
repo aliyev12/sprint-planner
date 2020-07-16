@@ -3,11 +3,12 @@ import io from "socket.io-client";
 import "./Overview.css";
 import { Context } from "../global/Context";
 import { EHomeStatuses } from "../common/models";
+import { getEndpoint } from "../common";
 
 let socket: SocketIOClient.Socket;
 
 export const Overview = ({ match, location, history }) => {
-  const ENDPOINT = process.env.REACT_APP_ENDPOINT || "localhost:3333";
+  const ENDPOINT = getEndpoint() || "localhost:3333";
   const { changeHomeStatus } = React.useContext(Context);
   const [loading, set__loading] = React.useState(false);
   const [roomId, set__roomId] = React.useState("");

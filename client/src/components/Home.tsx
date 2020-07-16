@@ -4,9 +4,12 @@ import { CenteredCard, extractRoomId, Or, WrongRoomAlert } from "../common";
 import { EHomeStatuses } from "../common/models";
 import { Context } from "../global/Context";
 import "./Home.css";
-
-export const Home = ({ history, location }) => {
+import { useHistory, useLocation } from "react-router-dom";
+// { history, location }
+export const Home = () => {
   const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
+  const history = useHistory();
+  const location: any = useLocation();
   const { initRoom, homeStatus, changeHomeStatus } = React.useContext(Context);
   const [userName, set__userName] = React.useState("");
   const [roomName, set__roomName] = React.useState("");
@@ -17,7 +20,7 @@ export const Home = ({ history, location }) => {
   React.useEffect(() => {
     if (homeStatus === wrongRoomId) {
       let triedRoomId = "";
-      if (location.state && location.state.triedRoomId)
+      if (location && location.state && location.state.triedRoomId)
         triedRoomId = location.state.triedRoomId;
       set__errorAlert(<WrongRoomAlert roomId={triedRoomId} />);
       setTimeout(() => {
@@ -56,6 +59,7 @@ export const Home = ({ history, location }) => {
     return "Choose How To Start";
   };
 
+  if (!history) return null;
   return (
     <CenteredCard>
       <div className="Home">

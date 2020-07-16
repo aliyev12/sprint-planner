@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "deploy": "cd client/ && npm run build && cd .. && cd server/ && npm run build && cd .. && git add . && git commit -m 'Deploy into prod' && git subtree push --prefix client heroku master && git subtree push --prefix server sprintplannerappserver master"
+  }
+}

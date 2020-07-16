@@ -1,11 +1,19 @@
 import M from "materialize-css";
 import React from "react";
-import { ERoomStatus, IRoom, EAction, IResult } from "../common/models";
+import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  allCatChangesSaved,
+  doneEditingStyle,
+  editDropdownStyle,
+  getConfirmMsg,
+  viewStatsText,
+  voteActionText,
+  votesExist,
+} from "../common/categoriesHelpers";
+import { EAction, ERoomStatus, IResult, IRoom } from "../common/models";
 import { Context } from "../global/Context";
 import "./RoomActions.css";
-import { useHistory } from "react-router-dom";
-import { statsData } from "../common";
-import { toast } from "react-toastify";
 
 interface Props {
   roomData: IRoom;
@@ -31,37 +39,52 @@ export const RoomActions = ({ roomData }: Props) => {
 
   if (!currentSession) return null;
 
-  // const editMode =
-  // !categoryActive(currentSession, category.id) &&
-  // roomStatus === ERoomStatus.editingCards;
+  const handleDoneEditing = () => {
+    if (roomStatus === ERoomStatus.editingCategories) {
+      const incompleteCatsExist = roomData.categories.some(
+        (c) => !c.name || !c.singular
+      );
 
-  const editDropdownStyle = {
-    display:
-      !currentSession.active &&
-      !currentSession.session &&
-      roomStatus === ERoomStatus.initial
-        ? "block"
-        : "none",
-  };
+      const unsavedChangesExist = roomData.categories.some(
+        (c, _, arr) => !allCatChangesSaved(c.id, arr, editCategoriesValues)
+      );
 
-  const doneEditingStyle = () => {
-    const style = { display: "block" };
-    if (
-      currentSession.active ||
-      roomStatus === ERoomStatus.initial ||
-      roomStatus === ERoomStatus.viewingStats
-    )
-      style.display = "none";
-    return style;
+      if (incompleteCatsExist || unsavedChangesExist) {
+        const confirmation = window.confirm(
+          getConfirmMsg(incompleteCatsExist, unsavedChangesExist)
+        );
+
+        if (!confirmation) return;
+
+        const incompleteCats = roomData.categories.filter(
+          (c) => !c.name || !c.singular
+        );
+
+        incompleteCats.forEach((c) => {
+          socket.emit(
+            "updateCategories",
+            {
+              action: EAction.delete,
+              roomId: roomData.id,
+              categoryId: c.id,
+            },
+            (res: IResult) => (res.error ? toast.error(res.error) : null)
+          );
+        });
+      }
+    }
+    set__roomStatus(ERoomStatus.initial);
   };
 
   const handleStartStopVoting = () => {
     set__roomStatus(ERoomStatus.initial);
 
     let votingAction = EAction.start;
-    if (currentSession.active && !votesExist()) votingAction = EAction.reset;
+    if (currentSession.active && !votesExist(currentSession))
+      votingAction = EAction.reset;
     if (afterVoteMode()) votingAction = EAction.reset;
-    if (currentSession.active && votesExist()) votingAction = EAction.end;
+    if (currentSession.active && votesExist(currentSession))
+      votingAction = EAction.end;
 
     socket.emit(
       "handleVotingSession",
@@ -70,25 +93,8 @@ export const RoomActions = ({ roomData }: Props) => {
         action: votingAction,
         categoryId: currentCategoryId,
       },
-      (result: IResult) => {
-        // console.log("result = ", result);
-      }
+      (result: IResult) => {}
     );
-  };
-
-  const votesExist = () => {
-    if (
-      !currentSession ||
-      !currentSession.session ||
-      !currentSession.session.sessionCategories ||
-      !Array.isArray(currentSession.session.sessionCategories)
-    )
-      return false;
-    const foundSessionCat = currentSession.session.sessionCategories.find(
-      (s) => s.categoryId === currentSession.activeCategoryId
-    );
-    if (!foundSessionCat) return false;
-    return foundSessionCat.votes.length > 0;
   };
 
   const afterVoteMode = () => {
@@ -96,66 +102,27 @@ export const RoomActions = ({ roomData }: Props) => {
     return false;
   };
 
-  const voteActionText = () => {
-    if (afterVoteMode())
-      return {
-        txt: "Reset",
-        ico: "refresh",
-        title: "Reset recent voting session",
-      };
-    if (!currentSession.active)
-      return {
-        txt: "Vote",
-        ico: "done_all",
-        title: "Start new voting session",
-      };
-    if (currentSession.active)
-      return {
-        txt: "Done voting",
-        ico: "done_all",
-        title: "End current voting session",
-      };
-    console.error(
-      "fix voteActionText() funciton. None of the conditions for text and icon have been met."
-    );
-    return { txt: "error", ico: "done_all" };
-  };
-
-  const viewStatsText = () => {
-    if (roomStatus === ERoomStatus.viewingStats) {
-      return {
-        txt: "Back to cards",
-        ico: "arrow_back",
-        icoPos: "left",
-        title: "Go back to cards",
-      };
-    } else {
-      return {
-        txt: "View stats",
-        ico: "pie_chart",
-        icoPos: "right",
-        title: "View stats",
-      };
-    }
-  };
-
+  const voteActionTxt = voteActionText(afterVoteMode, currentSession);
+  const viewStatsTxt = viewStatsText(roomStatus);
+  const editStyle = editDropdownStyle(currentSession, roomStatus);
+  const doneEdtStyle = doneEditingStyle(currentSession, roomStatus);
   return (
     <div className="RoomActions">
       <div className="buttons-container">
-        {voteActionText().txt !== "error" ? (
+        {voteActionTxt.txt !== "error" ? (
           <button
-            title={voteActionText().title}
+            title={voteActionTxt.title}
             className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
             onClick={handleStartStopVoting}
           >
-            <i className="material-icons right">{voteActionText().ico}</i>
-            {voteActionText().txt}
+            <i className="material-icons right">{voteActionTxt.ico}</i>
+            {voteActionTxt.txt}
           </button>
         ) : null}
 
         <button
           disabled={!afterVoteMode()}
-          title={voteActionText().title}
+          title={voteActionTxt.title}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {
             if (roomStatus === ERoomStatus.viewingStats) {
@@ -165,10 +132,10 @@ export const RoomActions = ({ roomData }: Props) => {
             }
           }}
         >
-          <i className={`material-icons ${viewStatsText().icoPos}`}>
-            {viewStatsText().ico}
+          <i className={`material-icons ${viewStatsTxt.icoPos}`}>
+            {viewStatsTxt.ico}
           </i>
-          {viewStatsText().txt}
+          {viewStatsTxt.txt}
         </button>
 
         {/* <button
@@ -179,17 +146,17 @@ export const RoomActions = ({ roomData }: Props) => {
           <i className="material-icons right">refresh</i>Reset
         </button> */}
         <button
-          style={doneEditingStyle()}
+          style={doneEdtStyle}
           // disabled={!userName || !roomName}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={() => set__roomStatus(ERoomStatus.initial)}
+          onClick={handleDoneEditing}
         >
           <i className="material-icons right">done</i>
           Done Editing
         </button>
 
         <button
-          style={editDropdownStyle}
+          style={editStyle}
           ref={(categoriesDropdownRef) => {
             _categoriesDropdownRef = categoriesDropdownRef;
           }}
@@ -199,11 +166,7 @@ export const RoomActions = ({ roomData }: Props) => {
           <i className="material-icons right">create</i>Edit
         </button>
 
-        <ul
-          id="dropdown1"
-          className="dropdown-content"
-          style={editDropdownStyle}
-        >
+        <ul id="dropdown1" className="dropdown-content" style={editStyle}>
           <li className="flex-centered">
             <button
               className="btn-flat edit-dropdown-btn "

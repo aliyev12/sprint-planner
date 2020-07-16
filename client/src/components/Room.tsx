@@ -95,7 +95,13 @@ export const Room = ({ location, match, history }) => {
         args.values = values;
       }
       socket.emit("updateCategories", args, (res: IResult) => {
-        if (res.error) toast.error(res.error);
+        if (res.error) return toast.error(res.error);
+        if (action === EAction.add) {
+          const lastCat = res.room.categories[res.room.categories.length - 1];
+          if (!lastCat.name && !lastCat.singular) {
+            set__currentCategoryId(lastCat.id);
+          }
+        }
       });
     }
   };
@@ -122,6 +128,7 @@ export const Room = ({ location, match, history }) => {
   };
 
   const categoriesTitle = () => {
+    // console.log("roomStatus = ", roomStatus);
     // console.log("roomData = ", roomData);
     // console.log("currentCategoryId = ", currentCategoryId);
     if (currentSession.active && currentSession.activeCategoryId) {
@@ -137,6 +144,11 @@ export const Room = ({ location, match, history }) => {
       return <h4>Categories</h4>;
     } else if (roomStatus === ERoomStatus.viewingStats) {
       return <h4>Voting Results</h4>;
+    } else if (roomStatus === ERoomStatus.editingCards) {
+      const foundCat = roomData.categories.find(
+        (c) => c.id === currentCategoryId
+      );
+      return <h4>Edit cards for: {foundCat.name}</h4>;
     } else {
       return <h4>Current Category</h4>;
     }
