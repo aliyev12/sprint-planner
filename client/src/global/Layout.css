@@ -75,6 +75,11 @@ footer {
   color: white;
 }
 
+.username-list-item {
+  font-size: 1.6rem;
+  margin-right: 3rem;
+}
+
 /* Overrite Libraries Styles */
 .card,
 .toast,
