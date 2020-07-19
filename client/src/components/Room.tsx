@@ -1,25 +1,28 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { ERoomStatus, IResult, IValues } from "../common/models";
+import { useMachine } from "@xstate/react";
+import { ERoomStatus, ERoomEvents, IResult, IValues } from "../common/models";
 import { EAction, IRoom, IUser, IUpCatArgs } from "../common/models";
 import { Context } from "../global/Context";
 import { Categories } from "./Categories";
 import { RoomActions } from "./RoomActions";
 import { Users } from "./Users";
 import { onMessase } from "../common/sockets";
-import "./Room.css";
 import { triggedDomEvent } from "../common/utils";
 import { Stats } from "./Stats";
+import { roomMachine } from "../stateMachines";
+import "./Room.css";
 
 export const Room = ({ location, match, history }) => {
   const {
     socket,
+    state,
+    send,
     currentUser,
     currentCategoryId,
     currentSession,
     set__currentUser,
     roomState,
-    roomStatus,
     set__currentSession,
     set__currentCategoryId,
   } = React.useContext(Context);
@@ -30,6 +33,14 @@ export const Room = ({ location, match, history }) => {
   const [roomName, set__roomName] = useState("");
   // const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState<IUser[]>([]);
+
+  const {
+    initial,
+    editingCards,
+    editingCategories,
+    viewingStats,
+  } = ERoomStatus;
+  const { EDIT_CARDS, EDIT_CATEGORIES, VIEW_STATS, DONE } = ERoomEvents;
 
   React.useEffect(() => {
     let roomIdParam: string | undefined,
@@ -64,7 +75,10 @@ export const Room = ({ location, match, history }) => {
     socket.on("roomData", (result: { users: IUser[]; room: IRoom }) => {
       if (result.users) set__Users(result.users);
       // console.log("roomData result = ", result);
+      console.log("roomData room = ", result.room);
       if (result.room && result.room.currentSession && result.room.name) {
+        send({ type: "ROOM_DATA_CHANGE", roomData: result });
+
         set__currentSession(result.room.currentSession);
         set__roomData(result.room);
         set__roomName(result.room.name);
@@ -128,7 +142,6 @@ export const Room = ({ location, match, history }) => {
   };
 
   const categoriesTitle = () => {
-    // console.log("roomStatus = ", roomStatus);
     // console.log("roomData = ", roomData);
     // console.log("currentCategoryId = ", currentCategoryId);
     if (currentSession.active && currentSession.activeCategoryId) {
@@ -140,11 +153,11 @@ export const Room = ({ location, match, history }) => {
           Voting is currently in session for: {currentCategory.name}
         </h4>
       );
-    } else if (roomStatus === ERoomStatus.editingCategories) {
+    } else if (state.value === editingCategories) {
       return <h4>Categories</h4>;
-    } else if (roomStatus === ERoomStatus.viewingStats) {
+    } else if (state.value === viewingStats) {
       return <h4>Voting Results</h4>;
-    } else if (roomStatus === ERoomStatus.editingCards) {
+    } else if (state.value === editingCards) {
       const foundCat = roomData.categories.find(
         (c) => c.id === currentCategoryId
       );
@@ -169,7 +182,7 @@ export const Room = ({ location, match, history }) => {
 
         <main>
           {categoriesTitle()}
-          {roomStatus === ERoomStatus.viewingStats ? (
+          {state.value === viewingStats ? (
             <Stats roomData={roomData} />
           ) : (
             <Categories

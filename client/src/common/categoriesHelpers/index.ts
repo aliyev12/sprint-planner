@@ -85,8 +85,8 @@ export const voteActionText = (afterVoteMode, currentSession) => {
   return { txt: "error", ico: "done_all" };
 };
 
-export const viewStatsText = (roomStatus) => {
-  if (roomStatus === ERoomStatus.viewingStats) {
+export const viewStatsText = (current) => {
+  if (current.matches(ERoomStatus.viewingStats)) {
     return {
       txt: "Back to cards",
       ico: "arrow_back",
@@ -103,21 +103,21 @@ export const viewStatsText = (roomStatus) => {
   }
 };
 
-export const editDropdownStyle = (currentSession, roomStatus) => ({
+export const editDropdownStyle = (currentSession, current) => ({
   display:
     !currentSession.active &&
     !currentSession.session &&
-    roomStatus === ERoomStatus.initial
+    current.matches(ERoomStatus.initial)
       ? "block"
       : "none",
 });
 
-export const doneEditingStyle = (currentSession, roomStatus) => {
+export const doneEditingStyle = (currentSession, current) => {
   const style = { display: "block" };
   if (
     currentSession.active ||
-    roomStatus === ERoomStatus.initial ||
-    roomStatus === ERoomStatus.viewingStats
+    current.matches(ERoomStatus.initial) ||
+    current.matches(ERoomStatus.viewingStats)
   )
     style.display = "none";
   return style;

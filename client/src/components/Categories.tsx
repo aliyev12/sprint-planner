@@ -1,5 +1,6 @@
 import React from "react";
 import M from "materialize-css";
+import { useMachine } from "@xstate/react";
 import {
   EAction,
   ERoomStatus,
@@ -10,6 +11,7 @@ import {
 import { Context } from "../global/Context";
 import { VotingCards } from "./VotingCards";
 import { allCatChangesSaved } from "../common/categoriesHelpers";
+import { roomMachine } from "../stateMachines";
 import "./Categories.css";
 
 interface Props {
@@ -31,14 +33,22 @@ export const Categories = ({
 }: Props) => {
   let _categoriesSelectRef;
   const {
-    roomStatus,
-    set__roomStatus,
     editCategoriesValues,
     set__editCategoriesValues,
     currentCategoryId,
     set__currentCategoryId,
+    state,
+    send,
   } = React.useContext(Context);
+
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
+
+  const {
+    initial,
+    editingCards,
+    editingCategories,
+    viewingStats,
+  } = ERoomStatus;
 
   React.useEffect(() => {
     M.FormSelect.init(_categoriesSelectRef);
@@ -83,7 +93,7 @@ export const Categories = ({
       <div
         className="input-field col s6"
         style={{
-          display: roomStatus === ERoomStatus.initial ? "block" : "none",
+          display: state.value === initial ? "block" : "none",
         }}
       >
         <select
@@ -189,8 +199,7 @@ export const Categories = ({
       <div
         className="row"
         style={{
-          display:
-            roomStatus === ERoomStatus.editingCategories ? "block" : "none",
+          display: state.value === editingCategories ? "block" : "none",
         }}
       >
         <div className="col s12">

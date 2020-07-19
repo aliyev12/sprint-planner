@@ -4,14 +4,9 @@ import "./Users.css";
 import { truncate } from "../common/utils";
 
 export const Users = ({ users }) => {
-  const {
-    socket,
-    currentUser,
-    roomState,
-    roomStatus,
-    set__roomStatus,
-    currentSession,
-  } = React.useContext(Context);
+  const { socket, currentUser, roomState, currentSession } = React.useContext(
+    Context
+  );
 
   if (!currentUser || !currentSession) return null;
 

@@ -1,4 +1,5 @@
 import React from "react";
+import io from "socket.io-client";
 import {
   EHomeStatuses,
   ERoomStatus,
@@ -8,8 +9,9 @@ import {
   ICurrentSession,
   IUser,
 } from "../common/models";
-import io from "socket.io-client";
 import { getEndpoint } from "../common";
+import { useMachine } from "@xstate/react";
+import { roomMachine } from "../stateMachines";
 
 let socket: SocketIOClient.Socket;
 
@@ -27,6 +29,8 @@ const EMPTY_CURRENT_SESSION: ICurrentSession = {
 
 const Context = React.createContext({
   socket: undefined,
+  state: null,
+  send: null,
   currentUser: null,
   set__currentUser: (u: IUser) => {},
   initRoom: (r: IRoomState): void => {},
@@ -47,6 +51,8 @@ const Context = React.createContext({
 
 const GlopalProvider = ({ children }) => {
   const ENDPOINT = getEndpoint() || "localhost:3333";
+
+  const [state, send] = useMachine(roomMachine);
 
   const [currentUser, set__currentUser] = React.useState<IUser | null>(null);
   const [roomState, set__roomState] = React.useState({ ...EMPTY_ROOM_STATE });
@@ -83,6 +89,8 @@ const GlopalProvider = ({ children }) => {
     <Context.Provider
       value={{
         socket,
+        state,
+        send,
         currentUser,
         set__currentUser,
         initRoom,
