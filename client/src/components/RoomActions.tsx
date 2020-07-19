@@ -1,6 +1,7 @@
 import M from "materialize-css";
 import React from "react";
 import { useHistory } from "react-router-dom";
+import { useMachine } from "@xstate/react";
 import { toast } from "react-toastify";
 import {
   allCatChangesSaved,
@@ -11,8 +12,15 @@ import {
   voteActionText,
   votesExist,
 } from "../common/categoriesHelpers";
-import { EAction, ERoomStatus, IResult, IRoom } from "../common/models";
+import {
+  EAction,
+  ERoomStatus,
+  ERoomEvents,
+  IResult,
+  IRoom,
+} from "../common/models";
 import { Context } from "../global/Context";
+import { roomMachine } from "../stateMachines";
 import "./RoomActions.css";
 
 interface Props {
@@ -23,8 +31,8 @@ export const RoomActions = ({ roomData }: Props) => {
   let _categoriesDropdownRef;
   const {
     socket,
-    roomStatus,
-    set__roomStatus,
+    state,
+    send,
     editCategoriesValues,
     set__editCategoriesValues,
     currentSession,
@@ -33,6 +41,15 @@ export const RoomActions = ({ roomData }: Props) => {
 
   const history = useHistory();
 
+  const {
+    initial,
+    editingCards,
+    editingCategories,
+    viewingStats,
+  } = ERoomStatus;
+
+  const { EDIT_CARDS, EDIT_CATEGORIES, VIEW_STATS, DONE } = ERoomEvents;
+
   React.useEffect(() => {
     M.Dropdown.init(_categoriesDropdownRef);
   }, []);
@@ -40,7 +57,7 @@ export const RoomActions = ({ roomData }: Props) => {
   if (!currentSession) return null;
 
   const handleDoneEditing = () => {
-    if (roomStatus === ERoomStatus.editingCategories) {
+    if (state.value === editingCategories) {
       const incompleteCatsExist = roomData.categories.some(
         (c) => !c.name || !c.singular
       );
@@ -73,11 +90,11 @@ export const RoomActions = ({ roomData }: Props) => {
         });
       }
     }
-    set__roomStatus(ERoomStatus.initial);
+    send(DONE);
   };
 
   const handleStartStopVoting = () => {
-    set__roomStatus(ERoomStatus.initial);
+    send(DONE);
 
     let votingAction = EAction.start;
     if (currentSession.active && !votesExist(currentSession))
@@ -101,11 +118,11 @@ export const RoomActions = ({ roomData }: Props) => {
     if (currentSession.active === false && currentSession.session) return true;
     return false;
   };
-
+  console.log("state.value = ", state.value);
   const voteActionTxt = voteActionText(afterVoteMode, currentSession);
-  const viewStatsTxt = viewStatsText(roomStatus);
-  const editStyle = editDropdownStyle(currentSession, roomStatus);
-  const doneEdtStyle = doneEditingStyle(currentSession, roomStatus);
+  const viewStatsTxt = viewStatsText(state);
+  const editStyle = editDropdownStyle(currentSession, state);
+  const doneEdtStyle = doneEditingStyle(currentSession, state);
   return (
     <div className="RoomActions">
       <div className="buttons-container">
@@ -125,10 +142,10 @@ export const RoomActions = ({ roomData }: Props) => {
           title={voteActionTxt.title}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {
-            if (roomStatus === ERoomStatus.viewingStats) {
-              set__roomStatus(ERoomStatus.initial);
+            if (state.value === viewingStats) {
+              send(DONE);
             } else {
-              set__roomStatus(ERoomStatus.viewingStats);
+              send(VIEW_STATS);
             }
           }}
         >
@@ -170,7 +187,7 @@ export const RoomActions = ({ roomData }: Props) => {
           <li className="flex-centered">
             <button
               className="btn-flat edit-dropdown-btn "
-              onClick={() => set__roomStatus(ERoomStatus.editingCategories)}
+              onClick={() => send(EDIT_CATEGORIES)}
             >
               Edit Categories
             </button>
@@ -178,7 +195,7 @@ export const RoomActions = ({ roomData }: Props) => {
           <li className="flex-centered">
             <button
               className="btn-flat edit-dropdown-btn"
-              onClick={() => set__roomStatus(ERoomStatus.editingCards)}
+              onClick={() => send(EDIT_CARDS)}
             >
               Edit Cards
             </button>
@@ -188,24 +205,3 @@ export const RoomActions = ({ roomData }: Props) => {
     </div>
   );
 };
-
-// const doneSaveContent = () => {
-//   if (roomStatus === ERoomStatus.editingCategories) {
-//     return { icon: "save", text: "Save Changes" };
-//   } else if (roomStatus === ERoomStatus.editingCards) {
-//     return { icon: "done", text: "Done Editing" };
-//   } else {
-//     return { icon: "", text: "" };
-//   }
-// };
-
-// console.log("in handleDoneSave roomStatus = ", roomStatus);
-// if (roomStatus === ERoomStatus.editingCategories) {
-//   console.log("editCategoriesValues = ", editCategoriesValues);
-// } else if (roomStatus === ERoomStatus.editingCards) {
-//   set__roomStatus(ERoomStatus.initial);
-// }
-// If saving categories:
-// get inputs for edit categories from context, validate them..
-// emit a socket with the input values
-// handle adding/modifying/deleting categories on backend..

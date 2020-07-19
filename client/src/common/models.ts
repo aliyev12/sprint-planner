@@ -8,9 +8,16 @@ export enum EHomeStatuses {
 
 export enum ERoomStatus {
   initial = "initial",
-  editingCards = "editing-cards",
-  editingCategories = "editing-categories",
-  viewingStats = "viewing-stats",
+  editingCards = "editingCards",
+  editingCategories = "editingCategories",
+  viewingStats = "viewingStats",
+}
+
+export enum ERoomEvents {
+  EDIT_CARDS = "EDIT_CARDS",
+  EDIT_CATEGORIES = "EDIT_CATEGORIES",
+  VIEW_STATS = "VIEW_STATS",
+  DONE = "DONE",
 }
 
 export enum ETheme {

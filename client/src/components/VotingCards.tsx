@@ -1,9 +1,11 @@
 import React from "react";
 import { toast } from "react-toastify";
+import { useMachine } from "@xstate/react";
 import { EAction, ERoomStatus, ICategory, IResult } from "../common/models";
 import { isNumOrFloat, categoryActive } from "../common/utils";
 import { Context } from "../global/Context";
 import "./VotingCards.css";
+import { roomMachine } from "../stateMachines";
 
 interface Props {
   category: ICategory;
@@ -14,13 +16,21 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
   const [newUnit, set__newUnit] = React.useState("");
 
   const {
+    state,
+    send,
     socket,
     currentUser,
     roomState,
-    roomStatus,
-    set__roomStatus,
     currentSession,
   } = React.useContext(Context);
+
+  const {
+    initial,
+    editingCards,
+    editingCategories,
+    viewingStats,
+  } = ERoomStatus;
+
   if (!category) return null;
 
   const handleAddCard = (e) => {
@@ -53,15 +63,13 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
 
   const editMode =
     !categoryActive(currentSession, category.id) &&
-    roomStatus === ERoomStatus.editingCards;
+    state.value === editingCards;
 
   const initialMode =
-    roomStatus === ERoomStatus.initial &&
-    categoryActive(currentSession, category.id);
+    state.value === initial && categoryActive(currentSession, category.id);
 
   const disabledMode =
-    roomStatus !== ERoomStatus.initial ||
-    !categoryActive(currentSession, category.id);
+    state.value !== initial || !categoryActive(currentSession, category.id);
 
   const isCurrentVote = (unit) => {
     // if (!categoryActive(currentSession, category.id) || !currentSession.session)
