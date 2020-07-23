@@ -18,6 +18,7 @@ import {
   ERoomEvents,
   IResult,
   IRoom,
+  EUserRole,
 } from "../common/models";
 import { Context } from "../global/Context";
 import { roomMachine } from "../stateMachines";
@@ -25,19 +26,23 @@ import "./RoomActions.css";
 
 interface Props {
   roomData: IRoom;
+  roomMachineData: any;
 }
 
-export const RoomActions = ({ roomData }: Props) => {
+export const RoomActions = ({ roomData, roomMachineData }: Props) => {
   let _categoriesDropdownRef;
   const {
     socket,
-    state,
-    send,
+    // state,
+    // send,
     editCategoriesValues,
+    currentUser,
     set__editCategoriesValues,
     currentSession,
     currentCategoryId,
   } = React.useContext(Context);
+
+  const [state, send, service] = roomMachineData;
 
   const history = useHistory();
 
@@ -57,7 +62,7 @@ export const RoomActions = ({ roomData }: Props) => {
   if (!currentSession) return null;
 
   const handleDoneEditing = () => {
-    if (state.value === editingCategories) {
+    if (state.matches(editingCategories)) {
       const incompleteCatsExist = roomData.categories.some(
         (c) => !c.name || !c.singular
       );
@@ -94,15 +99,24 @@ export const RoomActions = ({ roomData }: Props) => {
   };
 
   const handleStartStopVoting = () => {
-    send(DONE);
-
     let votingAction = EAction.start;
-    if (currentSession.active && !votesExist(currentSession))
+    let newEvent = "ACTIVATE";
+    if (currentSession.active && !votesExist(currentSession)) {
+      newEvent = "DONE";
       votingAction = EAction.reset;
-    if (afterVoteMode()) votingAction = EAction.reset;
-    if (currentSession.active && votesExist(currentSession))
+    }
+    if (afterVoteMode()) {
+      newEvent = "DONE";
+      votingAction = EAction.reset;
+    }
+    if (currentSession.active && votesExist(currentSession)) {
+      newEvent = "AFTER_VOTE";
       votingAction = EAction.end;
+    }
+    // Update state machine
+    send(newEvent);
 
+    // Update server side data model
     socket.emit(
       "handleVotingSession",
       {
@@ -118,7 +132,6 @@ export const RoomActions = ({ roomData }: Props) => {
     if (currentSession.active === false && currentSession.session) return true;
     return false;
   };
-  console.log("state.value = ", state.value);
   const voteActionTxt = voteActionText(afterVoteMode, currentSession);
   const viewStatsTxt = viewStatsText(state);
   const editStyle = editDropdownStyle(currentSession, state);
@@ -128,6 +141,9 @@ export const RoomActions = ({ roomData }: Props) => {
       <div className="buttons-container">
         {voteActionTxt.txt !== "error" ? (
           <button
+            disabled={
+              state.matches(editingCards) || state.matches(editingCategories)
+            }
             title={voteActionTxt.title}
             className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
             onClick={handleStartStopVoting}
@@ -138,12 +154,15 @@ export const RoomActions = ({ roomData }: Props) => {
         ) : null}
 
         <button
-          disabled={!afterVoteMode()}
+          disabled={
+            !(state.matches("viewingStats") || state.matches("withSession"))
+          }
+          // disabled={!afterVoteMode()}
           title={voteActionTxt.title}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {
-            if (state.value === viewingStats) {
-              send(DONE);
+            if (state.matches(viewingStats)) {
+              send("BACK");
             } else {
               send(VIEW_STATS);
             }
@@ -162,45 +181,50 @@ export const RoomActions = ({ roomData }: Props) => {
         >
           <i className="material-icons right">refresh</i>Reset
         </button> */}
-        <button
-          style={doneEdtStyle}
-          // disabled={!userName || !roomName}
-          className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={handleDoneEditing}
-        >
-          <i className="material-icons right">done</i>
-          Done Editing
-        </button>
 
-        <button
-          style={editStyle}
-          ref={(categoriesDropdownRef) => {
-            _categoriesDropdownRef = categoriesDropdownRef;
-          }}
-          className="dropdown-trigger btn-small blue darken-4 btn-small"
-          data-target="dropdown1"
-        >
-          <i className="material-icons right">create</i>Edit
-        </button>
+        {currentUser.role === EUserRole.admin ? (
+          <>
+            <button
+              style={doneEdtStyle}
+              // disabled={!userName || !roomName}
+              className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
+              onClick={handleDoneEditing}
+            >
+              <i className="material-icons right">done</i>
+              Done Editing
+            </button>
 
-        <ul id="dropdown1" className="dropdown-content" style={editStyle}>
-          <li className="flex-centered">
             <button
-              className="btn-flat edit-dropdown-btn "
-              onClick={() => send(EDIT_CATEGORIES)}
+              style={editStyle}
+              ref={(categoriesDropdownRef) => {
+                _categoriesDropdownRef = categoriesDropdownRef;
+              }}
+              className="dropdown-trigger btn-small blue darken-4 btn-small"
+              data-target="dropdown1"
             >
-              Edit Categories
+              <i className="material-icons right">create</i>Edit
             </button>
-          </li>
-          <li className="flex-centered">
-            <button
-              className="btn-flat edit-dropdown-btn"
-              onClick={() => send(EDIT_CARDS)}
-            >
-              Edit Cards
-            </button>
-          </li>
-        </ul>
+
+            <ul id="dropdown1" className="dropdown-content" style={editStyle}>
+              <li className="flex-centered">
+                <button
+                  className="btn-flat edit-dropdown-btn "
+                  onClick={() => send(EDIT_CATEGORIES)}
+                >
+                  Edit Categories
+                </button>
+              </li>
+              <li className="flex-centered">
+                <button
+                  className="btn-flat edit-dropdown-btn"
+                  onClick={() => send(EDIT_CARDS)}
+                >
+                  Edit Cards
+                </button>
+              </li>
+            </ul>
+          </>
+        ) : null}
       </div>
     </div>
   );

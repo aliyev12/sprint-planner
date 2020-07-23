@@ -1,7 +1,7 @@
 import React from "react";
 import io from "socket.io-client";
 import { CenteredCard, Loader, Or, getEndpoint } from "../common";
-import { EHomeStatuses } from "../common/models";
+import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Join.css";
 
@@ -48,7 +48,7 @@ export const Join = ({ location, match, history }) => {
   const handleJoinRoom = (e) => {
     e.preventDefault();
     if (roomId) {
-      initRoom({ userName, roomId });
+      initRoom({ userName, userRole: EUserRole.regularUser, roomId });
       history.push(`/${roomId}`);
       set__userName("");
     }

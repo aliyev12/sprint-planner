@@ -10,14 +10,20 @@ import { roomMachine } from "../stateMachines";
 interface Props {
   category: ICategory;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
+  roomMachineData: any;
 }
 
-export const VotingCards = ({ category, updateCategoryCards }: Props) => {
+export const VotingCards = ({
+  category,
+  updateCategoryCards,
+  roomMachineData,
+}: Props) => {
   const [newUnit, set__newUnit] = React.useState("");
+  const [state, send, service] = roomMachineData;
 
   const {
-    state,
-    send,
+    // state,
+    // send,
     socket,
     currentUser,
     roomState,
@@ -62,16 +68,16 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
   };
 
   const editMode =
-    !categoryActive(currentSession, category.id) &&
-    state.value === editingCards;
+    !categoryActive(currentSession, category.id) && state.matches(editingCards);
 
-  const initialMode =
-    state.value === initial && categoryActive(currentSession, category.id);
+  // const initialMode =
+  //   state.matches({ inactive: initial }) &&
+  //   categoryActive(currentSession, category.id);
 
   const disabledMode =
-    state.value !== initial || !categoryActive(currentSession, category.id);
+    !state.matches(initial) || !categoryActive(currentSession, category.id);
 
-  const isCurrentVote = (unit) => {
+  const isCurrentVote = (unit: number) => {
     // if (!categoryActive(currentSession, category.id) || !currentSession.session)
     //   return false;
     if (!currentSession.session) return false;
@@ -160,7 +166,7 @@ export const VotingCards = ({ category, updateCategoryCards }: Props) => {
 
                 <div
                   style={{
-                    pointerEvents: initialMode ? "auto" : "none",
+                    pointerEvents: disabledMode ? "none" : "auto",
                   }}
                   className="card hoverable waves-effect waves-block waves-light"
                 >

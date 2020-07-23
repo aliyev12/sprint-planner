@@ -17,6 +17,7 @@ import "./Categories.css";
 interface Props {
   categories: ICategory[];
   currentSession: ICurrentSession;
+  roomMachineData: any;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
   updateCategories: (
     a: EAction,
@@ -30,6 +31,7 @@ export const Categories = ({
   currentSession,
   updateCategoryCards,
   updateCategories,
+  roomMachineData,
 }: Props) => {
   let _categoriesSelectRef;
   const {
@@ -37,9 +39,11 @@ export const Categories = ({
     set__editCategoriesValues,
     currentCategoryId,
     set__currentCategoryId,
-    state,
-    send,
+    // state,
+    // send,
   } = React.useContext(Context);
+
+  const [state, send, service] = roomMachineData;
 
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
 
@@ -93,7 +97,7 @@ export const Categories = ({
       <div
         className="input-field col s6"
         style={{
-          display: state.value === initial ? "block" : "none",
+          display: state.matches(initial) ? "block" : "none",
         }}
       >
         <select
@@ -195,11 +199,12 @@ export const Categories = ({
   };
 
   const editCategoriesSection = () => {
+    console.log(state.matches(editingCategories));
     return (
       <div
         className="row"
         style={{
-          display: state.value === editingCategories ? "block" : "none",
+          display: state.matches(editingCategories) ? "block" : "none",
         }}
       >
         <div className="col s12">
@@ -241,6 +246,7 @@ export const Categories = ({
         <VotingCards
           category={getCurrentCategory()}
           updateCategoryCards={updateCategoryCards}
+          roomMachineData={roomMachineData}
         />
       ) : null}
     </div>

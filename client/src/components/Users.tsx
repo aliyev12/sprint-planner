@@ -2,6 +2,7 @@ import React from "react";
 import { Context } from "../global/Context";
 import "./Users.css";
 import { truncate } from "../common/utils";
+import { IUser, EUserRole } from "../common/models";
 
 export const Users = ({ users }) => {
   const { socket, currentUser, roomState, currentSession } = React.useContext(
@@ -25,10 +26,18 @@ export const Users = ({ users }) => {
   return (
     <ul className="Users collection">
       {users && users.length
-        ? users.map((user, i) => {
+        ? users.map((user: IUser, i) => {
             const userVoted = userDidVote(user.id);
             return (
-              <li className="collection-item" key={user.id}>
+              <li
+                className={`collection-item ${user.role}`}
+                key={user.id}
+                title={
+                  user.role === EUserRole.admin
+                    ? "Administrator"
+                    : "Regular User"
+                }
+              >
                 {/* <img src="images/yuna.jpg" alt="" className="circle" /> */}
 
                 <div className="user-list-item">

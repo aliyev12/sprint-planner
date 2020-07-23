@@ -9,9 +9,15 @@ export enum EAction {
   reset = "reset",
 }
 
+export enum EUserRole {
+  regularUser = "regularUser",
+  admin = "admin",
+}
+
 export interface IUser {
   id: string;
   name: string;
+  role: EUserRole;
   room: string;
 }
 

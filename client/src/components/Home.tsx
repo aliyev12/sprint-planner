@@ -1,7 +1,7 @@
 import React from "react";
 import uniqid from "uniqid";
 import { CenteredCard, extractRoomId, Or, WrongRoomAlert } from "../common";
-import { EHomeStatuses } from "../common/models";
+import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Home.css";
 import { useHistory, useLocation } from "react-router-dom";
@@ -45,7 +45,12 @@ export const Home = () => {
       new Date().toISOString().split("T")[0]
     }-${uniqid.time()}`;
 
-    initRoom({ userName, roomId: newRoomId, roomName });
+    initRoom({
+      userName,
+      userRole: EUserRole.admin,
+      roomId: newRoomId,
+      roomName,
+    });
     history.push(`/${newRoomId}`);
     resetFields();
   };

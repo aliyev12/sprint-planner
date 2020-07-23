@@ -7,7 +7,7 @@ export class Users {
     this.users = [];
   }
 
-  addUser({ id, name, room }: IUser) {
+  addUser({ id, name, role, room }: IUser) {
     name = name.trim();
     room = room.trim().toLowerCase();
 
@@ -17,7 +17,7 @@ export class Users {
 
     // if (existingUser) return { error: "Username is taken" };
 
-    const user = { id, name, room };
+    const user = { id, name, role, room };
     this.users.push(user);
     return { user };
   }
