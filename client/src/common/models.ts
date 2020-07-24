@@ -25,8 +25,14 @@ export enum ETheme {
   light = "light",
 }
 
+export enum EUserRole {
+  regularUser = "regularUser",
+  admin = "admin",
+}
+
 export interface IRoomState {
   userName: string;
+  userRole: EUserRole;
   roomId: string;
   roomName?: string;
 }
@@ -41,6 +47,7 @@ export interface IEditCategory {
 export interface IUser {
   id: string;
   name: string;
+  role: EUserRole;
   room: string;
 }
 

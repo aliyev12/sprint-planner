@@ -9,6 +9,10 @@
   padding: 0;
 }
 
+.Users.collection .collection-item.admin {
+  background-color: var(--yellow-accent-4-transp);
+}
+
 .Users .user-list-item {
   display: flex;
   justify-content: space-between;
@@ -26,10 +30,19 @@
   display: flex;
   align-items: center;
 }
+
+.Users .admin .user-list-item .user-icon > i {
+  color: var(--teal-lighten-1);
+}
+
 .Users .user-list-item .user-name {
   margin-left: 5px;
   font-size: 1.4rem;
   white-space: nowrap;
+}
+
+.Users .admin .user-list-item .user-name {
+  font-weight: 800;
 }
 
 .Users .user-list-item .user-voted {

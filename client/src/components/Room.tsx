@@ -1,23 +1,36 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import io from "socket.io-client";
 import { useMachine } from "@xstate/react";
-import { ERoomStatus, ERoomEvents, IResult, IValues } from "../common/models";
+import {
+  ERoomStatus,
+  ERoomEvents,
+  IResult,
+  IValues,
+  EUserRole,
+} from "../common/models";
 import { EAction, IRoom, IUser, IUpCatArgs } from "../common/models";
 import { Context } from "../global/Context";
 import { Categories } from "./Categories";
 import { RoomActions } from "./RoomActions";
 import { Users } from "./Users";
 import { onMessase } from "../common/sockets";
-import { triggedDomEvent } from "../common/utils";
+import { triggedDomEvent, getEndpoint } from "../common/utils";
 import { Stats } from "./Stats";
 import { roomMachine } from "../stateMachines";
 import "./Room.css";
+import { votesExist } from "../common/categoriesHelpers";
+
+// let socket: SocketIOClient.Socket;
 
 export const Room = ({ location, match, history }) => {
+  const ENDPOINT = getEndpoint() || "localhost:3333";
+
   const {
     socket,
-    state,
-    send,
+    // state,
+    // send,
+    // service,
     currentUser,
     currentCategoryId,
     currentSession,
@@ -27,12 +40,31 @@ export const Room = ({ location, match, history }) => {
     set__currentCategoryId,
   } = React.useContext(Context);
 
+  const roomMachineData = useMachine(roomMachine);
+  const [state, send, service] = roomMachineData;
+
+  service.onTransition((state) => {
+    if (state.changed) {
+      console.log("state.value = ", state.value);
+    }
+  });
+
   const [userName, set__userName] = useState("");
   const [roomData, set__roomData] = useState<IRoom | undefined>();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
   // const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState<IUser[]>([]);
+
+  service.onTransition((state, ctx) => {
+    if (state.changed) {
+      // console.log(state.value);
+      // console.log("context = ", state.context);
+    }
+    // if (state.matches("broken")) {
+    //   console.log("i'm broke");
+    // }
+  });
 
   const {
     initial,
@@ -45,19 +77,28 @@ export const Room = ({ location, match, history }) => {
   React.useEffect(() => {
     let roomIdParam: string | undefined,
       _userName: string | undefined,
+      _userRole: EUserRole,
       _roomName = "unknown";
     if (match.params.roomId) roomIdParam = match.params.roomId;
     if (roomState.userName) _userName = roomState.userName;
+    if (roomState.userRole) _userRole = roomState.userRole;
     if (roomState.roomName) _roomName = roomState.roomName;
 
-    if (roomIdParam && _userName) {
+    if (roomIdParam && _userName && _userRole) {
+      // socket = io(ENDPOINT);
+
       set__userName(_userName);
       set__roomId(roomIdParam);
       set__roomName(_roomName);
 
       socket.emit(
         "join",
-        { userName: _userName, roomId: roomIdParam, roomName: _roomName },
+        {
+          userName: _userName,
+          userRole: _userRole,
+          roomId: roomIdParam,
+          roomName: _roomName,
+        },
         (res: { user?: IUser; error?: string }) => {
           // console.log("res = ", res);
           if (res.error) toast.error(res.error);
@@ -77,16 +118,26 @@ export const Room = ({ location, match, history }) => {
       // console.log("roomData result = ", result);
       console.log("roomData room = ", result.room);
       if (result.room && result.room.currentSession && result.room.name) {
+        const { active, session } = result.room.currentSession;
         send({ type: "ROOM_DATA_CHANGE", roomData: result });
-
-        set__currentSession(result.room.currentSession);
-        set__roomData(result.room);
-        set__roomName(result.room.name);
-
-        if (result.room.currentSession.activeCategoryId) {
-          set__currentCategoryId(result.room.currentSession.activeCategoryId);
-          triggedDomEvent();
+        if (active && votesExist(result.room.currentSession)) {
+          send("VOTE");
         }
+        if (active && !votesExist(result.room.currentSession)) {
+          send("UNVOTE");
+        }
+        if (!active && session) {
+          send("SESSION");
+        }
+      }
+
+      set__currentSession(result.room.currentSession);
+      set__roomData(result.room);
+      set__roomName(result.room.name);
+
+      if (result.room.currentSession.activeCategoryId) {
+        set__currentCategoryId(result.room.currentSession.activeCategoryId);
+        triggedDomEvent();
       }
     });
 
@@ -153,11 +204,11 @@ export const Room = ({ location, match, history }) => {
           Voting is currently in session for: {currentCategory.name}
         </h4>
       );
-    } else if (state.value === editingCategories) {
+    } else if (state.matches(editingCategories)) {
       return <h4>Categories</h4>;
-    } else if (state.value === viewingStats) {
+    } else if (state.matches(viewingStats)) {
       return <h4>Voting Results</h4>;
-    } else if (state.value === editingCards) {
+    } else if (state.matches(editingCards)) {
       const foundCat = roomData.categories.find(
         (c) => c.id === currentCategoryId
       );
@@ -182,7 +233,7 @@ export const Room = ({ location, match, history }) => {
 
         <main>
           {categoriesTitle()}
-          {state.value === viewingStats ? (
+          {state.matches(viewingStats) ? (
             <Stats roomData={roomData} />
           ) : (
             <Categories
@@ -190,13 +241,14 @@ export const Room = ({ location, match, history }) => {
               currentSession={roomData.currentSession}
               updateCategoryCards={updateCategoryCards}
               updateCategories={updateCategories}
+              roomMachineData={roomMachineData}
             />
           )}
         </main>
 
         <aside className="issues-aside">
           <h4>Actions</h4>
-          <RoomActions roomData={roomData} />
+          <RoomActions roomData={roomData} roomMachineData={roomMachineData} />
           {/* <h4>Issues</h4>
           <Issues /> */}
         </aside>

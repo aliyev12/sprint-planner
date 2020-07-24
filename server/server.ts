@@ -10,7 +10,7 @@ import { baseRoute } from "./routes";
 import { formatMessage, botName, toMilliseconds } from "./utils";
 import { Users } from "./data/models/Users";
 import { Rooms } from "./data/models/Rooms";
-import { EAction } from "./data/models";
+import { EAction, EUserRole } from "./data/models";
 
 const PORT = process.env.PORT || 3333;
 
@@ -53,8 +53,12 @@ app.use(cors());
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
 /*=======================================================*/
-io.on("connection", (socket) => {
-  socket.on("join", ({ userName, roomId, roomName }, callback) => {
+// const adminNamespace = io.of("/admin");
+// adminNamespace.on("connection", handleSocket);
+io.on("connection", handleSocket);
+
+function handleSocket(socket) {
+  socket.on("join", ({ userName, userRole, roomId, roomName }, callback) => {
     const joinResult = {
       user: null,
       error: null,
@@ -66,6 +70,7 @@ io.on("connection", (socket) => {
     const { user } = users.addUser({
       id: socket.id,
       name: userName,
+      role: userRole,
       room: roomId,
     });
 
@@ -137,6 +142,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("updateCategories", (args, callback) => {
+    if (!isAdmin(socket.id))
+      return callback({
+        room: null,
+        error: "You are not authorized to update categories",
+      });
+
     const result = rooms.updateCategories(args);
 
     if (result && result.room) {
@@ -156,6 +167,12 @@ io.on("connection", (socket) => {
   socket.on(
     "updateCategoryCards",
     ({ roomId, categoryId, unit, action }, callback) => {
+      if (!isAdmin(socket.id))
+        return callback({
+          room: null,
+          error: "You are not authorized to update cards",
+        });
+
       const result = rooms.updateCategoryCards(
         roomId,
         categoryId,
@@ -231,7 +248,7 @@ io.on("connection", (socket) => {
       });
     }
   });
-});
+}
 
 server.listen(PORT, () =>
   console.log(
@@ -239,6 +256,12 @@ server.listen(PORT, () =>
     ` Server running in ${process.env.NODE_ENV} on port ${PORT} `
   )
 );
+
+function isAdmin(id: string): boolean {
+  const foundUser = users.getUser(id);
+  if (!foundUser || foundUser.role !== EUserRole.admin) return false;
+  return true;
+}
 
 // This function will exit node process and shutdown the server
 const gracefullyShutdownServer = (serv, err, errorType) => {
