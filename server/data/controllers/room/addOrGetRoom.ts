@@ -1,5 +1,5 @@
 import fs from "fs";
-import { IAddRoomProps } from "../../models";
+import { IAddRoomProps, ERoomStatus } from "../../models";
 import { Rooms } from "../../models/Rooms";
 
 export function addOrGetRoom(this: Rooms, { id, name }: IAddRoomProps) {
@@ -21,6 +21,7 @@ export function addOrGetRoom(this: Rooms, { id, name }: IAddRoomProps) {
       session: null,
     },
     issues: [],
+    status: ERoomStatus.initial,
   };
 
   this.rooms.push(newRoom);

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import io from "socket.io-client";
-import { useMachine } from "@xstate/react";
 import {
   ERoomStatus,
   ERoomEvents,
@@ -20,6 +19,8 @@ import { Stats } from "./Stats";
 import { roomMachine } from "../stateMachines";
 import "./Room.css";
 import { votesExist } from "../common/categoriesHelpers";
+import { Alert } from "../common";
+import { doesNotThrow } from "assert";
 
 // let socket: SocketIOClient.Socket;
 
@@ -27,10 +28,10 @@ export const Room = ({ location, match, history }) => {
   const ENDPOINT = getEndpoint() || "localhost:3333";
 
   const {
+    status,
+    send,
+    service,
     socket,
-    // state,
-    // send,
-    // service,
     currentUser,
     currentCategoryId,
     currentSession,
@@ -40,28 +41,18 @@ export const Room = ({ location, match, history }) => {
     set__currentCategoryId,
   } = React.useContext(Context);
 
-  const roomMachineData = useMachine(roomMachine);
-  const [state, send, service] = roomMachineData;
-
-  service.onTransition((state) => {
-    if (state.changed) {
-      console.log("state.value = ", state.value);
-    }
-  });
-
   const [userName, set__userName] = useState("");
   const [roomData, set__roomData] = useState<IRoom | undefined>();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
-  // const [messages, set__Messages] = useState([]);
   const [users, set__Users] = useState<IUser[]>([]);
 
-  service.onTransition((state, ctx) => {
-    if (state.changed) {
-      // console.log(state.value);
-      // console.log("context = ", state.context);
+  service.onTransition((status, ctx) => {
+    if (status.changed) {
+      // console.log(status.value);
+      // console.log("context = ", status.context);
     }
-    // if (state.matches("broken")) {
+    // if (status.matches("broken")) {
     //   console.log("i'm broke");
     // }
   });
@@ -115,29 +106,27 @@ export const Room = ({ location, match, history }) => {
 
     socket.on("roomData", (result: { users: IUser[]; room: IRoom }) => {
       if (result.users) set__Users(result.users);
-      // console.log("roomData result = ", result);
-      console.log("roomData room = ", result.room);
+      console.log("roomData result = ", result);
       if (result.room && result.room.currentSession && result.room.name) {
-        const { active, session } = result.room.currentSession;
-        send({ type: "ROOM_DATA_CHANGE", roomData: result });
-        if (active && votesExist(result.room.currentSession)) {
-          send("VOTE");
-        }
-        if (active && !votesExist(result.room.currentSession)) {
-          send("UNVOTE");
-        }
-        if (!active && session) {
-          send("SESSION");
-        }
-      }
+        set__currentSession(result.room.currentSession);
+        set__roomData(result.room);
+        set__roomName(result.room.name);
 
-      set__currentSession(result.room.currentSession);
-      set__roomData(result.room);
-      set__roomName(result.room.name);
+        if (result.room.currentSession.active) {
+          send(DONE);
+        }
 
-      if (result.room.currentSession.activeCategoryId) {
-        set__currentCategoryId(result.room.currentSession.activeCategoryId);
-        triggedDomEvent();
+        if (
+          result.room.currentSession.active === false &&
+          result.room.currentSession.session
+        ) {
+          send(VIEW_STATS);
+        }
+
+        if (result.room.currentSession.activeCategoryId) {
+          set__currentCategoryId(result.room.currentSession.activeCategoryId);
+          triggedDomEvent();
+        }
       }
     });
 
@@ -146,7 +135,6 @@ export const Room = ({ location, match, history }) => {
       socket.off("roomData");
     };
   }, []);
-  // }, [messages]);
 
   const updateCategories = (
     action: EAction,
@@ -193,6 +181,8 @@ export const Room = ({ location, match, history }) => {
   };
 
   const categoriesTitle = () => {
+    console.log("status.value = ", status.value);
+    // status value is not being updated. Do something, and ifyou have to, just get rid of xstate
     // console.log("roomData = ", roomData);
     // console.log("currentCategoryId = ", currentCategoryId);
     if (currentSession.active && currentSession.activeCategoryId) {
@@ -204,11 +194,11 @@ export const Room = ({ location, match, history }) => {
           Voting is currently in session for: {currentCategory.name}
         </h4>
       );
-    } else if (state.matches(editingCategories)) {
+    } else if (status.matches(editingCategories)) {
       return <h4>Categories</h4>;
-    } else if (state.matches(viewingStats)) {
+    } else if (status.matches(viewingStats)) {
       return <h4>Voting Results</h4>;
-    } else if (state.matches(editingCards)) {
+    } else if (status.matches(editingCards)) {
       const foundCat = roomData.categories.find(
         (c) => c.id === currentCategoryId
       );
@@ -225,6 +215,13 @@ export const Room = ({ location, match, history }) => {
       <div className="room-grid-container">
         <section className="room-name">
           <h1>{roomName}</h1>
+          {currentUser.role !== EUserRole.admin &&
+          roomData.status === ERoomStatus.edit ? (
+            <Alert
+              type="warning"
+              text="Categories are currently being edited by the admin. Please, wait until they are done being edited to do anything on the page."
+            />
+          ) : null}
         </section>
         <aside className="users-aside">
           <h4>Users</h4>
@@ -233,7 +230,9 @@ export const Room = ({ location, match, history }) => {
 
         <main>
           {categoriesTitle()}
-          {state.matches(viewingStats) ? (
+          {currentSession.active === false &&
+          currentSession.session &&
+          status.matches(viewingStats) ? (
             <Stats roomData={roomData} />
           ) : (
             <Categories
@@ -241,14 +240,13 @@ export const Room = ({ location, match, history }) => {
               currentSession={roomData.currentSession}
               updateCategoryCards={updateCategoryCards}
               updateCategories={updateCategories}
-              roomMachineData={roomMachineData}
             />
           )}
         </main>
 
         <aside className="issues-aside">
           <h4>Actions</h4>
-          <RoomActions roomData={roomData} roomMachineData={roomMachineData} />
+          <RoomActions roomData={roomData} />
           {/* <h4>Issues</h4>
           <Issues /> */}
         </aside>

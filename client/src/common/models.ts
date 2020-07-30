@@ -8,6 +8,7 @@ export enum EHomeStatuses {
 
 export enum ERoomStatus {
   initial = "initial",
+  edit = "edit",
   editingCards = "editingCards",
   editingCategories = "editingCategories",
   viewingStats = "viewingStats",
@@ -61,6 +62,7 @@ export enum EAction {
   save = "save",
   vote = "vote",
   reset = "reset",
+  updateStatus = "updateStatus",
 }
 
 export interface ICategory {
@@ -103,6 +105,7 @@ export interface IRoom {
   categories: ICategory[];
   currentSession: ICurrentSession;
   issues: IIsue[];
+  status: ERoomStatus;
 }
 
 export interface IUser {

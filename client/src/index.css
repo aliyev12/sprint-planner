@@ -7,6 +7,8 @@
   --success-color__light: #00e676;
   --error-color: #d50000; /* red accent-4 */
   --error-color-light: #ffcdd2; /* red lighten-4 */
+  --warning-color: #ffd600; /* yellow accent-4 */
+  --warning-color-transp: #ffd600;
   --black-color: #333333;
   --grey-lighten-2: #e0e0e0; /*  grey lighten-2 */
   --teal-lighten-1: #26a69a; /* teal lighten-1 */

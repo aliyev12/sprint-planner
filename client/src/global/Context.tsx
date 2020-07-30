@@ -31,7 +31,7 @@ const EMPTY_CURRENT_SESSION: ICurrentSession = {
 
 const Context = React.createContext({
   socket: undefined,
-  state: null,
+  status: null,
   send: null,
   service: null,
   currentUser: null,
@@ -55,7 +55,7 @@ const Context = React.createContext({
 const GlopalProvider = ({ children }) => {
   const ENDPOINT = getEndpoint() || "localhost:3333";
 
-  const [state, send, service] = useMachine(roomMachine);
+  const [status, send, service] = useMachine(roomMachine);
 
   const [currentUser, set__currentUser] = React.useState<IUser | null>(null);
   const [roomState, set__roomState] = React.useState({ ...EMPTY_ROOM_STATE });
@@ -92,7 +92,7 @@ const GlopalProvider = ({ children }) => {
     <Context.Provider
       value={{
         socket,
-        state,
+        status,
         send,
         service,
         currentUser,

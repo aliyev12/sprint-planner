@@ -10,7 +10,7 @@ import { baseRoute } from "./routes";
 import { formatMessage, botName, toMilliseconds } from "./utils";
 import { Users } from "./data/models/Users";
 import { Rooms } from "./data/models/Rooms";
-import { EAction, EUserRole } from "./data/models";
+import { EAction, EUserRole, ERoomStatus } from "./data/models";
 
 const PORT = process.env.PORT || 3333;
 
@@ -149,6 +149,15 @@ function handleSocket(socket) {
       });
 
     const result = rooms.updateCategories(args);
+    let message = `Categories have been updated::warning`;
+    if (args.action === EAction.updateStatus) {
+      if (args.status && args.status === ERoomStatus.edit) {
+        message = `Categories are being edited by the admin::warning`;
+      }
+      if (args.status && args.status === ERoomStatus.initial) {
+        message = `Categories are done being edited::success`;
+      }
+    }
 
     if (result && result.room) {
       io.to(args.roomId).emit("roomData", {
@@ -157,7 +166,7 @@ function handleSocket(socket) {
       });
       socket.broadcast.to(args.roomId).emit("message", {
         user: botName,
-        text: `Categories have been updated`,
+        text: message,
       });
     }
 

@@ -18,14 +18,16 @@ export const calcPercentage = (
     (acc, key) => acc + voteCount[key],
     0
   );
-
+  // { "1": 2, "2": 1 } => voteCount
+  // ["1", "2"] => voteCountKeys
   voteCountKeys.forEach((key) => {
     if (max.count === 0) {
       max = {
         ...max,
         unit: key,
         count: voteCount[key],
-        perc: 100,
+        // perc: 100,
+        perc: Math.floor((voteCount[key] / totalNumOfVotes) * 100),
       };
     } else if (voteCount[key] > max.count) {
       max = {
@@ -37,20 +39,13 @@ export const calcPercentage = (
     }
   });
 
-  // 2,2,1,1,1
+  // if (max.perc === 100) {
+
+  // }
+
   // { "12": 2, "4": 3 } => voteCount
   // ["12", "4"] => voteCountKeys
   if (voteCountKeys.length > 1) {
-    // let hasEqualVotes = false,
-    //   prev = null;
-    // for (let i = 0; i < voteCountKeys.length; i++) {
-    //   const key = voteCountKeys[i];
-    //   if (prev && voteCount[key] === prev) {
-    //     hasEqualVotes = true;
-    //     break;
-    //   }
-    //   prev = voteCount[key];
-    // }
     let isTie = false;
     const sortedVotes = voteCountKeys.map((k) => voteCount[k]).sort();
     const last1Sorted = sortedVotes[sortedVotes.length - 1];

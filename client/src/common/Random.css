@@ -14,6 +14,11 @@
   width: 100%;
 }
 
+.Alert.warning .card-content {
+  color: black;
+  background-color: var(--warning-color);
+}
+
 .Alert .card-content {
   text-align: center;
 }

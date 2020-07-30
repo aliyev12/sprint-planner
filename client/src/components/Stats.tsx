@@ -11,7 +11,12 @@ interface Props {
 
 export const Stats = ({ roomData }: Props) => {
   const { currentSession } = React.useContext(Context);
-  if (!currentSession) return null;
+  if (
+    !currentSession ||
+    !currentSession.session ||
+    !currentSession.session.sessionCategories
+  )
+    return null;
 
   const thereIsEnoughDataForChart = (cb: () => IStatResult) => {
     if (
@@ -49,6 +54,7 @@ export const Stats = ({ roomData }: Props) => {
           </div>
         </div>
       );
+      console.log("stats= ", stats);
       if (stats.topVote.tie) {
         return <h5>Tie vote! Reset and try again</h5>;
       } else if (stats.topVote.perc === 100) {
