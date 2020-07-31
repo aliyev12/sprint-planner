@@ -1,5 +1,6 @@
 import fs from "fs";
 import { IUser } from ".";
+import { MAX_USERS } from "../../utils";
 
 export class Users {
   users: IUser[];
@@ -8,6 +9,7 @@ export class Users {
   }
 
   addUser({ id, name, role, room }: IUser) {
+    if (this.users.length >= MAX_USERS) return { user: null };
     name = name.trim();
     room = room.trim().toLowerCase();
 
