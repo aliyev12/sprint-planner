@@ -1,0 +1,15 @@
+.MostRecent .list-item {
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+}
+
+.MostRecent .list-item:last-child {
+  margin-bottom: 0;
+}
+
+.MostRecent .list-item .percent {
+  box-shadow: var(--theme-box-shadow);
+  margin-left: 1rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.2rem;
+}

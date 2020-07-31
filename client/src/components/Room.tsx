@@ -21,6 +21,7 @@ import "./Room.css";
 import { votesExist } from "../common/categoriesHelpers";
 import { Alert, CenteredCard } from "../common";
 import { doesNotThrow } from "assert";
+import { MostRecent } from "./MostRecent";
 
 // let socket: SocketIOClient.Socket;
 
@@ -48,13 +49,14 @@ export const Room = ({ location, match, history }) => {
   const [capacity, set__capacity] = useState({ max: false, error: null });
   const [users, set__Users] = useState<IUser[]>([]);
 
+  // Monitor statuses
   service.onTransition((status, ctx) => {
     if (status.changed) {
       // console.log(status.value);
       // console.log("context = ", status.context);
     }
-    // if (status.matches("broken")) {
-    //   console.log("i'm broke");
+    // if (status.matches("initial")) {
+    //   console.log("initial state");
     // }
   });
 
@@ -77,8 +79,6 @@ export const Room = ({ location, match, history }) => {
     if (roomState.roomName) _roomName = roomState.roomName;
 
     if (roomIdParam && _userName && _userRole) {
-      // socket = io(ENDPOINT);
-
       set__userName(_userName);
       set__roomId(roomIdParam);
       set__roomName(_roomName);
@@ -92,7 +92,6 @@ export const Room = ({ location, match, history }) => {
           roomName: _roomName,
         },
         (res: { user?: IUser; error?: string; maxCapacity?: boolean }) => {
-          // console.log("res = ", res);
           if (res.maxCapacity)
             return set__capacity({
               max: true,
@@ -118,10 +117,12 @@ export const Room = ({ location, match, history }) => {
         set__roomData(result.room);
         set__roomName(result.room.name);
 
+        // Once a voting session stops, force switch all to initial state
         if (result.room.currentSession.active) {
           send(DONE);
         }
 
+        // Once a voting session stops, force switch all to viewingStats state
         if (
           result.room.currentSession.active === false &&
           result.room.currentSession.session
@@ -131,14 +132,19 @@ export const Room = ({ location, match, history }) => {
 
         if (result.room.currentSession.activeCategoryId) {
           set__currentCategoryId(result.room.currentSession.activeCategoryId);
+          // 👇dumb thing you need to do for materialize to focus on current category
           triggedDomEvent();
         }
       }
     });
 
+    // When session is over, force end viewingStats state for all
+    socket.on("sessionReset", () => send(DONE));
+
     return () => {
       socket.off("message");
       socket.off("roomData");
+      socket.off("sessionReset");
     };
   }, []);
 
@@ -187,10 +193,6 @@ export const Room = ({ location, match, history }) => {
   };
 
   const categoriesTitle = () => {
-    console.log("status.value = ", status.value);
-    // status value is not being updated. Do something, and ifyou have to, just get rid of xstate
-    // console.log("roomData = ", roomData);
-    // console.log("currentCategoryId = ", currentCategoryId);
     if (currentSession.active && currentSession.activeCategoryId) {
       const currentCategory = roomData.categories.find(
         (c) => c.id === currentSession.activeCategoryId
@@ -260,6 +262,13 @@ export const Room = ({ location, match, history }) => {
         <aside className="issues-aside">
           <h4>Actions</h4>
           <RoomActions roomData={roomData} />
+          {roomData.issues.length ? (
+            <>
+              <h4>Most Recent</h4>
+              <MostRecent roomData={roomData} />
+            </>
+          ) : null}
+
           {/* <h4>Issues</h4>
           <Issues /> */}
         </aside>

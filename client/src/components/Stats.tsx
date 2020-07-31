@@ -54,7 +54,8 @@ export const Stats = ({ roomData }: Props) => {
           </div>
         </div>
       );
-      console.log("stats= ", stats);
+
+      // console.log("stats= ", stats);
       if (stats.topVote.tie) {
         return <h5>Tie vote! Reset and try again</h5>;
       } else if (stats.topVote.perc === 100) {
