@@ -7,6 +7,7 @@ export enum EAction {
   save = "save",
   vote = "vote",
   reset = "reset",
+  updateStatus = "updateStatus",
 }
 
 export enum EUserRole {
@@ -55,12 +56,18 @@ export interface ICurrentSession {
   session?: ISession;
 }
 
+export enum ERoomStatus {
+  initial = "initial",
+  edit = "edit",
+}
+
 export interface IRoom {
   id: string;
   name: string;
   categories: ICategory[];
   currentSession: ICurrentSession;
   issues: IIsue[];
+  status: ERoomStatus;
 }
 
 export interface IAddCardResult {
@@ -76,6 +83,7 @@ export interface IUpdateCatArgs {
     name: string;
     singular: string;
   };
+  status?: ERoomStatus;
 }
 
 export interface IHandleSessionArgs {

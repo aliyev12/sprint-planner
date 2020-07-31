@@ -1,6 +1,5 @@
 import React from "react";
 import { toast } from "react-toastify";
-import { useMachine } from "@xstate/react";
 import { EAction, ERoomStatus, ICategory, IResult } from "../common/models";
 import { isNumOrFloat, categoryActive } from "../common/utils";
 import { Context } from "../global/Context";
@@ -10,20 +9,14 @@ import { roomMachine } from "../stateMachines";
 interface Props {
   category: ICategory;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
-  roomMachineData: any;
 }
 
-export const VotingCards = ({
-  category,
-  updateCategoryCards,
-  roomMachineData,
-}: Props) => {
+export const VotingCards = ({ category, updateCategoryCards }: Props) => {
   const [newUnit, set__newUnit] = React.useState("");
-  const [state, send, service] = roomMachineData;
 
   const {
-    // state,
-    // send,
+    status,
+    send,
     socket,
     currentUser,
     roomState,
@@ -68,14 +61,15 @@ export const VotingCards = ({
   };
 
   const editMode =
-    !categoryActive(currentSession, category.id) && state.matches(editingCards);
+    !categoryActive(currentSession, category.id) &&
+    status.matches(editingCards);
 
   // const initialMode =
-  //   state.matches({ inactive: initial }) &&
+  //   status.matches({ inactive: initial }) &&
   //   categoryActive(currentSession, category.id);
 
   const disabledMode =
-    !state.matches(initial) || !categoryActive(currentSession, category.id);
+    !status.matches(initial) || !categoryActive(currentSession, category.id);
 
   const isCurrentVote = (unit: number) => {
     // if (!categoryActive(currentSession, category.id) || !currentSession.session)

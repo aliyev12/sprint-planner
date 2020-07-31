@@ -136,6 +136,10 @@ button:focus {
   color: white;
 }
 
+.Toastify__toast--warning {
+  background: var(--warning-color);
+}
+
 .Toastify__toast--error {
   color: white;
 }

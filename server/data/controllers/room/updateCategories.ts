@@ -38,6 +38,12 @@ export function updateCategories(
       units: [],
     };
     result.room.categories.push(newCategory);
+  } else if (action === EAction.updateStatus) {
+    const { status } = args;
+    if (!status) {
+      result.error = "New room status has not been provided.";
+    }
+    result.room.status = status;
   } else {
     const { categoryId, values } = args;
     if (!categoryId) {

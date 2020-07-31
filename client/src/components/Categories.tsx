@@ -1,6 +1,5 @@
 import React from "react";
 import M from "materialize-css";
-import { useMachine } from "@xstate/react";
 import {
   EAction,
   ERoomStatus,
@@ -11,13 +10,11 @@ import {
 import { Context } from "../global/Context";
 import { VotingCards } from "./VotingCards";
 import { allCatChangesSaved } from "../common/categoriesHelpers";
-import { roomMachine } from "../stateMachines";
 import "./Categories.css";
 
 interface Props {
   categories: ICategory[];
   currentSession: ICurrentSession;
-  roomMachineData: any;
   updateCategoryCards: (id: string, u: number, a: EAction) => void;
   updateCategories: (
     a: EAction,
@@ -31,7 +28,6 @@ export const Categories = ({
   currentSession,
   updateCategoryCards,
   updateCategories,
-  roomMachineData,
 }: Props) => {
   let _categoriesSelectRef;
   const {
@@ -39,11 +35,9 @@ export const Categories = ({
     set__editCategoriesValues,
     currentCategoryId,
     set__currentCategoryId,
-    // state,
-    // send,
+    status,
+    send,
   } = React.useContext(Context);
-
-  const [state, send, service] = roomMachineData;
 
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
 
@@ -97,7 +91,7 @@ export const Categories = ({
       <div
         className="input-field col s6"
         style={{
-          display: state.matches(initial) ? "block" : "none",
+          display: status.matches(initial) ? "block" : "none",
         }}
       >
         <select
@@ -199,12 +193,11 @@ export const Categories = ({
   };
 
   const editCategoriesSection = () => {
-    console.log(state.matches(editingCategories));
     return (
       <div
         className="row"
         style={{
-          display: state.matches(editingCategories) ? "block" : "none",
+          display: status.matches(editingCategories) ? "block" : "none",
         }}
       >
         <div className="col s12">
@@ -246,7 +239,6 @@ export const Categories = ({
         <VotingCards
           category={getCurrentCategory()}
           updateCategoryCards={updateCategoryCards}
-          roomMachineData={roomMachineData}
         />
       ) : null}
     </div>

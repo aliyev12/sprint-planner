@@ -85,8 +85,8 @@ export const voteActionText = (afterVoteMode, currentSession) => {
   return { txt: "error", ico: "done_all" };
 };
 
-export const viewStatsText = (current) => {
-  if (current.matches(ERoomStatus.viewingStats)) {
+export const viewStatsText = (afterVoteMode, current) => {
+  if (afterVoteMode() && current.matches(ERoomStatus.viewingStats)) {
     return {
       txt: "Back to cards",
       ico: "arrow_back",

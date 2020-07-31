@@ -1,7 +1,6 @@
 import M from "materialize-css";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { useMachine } from "@xstate/react";
 import { toast } from "react-toastify";
 import {
   allCatChangesSaved,
@@ -26,23 +25,20 @@ import "./RoomActions.css";
 
 interface Props {
   roomData: IRoom;
-  roomMachineData: any;
 }
 
-export const RoomActions = ({ roomData, roomMachineData }: Props) => {
+export const RoomActions = ({ roomData }: Props) => {
   let _categoriesDropdownRef;
   const {
     socket,
-    // state,
-    // send,
+    status,
+    send,
     editCategoriesValues,
     currentUser,
     set__editCategoriesValues,
     currentSession,
     currentCategoryId,
   } = React.useContext(Context);
-
-  const [state, send, service] = roomMachineData;
 
   const history = useHistory();
 
@@ -62,7 +58,7 @@ export const RoomActions = ({ roomData, roomMachineData }: Props) => {
   if (!currentSession) return null;
 
   const handleDoneEditing = () => {
-    if (state.matches(editingCategories)) {
+    if (status.matches(editingCategories)) {
       const incompleteCatsExist = roomData.categories.some(
         (c) => !c.name || !c.singular
       );
@@ -95,26 +91,24 @@ export const RoomActions = ({ roomData, roomMachineData }: Props) => {
         });
       }
     }
+
+    handleRoomStatus(ERoomStatus.initial);
     send(DONE);
   };
 
   const handleStartStopVoting = () => {
     let votingAction = EAction.start;
-    let newEvent = "ACTIVATE";
     if (currentSession.active && !votesExist(currentSession)) {
-      newEvent = "DONE";
       votingAction = EAction.reset;
     }
     if (afterVoteMode()) {
-      newEvent = "DONE";
       votingAction = EAction.reset;
     }
     if (currentSession.active && votesExist(currentSession)) {
-      newEvent = "AFTER_VOTE";
       votingAction = EAction.end;
     }
-    // Update state machine
-    send(newEvent);
+    // Update status machine
+    send(DONE);
 
     // Update server side data model
     socket.emit(
@@ -132,17 +126,33 @@ export const RoomActions = ({ roomData, roomMachineData }: Props) => {
     if (currentSession.active === false && currentSession.session) return true;
     return false;
   };
+
+  const handleRoomStatus = (newStatus: ERoomStatus) => {
+    socket.emit(
+      "updateCategories",
+      {
+        action: EAction.updateStatus,
+        roomId: roomData.id,
+        status: newStatus,
+      },
+      (res: IResult) => (res.error ? toast.error(res.error) : null)
+    );
+  };
+
   const voteActionTxt = voteActionText(afterVoteMode, currentSession);
-  const viewStatsTxt = viewStatsText(state);
-  const editStyle = editDropdownStyle(currentSession, state);
-  const doneEdtStyle = doneEditingStyle(currentSession, state);
+  const viewStatsTxt = viewStatsText(afterVoteMode, status);
+  const editStyle = editDropdownStyle(currentSession, status);
+  const doneEdtStyle = doneEditingStyle(currentSession, status);
   return (
     <div className="RoomActions">
       <div className="buttons-container">
-        {voteActionTxt.txt !== "error" ? (
+        {currentUser.role === EUserRole.admin &&
+        voteActionTxt.txt !== "error" ? (
           <button
             disabled={
-              state.matches(editingCards) || state.matches(editingCategories)
+              roomData.status === ERoomStatus.edit ||
+              status.matches(editingCards) ||
+              status.matches(editingCategories)
             }
             title={voteActionTxt.title}
             className="waves-effect waves-light btn-large blue darken-4 room-action-btn"
@@ -154,15 +164,13 @@ export const RoomActions = ({ roomData, roomMachineData }: Props) => {
         ) : null}
 
         <button
-          disabled={
-            !(state.matches("viewingStats") || state.matches("withSession"))
-          }
-          // disabled={!afterVoteMode()}
+          // disabled={!(status.matches(viewingStats) || status.matches(initial))}
+          disabled={!afterVoteMode()}
           title={voteActionTxt.title}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {
-            if (state.matches(viewingStats)) {
-              send("BACK");
+            if (status.matches(viewingStats)) {
+              send(DONE);
             } else {
               send(VIEW_STATS);
             }
@@ -209,7 +217,15 @@ export const RoomActions = ({ roomData, roomMachineData }: Props) => {
               <li className="flex-centered">
                 <button
                   className="btn-flat edit-dropdown-btn "
-                  onClick={() => send(EDIT_CATEGORIES)}
+                  onClick={() => {
+                    // When admin starts editing by clicking edit categories or edit cards
+                    // emit an event to the server that will set editing status to true
+                    // add this editing status flag ro Room model on server side
+                    // when editing flag is on, all vote and other buttons on other users
+                    // should be disabled. So, this is something that can be handeles on client side later
+                    handleRoomStatus(ERoomStatus.edit);
+                    send(EDIT_CATEGORIES);
+                  }}
                 >
                   Edit Categories
                 </button>
@@ -217,7 +233,10 @@ export const RoomActions = ({ roomData, roomMachineData }: Props) => {
               <li className="flex-centered">
                 <button
                   className="btn-flat edit-dropdown-btn"
-                  onClick={() => send(EDIT_CARDS)}
+                  onClick={() => {
+                    handleRoomStatus(ERoomStatus.edit);
+                    send(EDIT_CARDS);
+                  }}
                 >
                   Edit Cards
                 </button>
