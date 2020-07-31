@@ -13,4 +13,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isNumOrFloat = void 0;
 __exportStar(require("./messages"), exports);
 __exportStar(require("./constants"), exports);
+__exportStar(require("./toMilliseconds"), exports);
 exports.isNumOrFloat = (num) => /^[+-]?\d+(\.\d+)?$/g.test(num.toString());
