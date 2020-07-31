@@ -1,18 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Users = void 0;
+const utils_1 = require("../../utils");
 class Users {
     constructor() {
         this.users = [];
     }
-    addUser({ id, name, room }) {
+    addUser({ id, name, role, room }) {
+        if (this.users.length >= utils_1.MAX_USERS)
+            return { user: null };
         name = name.trim();
         room = room.trim().toLowerCase();
         // const existingUser = this.users.find(
         //   (u) => u.room === room && u.name === name
         // );
         // if (existingUser) return { error: "Username is taken" };
-        const user = { id, name, room };
+        const user = { id, name, role, room };
         this.users.push(user);
         return { user };
     }
