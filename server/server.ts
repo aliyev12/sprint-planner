@@ -243,6 +243,10 @@ function handleSocket(socket) {
         room: result.room,
         users: users.getUsersInRoom(args.roomId),
       });
+
+      if (args.action === EAction.reset)
+        io.to(args.roomId).emit("sessionReset");
+
       socket.broadcast.to(args.roomId).emit("message", {
         user: botName,
         text: message,
