@@ -1,6 +1,6 @@
 import React from "react";
 import io from "socket.io-client";
-import { CenteredCard, Loader, Or, getEndpoint } from "../common";
+import { CenteredCard, Loader, Or, getEndpoint, Alert } from "../common";
 import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Join.css";
@@ -13,6 +13,7 @@ export const Join = ({ location, match, history }) => {
   const [userName, set__userName] = React.useState("");
   const [roomId, set__roomId] = React.useState("");
   const [loading, set__loading] = React.useState(false);
+  const [capacity, set__capacity] = React.useState({ max: false, error: null });
 
   React.useEffect(() => {
     set__loading(true);
@@ -27,7 +28,13 @@ export const Join = ({ location, match, history }) => {
       socket.emit(
         "validateRoomExists",
         { roomId: roomIdParam },
-        ({ roomExists }) => {
+        ({ roomExists, maxCapacity, error }) => {
+          if (maxCapacity)
+            return set__capacity({
+              max: true,
+              error,
+            });
+
           if (roomExists) {
             set__roomId(roomIdParam);
           } else {
@@ -55,6 +62,13 @@ export const Join = ({ location, match, history }) => {
   };
 
   if (loading) return <Loader />;
+
+  if (capacity.max)
+    return (
+      <CenteredCard>
+        <Alert text={capacity.error} type="warning" />
+      </CenteredCard>
+    );
 
   if (!roomId && !loading) return null;
 

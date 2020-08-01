@@ -7,7 +7,13 @@ import rateLimit from "express-rate-limit";
 import cors from "cors";
 import xss from "xss-clean";
 import { baseRoute } from "./routes";
-import { formatMessage, botName, toMilliseconds } from "./utils";
+import {
+  formatMessage,
+  botName,
+  toMilliseconds,
+  MAX_USERS,
+  MAX_ROOMS,
+} from "./utils";
 import { Users } from "./data/models/Users";
 import { Rooms } from "./data/models/Rooms";
 import { EAction, EUserRole, ERoomStatus } from "./data/models";
@@ -45,7 +51,8 @@ const server = http.createServer(app);
 var io = require("socket.io")(server, { origins: "*:*" });
 
 // Set Routes
-app.use("/", baseRoute);
+// Not using any routes for now..
+// app.use("/", baseRoute);
 
 // Use cors to avoid cors error in browser
 app.use(cors());
@@ -55,10 +62,14 @@ app.use(cors());
 /*=======================================================*/
 // const adminNamespace = io.of("/admin");
 // adminNamespace.on("connection", handleSocket);
+
 io.on("connection", handleSocket);
 
 function handleSocket(socket) {
   socket.on("join", ({ userName, userRole, roomId, roomName }, callback) => {
+    // Check is max allowed number of users/rooms hasn't been reached
+    if (checkCapacity().max) return callback(checkCapacity().payload);
+
     const joinResult = {
       user: null,
       error: null,
@@ -127,7 +138,15 @@ function handleSocket(socket) {
       error: null,
       roomExists: false,
       roomData: null,
+      maxCapacity: false,
     };
+
+    // Check is max allowed number of users/rooms hasn't been reached
+    if (checkCapacity().max)
+      return callback({
+        ...validationMessage,
+        ...checkCapacity().payload,
+      });
 
     if (!roomId)
       return callback({ ...validationMessage, error: "Wrong room ID" });
@@ -270,6 +289,21 @@ function isAdmin(id: string): boolean {
   const foundUser = users.getUser(id);
   if (!foundUser || foundUser.role !== EUserRole.admin) return false;
   return true;
+}
+
+function checkCapacity() {
+  const maxCapacityError =
+    "The app has currently reached its max capacity. Please, try again later";
+  const isMax =
+    users.users.length >= MAX_USERS || rooms.rooms.length >= MAX_ROOMS;
+  let payload = null;
+  if (isMax)
+    payload = {
+      maxCapacity: true,
+      error: maxCapacityError,
+    };
+
+  return { max: isMax, payload };
 }
 
 // This function will exit node process and shutdown the server

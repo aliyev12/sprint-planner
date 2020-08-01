@@ -19,7 +19,7 @@ import { Stats } from "./Stats";
 import { roomMachine } from "../stateMachines";
 import "./Room.css";
 import { votesExist } from "../common/categoriesHelpers";
-import { Alert } from "../common";
+import { Alert, CenteredCard } from "../common";
 import { doesNotThrow } from "assert";
 
 // let socket: SocketIOClient.Socket;
@@ -45,6 +45,7 @@ export const Room = ({ location, match, history }) => {
   const [roomData, set__roomData] = useState<IRoom | undefined>();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
+  const [capacity, set__capacity] = useState({ max: false, error: null });
   const [users, set__Users] = useState<IUser[]>([]);
 
   service.onTransition((status, ctx) => {
@@ -90,8 +91,13 @@ export const Room = ({ location, match, history }) => {
           roomId: roomIdParam,
           roomName: _roomName,
         },
-        (res: { user?: IUser; error?: string }) => {
+        (res: { user?: IUser; error?: string; maxCapacity?: boolean }) => {
           // console.log("res = ", res);
+          if (res.maxCapacity)
+            return set__capacity({
+              max: true,
+              error: res.error,
+            });
           if (res.error) toast.error(res.error);
           if (res.user) set__currentUser(res.user);
         }
@@ -207,6 +213,13 @@ export const Room = ({ location, match, history }) => {
       return <h4>Current Category</h4>;
     }
   };
+
+  if (capacity.max)
+    return (
+      <CenteredCard>
+        <Alert text={capacity.error} type="warning" />
+      </CenteredCard>
+    );
 
   if (!currentUser || !roomData || !roomData.categories || !users) return null;
 
