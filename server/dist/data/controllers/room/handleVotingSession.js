@@ -51,6 +51,45 @@ function handleVotingSession(args) {
         // result.room.currentSession.activeCategoryId = "";
     }
     else if (action === models_1.EAction.reset) {
+        // Push current session to issues -> sessions
+        // If most-recent does not yet exist, then push a new issue
+        if (result.room.currentSession.session.sessionCategories[0].votes.length) {
+            if (!result.room.issues.length) {
+                const newDefaultSession = {
+                    id: "most-recent",
+                    sessionCategories: result.room.currentSession.session.sessionCategories,
+                };
+                const newIssue = {
+                    id: "default",
+                    name: "Default Issue",
+                    sessions: [newDefaultSession],
+                };
+                result.room.issues.push(newIssue);
+            }
+            else {
+                // ... if it exists, then replace the last most-recent with only current session
+                const foundMostRecentIssue = result.room.issues.find((x) => x.id === "default");
+                if (foundMostRecentIssue) {
+                    const foundMostRecentSession = foundMostRecentIssue.sessions.find((s) => s.id === "most-recent");
+                    if (foundMostRecentSession) {
+                        const fountRecentCatIndex = foundMostRecentSession.sessionCategories.findIndex((sc) => sc.categoryId === result.room.currentSession.activeCategoryId);
+                        if (fountRecentCatIndex !== -1) {
+                            let temp = foundMostRecentSession.sessionCategories[0];
+                            foundMostRecentSession.sessionCategories[fountRecentCatIndex].votes =
+                                result.room.currentSession.session.sessionCategories[0].votes;
+                            // Swap items to keep the most recent ones on top
+                            foundMostRecentSession.sessionCategories[0] =
+                                foundMostRecentSession.sessionCategories[fountRecentCatIndex];
+                            foundMostRecentSession.sessionCategories[fountRecentCatIndex] = temp;
+                        }
+                        else {
+                            foundMostRecentSession.sessionCategories.unshift(result.room.currentSession.session.sessionCategories[0]);
+                        }
+                    }
+                }
+            }
+        }
+        // Reset current session
         result.room.currentSession.active = false;
         result.room.currentSession.activeCategoryId = "";
         result.room.currentSession.session = null;
