@@ -194,6 +194,8 @@ function handleSocket(socket) {
                 room: result.room,
                 users: users.getUsersInRoom(args.roomId),
             });
+            if (args.action === models_1.EAction.reset)
+                io.to(args.roomId).emit("sessionReset");
             socket.broadcast.to(args.roomId).emit("message", {
                 user: utils_1.botName,
                 text: message,
