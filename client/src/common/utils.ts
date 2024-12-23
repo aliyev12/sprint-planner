@@ -54,10 +54,7 @@ export const extractRoomId = (str: string): string => {
 };
 
 export const getEndpoint = () => {
-  if (
-    window.location.host === "sprintplannerapp.herokuapp.com" ||
-    window.location.host === "sprintplanner.netlify.app"
-  )
-    return "https://sprintplannerappserver.herokuapp.com/";
+  if (window.location.host === "https://sprint-planner-dun.vercel.app")
+    return "https://sprint-planner-luul.vercel.app/";
   return "localhost:3333";
 };
