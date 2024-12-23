@@ -51,9 +51,12 @@ const server = http.createServer(app);
 // var io = require("socket.io")(server, { origins: "*:*" });
 const io = require("socket.io")(server, {
   cors: {
-    origin: "https://sprint-planner-dun.vercel.app", // Allowed origin
-    methods: ["GET", "POST"], // HTTP methods allowed for handshake
-    credentials: true, // Include credentials if necessary
+    origin: [
+      "https://sprint-planner-dun.vercel.app", // React app
+      "https://sprint-planner-luul.vercel.app", // If there's another URL involved
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
