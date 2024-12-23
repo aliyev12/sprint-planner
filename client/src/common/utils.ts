@@ -54,7 +54,7 @@ export const extractRoomId = (str: string): string => {
 };
 
 export const getEndpoint = () => {
-  if (window.location.host === "https://sprint-planner-dun.vercel.app")
+  if (window.location.host === "sprint-planner-dun.vercel.app")
     return "https://sprint-planner-luul.vercel.app/";
   return "localhost:3333";
 };
