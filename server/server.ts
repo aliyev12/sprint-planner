@@ -48,14 +48,29 @@ app.use(helmet());
 
 const server = http.createServer(app);
 // const io = socketio(server);
-var io = require("socket.io")(server, { origins: "*:*" });
+// var io = require("socket.io")(server, { origins: "*:*" });
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "https://sprint-planner-dun.vercel.app", // Allowed origin
+    methods: ["GET", "POST"], // HTTP methods allowed for handshake
+    credentials: true, // Include credentials if necessary
+  },
+});
 
 // Set Routes
 // Not using any routes for now..
 // app.use("/", baseRoute);
 
 // Use cors to avoid cors error in browser
-app.use(cors());
+// app.use(cors());
+
+app.use(
+  cors({
+    origin: "https://sprint-planner-dun.vercel.app", // React app's URL
+    methods: ["GET", "POST"], // Adjust as needed
+    credentials: true, // Include cookies if needed
+  })
+);
 
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
