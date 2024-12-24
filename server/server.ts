@@ -44,7 +44,20 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // Set security HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: [
+          "'self'",
+          "https://sprint-planner-dun.vercel.app",
+          "https://sprint-planner-luul.vercel.app",
+        ],
+      },
+    },
+  })
+);
 
 const server = http.createServer(app);
 // const io = socketio(server);
@@ -84,6 +97,11 @@ app.use(
 io.on("connection", handleSocket);
 
 function handleSocket(socket) {
+  console.log(
+    "@@@ New connection from origin:",
+    socket.handshake.headers.origin
+  );
+
   socket.on("join", ({ userName, userRole, roomId, roomName }, callback) => {
     // Check is max allowed number of users/rooms hasn't been reached
     if (checkCapacity().max) return callback(checkCapacity().payload);
