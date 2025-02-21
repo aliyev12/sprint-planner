@@ -10,6 +10,7 @@ import {
 import { Context } from "../global/Context";
 import { VotingCards } from "./VotingCards";
 import { allCatChangesSaved } from "../common/categoriesHelpers";
+import uniqid from "uniqid";
 import "./Categories.css";
 
 interface Props {
@@ -41,12 +42,8 @@ export const Categories = ({
 
   const [currentCategoryName, set__currentCategoryName] = React.useState("");
 
-  const {
-    initial,
-    editingCards,
-    editingCategories,
-    viewingStats,
-  } = ERoomStatus;
+  const { initial, editingCards, editingCategories, viewingStats } =
+    ERoomStatus;
 
   React.useEffect(() => {
     M.FormSelect.init(_categoriesSelectRef);
@@ -104,9 +101,9 @@ export const Categories = ({
           onChange={(e) => set__currentCategoryId(e.target.value)}
         >
           {categories && categories.length
-            ? categories.map((category) => {
+            ? categories.map((category, i) => {
                 return (
-                  <option key={category.id} value={category.id}>
+                  <option key={i} value={category.id}>
                     {category.name}
                   </option>
                 );

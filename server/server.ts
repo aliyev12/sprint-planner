@@ -3,9 +3,9 @@ import path from "path";
 import http from "http";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-// import socketio from "socket.io";
 import cors from "cors";
-import xss from "xss-clean";
+import mongoSanitize from "express-mongo-sanitize";
+import { Server, Socket } from "socket.io";
 import { baseRoute } from "./routes";
 import {
   formatMessage,
@@ -17,10 +17,11 @@ import {
 import { Users } from "./data/models/Users";
 import { Rooms } from "./data/models/Rooms";
 import { EAction, EUserRole, ERoomStatus } from "./data/models";
+require("dotenv").config();
 
 const PORT = process.env.PORT || 3333;
 
-// Instantiate in-memody data objects
+// Instantiate in-memory data objects
 const users = new Users();
 const rooms = new Rooms(users);
 
@@ -31,17 +32,23 @@ process.on("uncaughtException", (err) => {
 
 const app = express();
 
-// Data sanitization agains XSS attacks
-// Prevent cross site scripting by replacing html special characters with something else: <script => &lt;script
-app.use(xss());
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
 
 // Limit requests from same API
 const limiter = rateLimit({
-  max: 100,
+  limit: 100, // Changed from 'max' to 'limit'
   windowMs: toMilliseconds("1 hour"),
   message: "Too many requests from this IP, please try again in an hour.",
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use("/api", limiter);
+
+// Load environment variables
+const CLIENT_URLS = process.env.CLIENT_URLS
+  ? process.env.CLIENT_URLS.split(",")
+  : ["http://localhost:5173", "https://sprint-planner.aaliyev.com"];
 
 // Set security HTTP headers
 app.use(
@@ -49,40 +56,27 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: [
-          "'self'",
-          "https://sprint-planner-dun.vercel.app",
-          "https://sprint-planner-luul.vercel.app",
-        ],
+        connectSrc: ["'self'", ...CLIENT_URLS],
       },
     },
   })
 );
 
 const server = http.createServer(app);
-// const io = socketio(server);
-// var io = require("socket.io")(server, { origins: "*:*" });
-const io = require("socket.io")(server, {
+
+// Setup Socket.io with CORS
+const io = new Server(server, {
   cors: {
-    origin: [
-      "https://sprint-planner-dun.vercel.app", // React app
-      "https://sprint-planner-luul.vercel.app", // If there's another URL involved
-    ],
+    origin: CLIENT_URLS,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-// Set Routes
-// Not using any routes for now..
-// app.use("/", baseRoute);
-
 // Use cors to avoid cors error in browser
-// app.use(cors());
-
 app.use(
   cors({
-    origin: "https://sprint-planner-dun.vercel.app", // React app's URL
+    origin: CLIENT_URLS,
     methods: ["GET", "POST"], // Adjust as needed
     credentials: true, // Include cookies if needed
   })
@@ -91,18 +85,21 @@ app.use(
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
 /*=======================================================*/
-// const adminNamespace = io.of("/admin");
-// adminNamespace.on("connection", handleSocket);
 
 io.on("connection", handleSocket);
 
-function handleSocket(socket) {
-  console.log(
-    "@@@ New connection from origin:",
-    socket.handshake.headers.origin
-  );
+function handleSocket(socket: Socket) {
+  // Log connection ID
+  // Check why there are several connections for one user...
 
-  socket.on("join", ({ userName, userRole, roomId, roomName }, callback) => {
+  socket.on("join", (props, callback) => {
+    const { userName, userRole, roomId, roomName } = props;
+
+    const rooms_ = io.sockets.adapter.rooms;
+    const socketIsInRoom = rooms_.get(roomId)?.has(socket.id);
+
+    if (socketIsInRoom) return callback({ message: "User has already joined" });
+
     // Check is max allowed number of users/rooms hasn't been reached
     if (checkCapacity().max) return callback(checkCapacity().payload);
 
@@ -129,6 +126,7 @@ function handleSocket(socket) {
         id: roomId,
         name: roomName,
       });
+
       if (addData) roomData = addData;
     } else {
       const getData = rooms.getRoom(roomId);
@@ -149,7 +147,6 @@ function handleSocket(socket) {
     });
 
     socket.join(roomId);
-    // socket.join(user.room);
 
     io.to(user.room).emit("roomData", {
       room: roomData,
@@ -296,12 +293,18 @@ function handleSocket(socket) {
   /*====================  DISCONNECT  =====================*/
   /*=======================================================*/
   socket.on("disconnecting", () => {
-    rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
+    Array.from(socket.rooms.values()).filter((room) => room !== socket.id); // Filter out the socket's own room
   });
 
   // Runs when client disconnects
   socket.on("disconnect", () => {
-    rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
+    // Get rooms where users still exist
+    const usersInRooms = users.users
+      .filter((user) => user.id !== socket.id) // Filter out this disconnected user
+      .map((user) => user.room);
+
+    // Only teardown rooms that have no users
+    rooms.teardownRooms(usersInRooms);
 
     const user = users.removeUser(socket.id);
 
@@ -347,7 +350,7 @@ function checkCapacity() {
 }
 
 // This function will exit node process and shutdown the server
-const gracefullyShutdownServer = (serv, err, errorType) => {
+const gracefullyShutdownServer = (serv: any, err: Error, errorType: string) => {
   const error = `${errorType}!,${
     serv ? " gracefully" : ""
   } shutting down the server. Error: ${err.name}: ${err.message}.`;
@@ -363,7 +366,7 @@ const gracefullyShutdownServer = (serv, err, errorType) => {
 };
 
 /* ERROR EVENT LISTENERS HAVE TO BE AT THE BOTTOM OF THE FILE! */
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", (err: any) => {
   gracefullyShutdownServer(server, err, "UNHANDLED REJECTION");
 });
 

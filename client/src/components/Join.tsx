@@ -1,34 +1,55 @@
-import React from "react";
-import io from "socket.io-client";
+import { useState, useContext, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { io } from "socket.io-client";
 import { CenteredCard, Loader, Or, getEndpoint, Alert } from "../common";
 import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Join.css";
 
-let socket: SocketIOClient.Socket;
-
-export const Join = ({ location, match, history }) => {
+export const Join = () => {
   const ENDPOINT = getEndpoint() || "localhost:3333";
-  const { initRoom, changeHomeStatus } = React.useContext(Context);
-  const [userName, set__userName] = React.useState("");
-  const [roomId, set__roomId] = React.useState("");
-  const [loading, set__loading] = React.useState(false);
-  const [capacity, set__capacity] = React.useState({ max: false, error: null });
+  const params = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  React.useEffect(() => {
+  const { initRoom, changeHomeStatus } = useContext(Context);
+  const [userName, set__userName] = useState("");
+  const [roomId, set__roomId] = useState("");
+  const [loading, set__loading] = useState(false);
+  const [capacity, set__capacity] = useState<{
+    max: boolean;
+    error: string | null;
+  }>({
+    max: false,
+    error: null,
+  });
+
+  useEffect(() => {
     set__loading(true);
-    let roomIdParam: string | undefined;
-    if (match && match.params && match.params.roomId)
-      roomIdParam = match.params.roomId;
+    let roomIdParam: string | undefined = params.roomId;
 
     if (roomIdParam) {
       // validate roomId
-      socket = io(ENDPOINT);
+      const socket = io(ENDPOINT);
 
       socket.emit(
         "validateRoomExists",
         { roomId: roomIdParam },
-        ({ roomExists, maxCapacity, error }) => {
+        ({
+          roomExists,
+          maxCapacity,
+          error,
+        }: {
+          roomExists: boolean;
+          maxCapacity?: boolean;
+          error?: string;
+        }) => {
+          console.log({
+            roomExists,
+            maxCapacity,
+            error,
+          });
+
           if (maxCapacity)
             return set__capacity({
               max: true,
@@ -36,27 +57,37 @@ export const Join = ({ location, match, history }) => {
             });
 
           if (roomExists) {
-            set__roomId(roomIdParam);
+            set__roomId(roomIdParam as string);
           } else {
             changeHomeStatus(EHomeStatuses.wrongRoomId);
-            history.push({
-              pathname: "/",
+            navigate("/", {
               state: { triedRoomId: roomIdParam },
             });
           }
+
+          set__loading(false);
         }
       );
+
+      return () => {
+        socket.off("validateRoomExists");
+        socket.disconnect();
+      };
+    } else {
+      set__loading(false);
     }
-    set__loading(false);
+  }, [ENDPOINT, location.pathname, params.roomId, navigate, changeHomeStatus]);
 
-    return () => socket.off("validateRoomExists");
-  }, [ENDPOINT, location.pathname]);
-
-  const handleJoinRoom = (e) => {
+  const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
     if (roomId) {
-      initRoom({ userName, userRole: EUserRole.regularUser, roomId });
-      history.push(`/${roomId}`);
+      initRoom({
+        userName,
+        userRole: EUserRole.regularUser,
+        roomId,
+        roomName: "", // Add empty roomName to satisfy the interface
+      });
+      navigate(`/${roomId}`);
       set__userName("");
     }
   };
@@ -66,11 +97,17 @@ export const Join = ({ location, match, history }) => {
   if (capacity.max)
     return (
       <CenteredCard>
-        <Alert text={capacity.error} type="warning" />
+        <Alert
+          text={capacity.error || "Room is at maximum capacity"}
+          type="warning"
+        />
       </CenteredCard>
     );
 
-  if (!roomId && !loading) return null;
+  if (!roomId && !loading) {
+    console.error(`Room ID ${roomId} is not valid`);
+    return null;
+  }
 
   return (
     <CenteredCard>
@@ -98,10 +135,10 @@ export const Join = ({ location, match, history }) => {
         <Or text="create a new room:" />
         <button
           type="button"
-          className="waves-effect waves-light btn-small blue darken-4 "
+          className="waves-effect waves-light btn-small blue darken-4"
           onClick={() => {
             changeHomeStatus(EHomeStatuses.cameFromJoin);
-            history.push("/");
+            navigate("/");
           }}
         >
           <i className="material-icons left">add</i>create new room

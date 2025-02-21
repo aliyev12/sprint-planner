@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toMilliseconds = void 0;
-exports.toMilliseconds = (val) => {
+const toMilliseconds = (val) => {
     const [_amount, measure] = val.split(" ");
     const singularMeasure = measure.replace(/s$/i, "");
     const amount = parseInt(_amount);
@@ -26,3 +26,5 @@ exports.toMilliseconds = (val) => {
       `);
     }
 };
+exports.toMilliseconds = toMilliseconds;
+//# sourceMappingURL=toMilliseconds.js.map

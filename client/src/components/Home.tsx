@@ -1,44 +1,49 @@
-import React from "react";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import uniqid from "uniqid";
 import { CenteredCard, extractRoomId, Or, WrongRoomAlert } from "../common";
 import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Home.css";
-import { useHistory, useLocation } from "react-router-dom";
-// { history, location }
+
 export const Home = () => {
   const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
-  const history = useHistory();
-  const location: any = useLocation();
-  const { initRoom, homeStatus, changeHomeStatus } = React.useContext(Context);
-  const [userName, set__userName] = React.useState("");
-  const [roomName, set__roomName] = React.useState("");
-  const [roomIdInput, set__roomIdInput] = React.useState("");
-  const [errorAlert, set__errorAlert] = React.useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { initRoom, homeStatus, changeHomeStatus } = useContext(Context);
+
+  const [userName, set__userName] = useState("");
+  const [roomName, set__roomName] = useState("");
+  const [roomIdInput, set__roomIdInput] = useState("");
+  const [errorAlert, set__errorAlert] = useState<React.ReactNode>(null);
+
   const { initial, creatingNewRoom, cameFromJoin, wrongRoomId } = EHomeStatuses;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (homeStatus === wrongRoomId) {
-      let triedRoomId = "";
-      if (location && location.state && location.state.triedRoomId)
-        triedRoomId = location.state.triedRoomId;
-      set__errorAlert(<WrongRoomAlert roomId={triedRoomId} />);
-      setTimeout(() => {
-        set__errorAlert(null);
-      }, 10000 * 100);
-    }
-  }, [homeStatus]);
+      const locationState = location.state as { triedRoomId?: string } | null;
+      const triedRoomId = locationState?.triedRoomId || "";
 
-  React.useEffect(() => {
+      set__errorAlert(<WrongRoomAlert roomId={triedRoomId} />);
+
+      const timer = setTimeout(() => {
+        set__errorAlert(null);
+      }, 1000000); // 1000 seconds (original was 10000 * 100)
+
+      return () => clearTimeout(timer);
+    }
+  }, [homeStatus, location.state, wrongRoomId]);
+
+  useEffect(() => {
     set__roomName(suggestedRoomName);
-  }, []);
+  }, [suggestedRoomName]);
 
   const resetFields = () => {
     set__userName("");
     set__roomName("");
   };
 
-  const handleCreateNewRoom = (e: any) => {
+  const handleCreateNewRoom = (e: React.FormEvent) => {
     e.preventDefault();
     // example: 2020-07-20-23bhb2h3b
     const newRoomId = `${
@@ -51,7 +56,7 @@ export const Home = () => {
       roomId: newRoomId,
       roomName,
     });
-    history.push(`/${newRoomId}`);
+    navigate(`/${newRoomId}`);
     resetFields();
   };
 
@@ -64,7 +69,6 @@ export const Home = () => {
     return "Choose How To Start";
   };
 
-  if (!history) return null;
   return (
     <CenteredCard>
       <div className="Home">
@@ -111,10 +115,10 @@ export const Home = () => {
                 className="waves-effect waves-light btn-small blue darken-4 back-to-initial-btn"
                 onClick={() => {
                   if (homeStatus === cameFromJoin) {
-                    history.goBack();
+                    navigate(-1); // Equivalent to history.goBack()
                     resetFields();
                   } else {
-                    changeHomeStatus("initial");
+                    changeHomeStatus(initial);
                     resetFields();
                   }
                 }}
@@ -145,11 +149,11 @@ export const Home = () => {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (roomIdValid) {
-                  history.push(`/${roomIdInput}`);
+                  navigate(`/${roomIdInput}`);
                 }
               }}
             >
-              <div className="input-field  col s12">
+              <div className="input-field col s12">
                 <input
                   id="existing-room-id"
                   type="text"
@@ -176,19 +180,3 @@ export const Home = () => {
     </CenteredCard>
   );
 };
-
-// {/* <div className="suggestion flex-centered">
-//   <div className="suggestion-text">
-//     Suggested room name: (click to apply)
-//   </div>
-//   <button
-//     className="waves-effect waves-teal btn-small btn-flat suggestion-btn"
-//     onClick={() => {
-//       const roomNameInput = document.getElementById("room-name");
-//       if (roomNameInput) roomNameInput.focus();
-//       set__roomName(suggestedRoomName);
-//     }}
-//   >
-//     {suggestedRoomName}
-//   </button>
-// </div> */}

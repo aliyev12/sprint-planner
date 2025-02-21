@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addOrGetRoom = void 0;
+exports.addOrGetRoom = addOrGetRoom;
 const fs_1 = __importDefault(require("fs"));
 const models_1 = require("../../models");
 const utils_1 = require("../../../utils");
@@ -30,4 +30,4 @@ function addOrGetRoom({ id, name }) {
     this.rooms.push(newRoom);
     return newRoom;
 }
-exports.addOrGetRoom = addOrGetRoom;
+//# sourceMappingURL=addOrGetRoom.js.map

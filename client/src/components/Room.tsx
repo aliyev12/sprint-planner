@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState, useContext, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import io from "socket.io-client";
 import {
   ERoomStatus,
   ERoomEvents,
@@ -16,17 +16,15 @@ import { Users } from "./Users";
 import { onMessase } from "../common/sockets";
 import { triggedDomEvent, getEndpoint } from "../common/utils";
 import { Stats } from "./Stats";
-import { roomMachine } from "../stateMachines";
 import "./Room.css";
-import { votesExist } from "../common/categoriesHelpers";
 import { Alert, CenteredCard } from "../common";
-import { doesNotThrow } from "assert";
 import { MostRecent } from "./MostRecent";
 
-// let socket: SocketIOClient.Socket;
-
-export const Room = ({ location, match, history }) => {
+export const Room = () => {
   const ENDPOINT = getEndpoint() || "localhost:3333";
+  const params = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     status,
@@ -40,48 +38,53 @@ export const Room = ({ location, match, history }) => {
     roomState,
     set__currentSession,
     set__currentCategoryId,
-  } = React.useContext(Context);
+  } = useContext(Context);
 
   const [userName, set__userName] = useState("");
   const [roomData, set__roomData] = useState<IRoom | undefined>();
   const [roomId, set__roomId] = useState("");
   const [roomName, set__roomName] = useState("");
-  const [capacity, set__capacity] = useState({ max: false, error: null });
+  const [capacity, set__capacity] = useState<{
+    max: boolean;
+    error: string | null;
+  }>({
+    max: false,
+    error: null,
+  });
   const [users, set__Users] = useState<IUser[]>([]);
 
   // Monitor statuses
-  service.onTransition((status, ctx) => {
-    if (status.changed) {
-      // console.log(status.value);
-      // console.log("context = ", status.context);
-    }
-    // if (status.matches("initial")) {
-    //   console.log("initial state");
-    // }
-  });
+  useEffect(() => {
+    if (!service) return;
 
-  const {
-    initial,
-    editingCards,
-    editingCategories,
-    viewingStats,
-  } = ERoomStatus;
+    const subscription = service.subscribe((state) => {
+      if (state.changed) {
+        // console.log(state.value);
+        // console.log("context = ", state.context);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [service]);
+
+  const { initial, editingCards, editingCategories, viewingStats } =
+    ERoomStatus;
   const { EDIT_CARDS, EDIT_CATEGORIES, VIEW_STATS, DONE } = ERoomEvents;
 
-  React.useEffect(() => {
-    let roomIdParam: string | undefined,
-      _userName: string | undefined,
-      _userRole: EUserRole,
-      _roomName = "unknown";
-    if (match.params.roomId) roomIdParam = match.params.roomId;
-    if (roomState.userName) _userName = roomState.userName;
-    if (roomState.userRole) _userRole = roomState.userRole;
-    if (roomState.roomName) _roomName = roomState.roomName;
+  useEffect(() => {
+    let roomIdParam: string | undefined = params.roomId;
+    let _userName: string | undefined = roomState.userName;
+    let _userRole: EUserRole | undefined = roomState.userRole;
+    let _roomName = roomState.roomName || "unknown";
 
     if (roomIdParam && _userName && _userRole) {
       set__userName(_userName);
       set__roomId(roomIdParam);
       set__roomName(_roomName);
+
+      if (!socket) {
+        console.error("Socket not initialized");
+        return;
+      }
 
       socket.emit(
         "join",
@@ -95,7 +98,7 @@ export const Room = ({ location, match, history }) => {
           if (res.maxCapacity)
             return set__capacity({
               max: true,
-              error: res.error,
+              error: res.error || "Room is at maximum capacity",
             });
           if (res.error) toast.error(res.error);
           if (res.user) set__currentUser(res.user);
@@ -103,15 +106,21 @@ export const Room = ({ location, match, history }) => {
       );
     }
 
-    return () => socket.off("join");
-  }, [location.pathname]);
+    return () => {
+      if (socket) {
+        socket.off("join");
+      }
+    };
+  }, [location.pathname, params.roomId, socket]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!socket) return;
+
     onMessase(socket);
 
     socket.on("roomData", (result: { users: IUser[]; room: IRoom }) => {
       if (result.users) set__Users(result.users);
-      console.log("roomData result = ", result);
+
       if (result.room && result.room.currentSession && result.room.name) {
         set__currentSession(result.room.currentSession);
         set__roomData(result.room);
@@ -119,7 +128,7 @@ export const Room = ({ location, match, history }) => {
 
         // Once a voting session stops, force switch all to initial state
         if (result.room.currentSession.active) {
-          send(DONE);
+          send({ type: DONE });
         }
 
         // Once a voting session stops, force switch all to viewingStats state
@@ -127,7 +136,7 @@ export const Room = ({ location, match, history }) => {
           result.room.currentSession.active === false &&
           result.room.currentSession.session
         ) {
-          send(VIEW_STATS);
+          send({ type: VIEW_STATS });
         }
 
         if (result.room.currentSession.activeCategoryId) {
@@ -139,20 +148,22 @@ export const Room = ({ location, match, history }) => {
     });
 
     // When session is over, force end viewingStats state for all
-    socket.on("sessionReset", () => send(DONE));
+    socket.on("sessionReset", () => send({ type: DONE }));
 
     return () => {
       socket.off("message");
       socket.off("roomData");
       socket.off("sessionReset");
     };
-  }, []);
+  }, [socket, send, set__currentSession, set__currentCategoryId]);
 
   const updateCategories = (
     action: EAction,
     categoryId?: string,
     values?: IValues
   ) => {
+    if (!socket) return;
+
     if (roomId) {
       const args: IUpCatArgs = { roomId, action };
       if (action !== EAction.add && categoryId && values) {
@@ -161,9 +172,9 @@ export const Room = ({ location, match, history }) => {
       }
       socket.emit("updateCategories", args, (res: IResult) => {
         if (res.error) return toast.error(res.error);
-        if (action === EAction.add) {
+        if (action === EAction.add && res.room?.categories) {
           const lastCat = res.room.categories[res.room.categories.length - 1];
-          if (!lastCat.name && !lastCat.singular) {
+          if (lastCat && !lastCat.name && !lastCat.singular) {
             set__currentCategoryId(lastCat.id);
           }
         }
@@ -176,6 +187,8 @@ export const Room = ({ location, match, history }) => {
     unit: number,
     action: EAction
   ) => {
+    if (!socket) return;
+
     if (roomId) {
       socket.emit(
         "updateCategoryCards",
@@ -193,13 +206,16 @@ export const Room = ({ location, match, history }) => {
   };
 
   const categoriesTitle = () => {
+    if (!roomData) return <h4>Loading...</h4>;
+
     if (currentSession.active && currentSession.activeCategoryId) {
       const currentCategory = roomData.categories.find(
         (c) => c.id === currentSession.activeCategoryId
       );
       return (
         <h4 className="active-category">
-          Voting is currently in session for: {currentCategory.name}
+          Voting is currently in session for:{" "}
+          {currentCategory?.name || "Unknown category"}
         </h4>
       );
     } else if (status.matches(editingCategories)) {
@@ -210,7 +226,7 @@ export const Room = ({ location, match, history }) => {
       const foundCat = roomData.categories.find(
         (c) => c.id === currentCategoryId
       );
-      return <h4>Edit cards for: {foundCat.name}</h4>;
+      return <h4>Edit cards for: {foundCat?.name || "Unknown category"}</h4>;
     } else {
       return <h4>Current Category</h4>;
     }
@@ -219,7 +235,10 @@ export const Room = ({ location, match, history }) => {
   if (capacity.max)
     return (
       <CenteredCard>
-        <Alert text={capacity.error} type="warning" />
+        <Alert
+          text={capacity.error || "Room is at maximum capacity"}
+          type="warning"
+        />
       </CenteredCard>
     );
 
@@ -262,15 +281,12 @@ export const Room = ({ location, match, history }) => {
         <aside className="issues-aside">
           <h4>Actions</h4>
           <RoomActions roomData={roomData} />
-          {roomData.issues.length ? (
+          {roomData.issues && roomData.issues.length ? (
             <>
               <h4>Most Recent</h4>
               <MostRecent roomData={roomData} />
             </>
           ) : null}
-
-          {/* <h4>Issues</h4>
-          <Issues /> */}
         </aside>
       </div>
     </div>

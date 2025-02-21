@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCategories = void 0;
+exports.updateCategories = updateCategories;
 const uniqid_1 = __importDefault(require("uniqid"));
 const models_1 = require("../../models");
 function updateCategories(args) {
@@ -23,7 +23,7 @@ function updateCategories(args) {
     }
     if (action === models_1.EAction.add) {
         const newCategory = {
-            id: uniqid_1.default(),
+            id: (0, uniqid_1.default)(),
             name: "",
             singular: "",
             units: [],
@@ -71,4 +71,4 @@ function updateCategories(args) {
     }
     return result;
 }
-exports.updateCategories = updateCategories;
+//# sourceMappingURL=updateCategories.js.map
