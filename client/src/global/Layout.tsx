@@ -1,4 +1,5 @@
-import React from "react";
+import { useContext, useEffect, useRef } from "react";
+import { Outlet, Link } from "react-router-dom";
 import M from "materialize-css";
 import { ToastContainer } from "react-toastify";
 import { ETheme } from "../common/models";
@@ -7,13 +8,43 @@ import logo from "./logo-sp-white.png";
 import "react-toastify/dist/ReactToastify.css";
 import "./Layout.css";
 
-export const Layout = ({ children }) => {
-  let _sidenav;
-  const { theme, set__theme, currentUser } = React.useContext(Context);
+interface LayoutProps {
+  children?: React.ReactNode;
+}
 
-  React.useEffect(() => {
-    M.Sidenav.init(_sidenav);
+export const Layout = ({ children }: LayoutProps) => {
+  const sidenavRef = useRef<HTMLUListElement>(null);
+  const sidenavInstanceRef = useRef<M.Sidenav | null>(null);
+  const { theme, set__theme, currentUser } = useContext(Context);
+
+  useEffect(() => {
+    // Initialize Materialize sidenav
+    if (sidenavRef.current) {
+      sidenavInstanceRef.current = M.Sidenav.init(sidenavRef.current);
+    }
+
+    // Clean up the sidenav instance when component unmounts
+    return () => {
+      try {
+        if (sidenavInstanceRef.current) {
+          // Check if the instance and its element still exist
+          if (
+            sidenavRef.current &&
+            document.body.contains(sidenavRef.current)
+          ) {
+            sidenavInstanceRef.current.destroy();
+          }
+          sidenavInstanceRef.current = null;
+        }
+      } catch (error) {
+        console.warn("Error cleaning up sidenav:", error);
+      }
+    };
   }, []);
+
+  const toggleTheme = () => {
+    set__theme(theme === ETheme.light ? ETheme.dark : ETheme.light);
+  };
 
   return (
     <div className={`${theme}-theme grid-container`}>
@@ -32,17 +63,19 @@ export const Layout = ({ children }) => {
         <nav>
           <div className="nav-wrapper blue darken-4">
             <div className="container">
-              <a href="/" className="brand-logo">
+              <Link to="/" className="brand-logo">
                 <img src={logo} width="100" alt="Sprint Planner Logo" />
-              </a>
+              </Link>
 
-              <a href="#" data-target="mobile-demo" className="sidenav-trigger">
+              <a
+                href="#!"
+                data-target="mobile-demo"
+                className="sidenav-trigger"
+                onClick={(e) => e.preventDefault()}
+              >
                 <i className="material-icons">menu</i>
               </a>
               <ul className="right hide-on-med-and-down">
-                {/* <li>
-                  <a href="#">Login</a>
-                </li> */}
                 {currentUser ? (
                   <li className="username-list-item">
                     <span>{currentUser.name}</span>
@@ -51,11 +84,10 @@ export const Layout = ({ children }) => {
                 <li>
                   <button
                     className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
-                    onClick={() =>
-                      set__theme(
-                        theme === ETheme.light ? ETheme.dark : ETheme.light
-                      )
-                    }
+                    onClick={toggleTheme}
+                    aria-label={`Switch to ${
+                      theme === ETheme.light ? "dark" : "light"
+                    } theme`}
                   >
                     <i className="material-icons">
                       {theme === ETheme.light ? "brightness_2" : "wb_sunny"}
@@ -67,22 +99,22 @@ export const Layout = ({ children }) => {
           </div>
         </nav>
 
-        <ul
-          className="sidenav"
-          id="mobile-demo"
-          ref={(sidenav) => {
-            _sidenav = sidenav;
-          }}
-        >
-          {/* <li>
-            <a href="#">Login</a>
-          </li> */}
+        <ul className="sidenav" id="mobile-demo" ref={sidenavRef}>
+          {currentUser ? (
+            <li className="username-list-item sidenav-username">
+              <span>{currentUser.name}</span>
+            </li>
+          ) : null}
+          <li>
+            <Link to="/">Home</Link>
+          </li>
           <li>
             <button
               className="btn-floating btn-small waves-effect waves-light theme-switch-btn"
-              onClick={() =>
-                set__theme(theme === ETheme.light ? ETheme.dark : ETheme.light)
-              }
+              onClick={toggleTheme}
+              aria-label={`Switch to ${
+                theme === ETheme.light ? "dark" : "light"
+              } theme`}
             >
               <i className="material-icons">
                 {theme === ETheme.light ? "brightness_2" : "wb_sunny"}
@@ -92,17 +124,27 @@ export const Layout = ({ children }) => {
         </ul>
       </header>
 
-      <div className="page-content">{children}</div>
+      <div className="page-content">{children || <Outlet />}</div>
 
       <footer className="page-footer blue darken-4">
         <div className="footer-copyright">
           <div className="container">
             <div className="copyright-text">
-              © {new Date().getFullYear()} Copyright Sprint Planner
+              <span>© {new Date().getFullYear()} Abdul Aliyev</span>
+              <a
+                className="waves-effect waves-light btn-small  darken-4"
+                href="https://www.aaliyev.com/contact"
+                target="_blank"
+              >
+                <i className="material-icons left">mail</i>get in touch
+              </a>
             </div>
-            <a className="grey-text text-lighten-4 right" href="/">
+            <Link
+              className="grey-text text-lighten-4 right footer-logo-link"
+              to="/"
+            >
               <img src={logo} width="50" alt="Sprint Planner Logo" />
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

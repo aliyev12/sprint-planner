@@ -1,7 +1,0 @@
-{
-  "scripts": {
-    "deploy-all-to-heroku": "cd client/ && npm run build && cd .. && cd server/ && npm run build && cd .. && git add . && git commit -m 'Deploy into prod' && git subtree push --prefix client heroku master && git subtree push --prefix server sprintplannerappserver master",
-    "build-client": "cd client/ && npm run build",
-    "deploy-server-only": "cd server/ && npm run build && cd .. && git add . && git commit -m 'Deploy server into prod' && git subtree push --prefix server sprintplannerappserver master"
-  }
-}

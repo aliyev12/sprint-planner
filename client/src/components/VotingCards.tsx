@@ -14,21 +14,11 @@ interface Props {
 export const VotingCards = ({ category, updateCategoryCards }: Props) => {
   const [newUnit, set__newUnit] = React.useState("");
 
-  const {
-    status,
-    send,
-    socket,
-    currentUser,
-    roomState,
-    currentSession,
-  } = React.useContext(Context);
+  const { status, send, socket, currentUser, roomState, currentSession } =
+    React.useContext(Context);
 
-  const {
-    initial,
-    editingCards,
-    editingCategories,
-    viewingStats,
-  } = ERoomStatus;
+  const { initial, editingCards, editingCategories, viewingStats } =
+    ERoomStatus;
 
   if (!category) return null;
 

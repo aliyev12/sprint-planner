@@ -10,3 +10,4 @@ exports.baseRoute = baseRoute;
 baseRoute.get("/test", (req, res) => {
     res.send("test");
 });
+//# sourceMappingURL=index.js.map

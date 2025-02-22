@@ -46,3 +46,4 @@
 //   users.find((u) => u.id === id);
 // export const getUsersInRoom = (room: string): IUser[] | [] =>
 //   users.filter((u) => u.room === room);
+//# sourceMappingURL=data.js.map

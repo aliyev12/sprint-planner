@@ -12,8 +12,12 @@ class Rooms {
         const foundRoom = this.rooms.find((r) => r.id === id);
         return foundRoom;
     }
+    getRooms() {
+        return this.rooms;
+    }
     addOrGetRoom(...args) {
-        return room_1.addOrGetRoom.apply(this, args);
+        const result = room_1.addOrGetRoom.apply(this, args);
+        return result;
     }
     updateCategories(...args) {
         return room_1.updateCategories.apply(this, args);
@@ -40,3 +44,4 @@ class Rooms {
     }
 }
 exports.Rooms = Rooms;
+//# sourceMappingURL=Rooms.js.map

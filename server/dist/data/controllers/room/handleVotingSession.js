@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleVotingSession = void 0;
+exports.handleVotingSession = handleVotingSession;
 const uniqid_1 = __importDefault(require("uniqid"));
 const models_1 = require("../../models");
 function handleVotingSession(args) {
@@ -39,7 +39,7 @@ function handleVotingSession(args) {
             votes: [],
         };
         const newSession = {
-            id: uniqid_1.default(),
+            id: (0, uniqid_1.default)(),
             sessionCategories: [newSessionCategory],
         };
         result.room.currentSession.active = true;
@@ -140,4 +140,4 @@ function handleVotingSession(args) {
     }
     return result;
 }
-exports.handleVotingSession = handleVotingSession;
+//# sourceMappingURL=handleVotingSession.js.map

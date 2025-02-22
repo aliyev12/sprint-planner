@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: sprint-planner-backend
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URLS
+        value: https://sprint-planner-frontend.onrender.com
+
+  - type: web
+    name: sprint-planner-frontend
+    env: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_SERVER_URL
+        value: https://sprint-planner-backend.onrender.com

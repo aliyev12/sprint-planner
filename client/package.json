@@ -1,55 +1,36 @@
 {
-  "name": "client",
-  "version": "0.1.0",
+  "name": "temp_app",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^24.0.0",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.9.0",
-    "@types/react-dom": "^16.9.0",
-    "@types/react-router-dom": "^5.1.5",
-    "@types/socket.io-client": "^1.4.33",
-    "@xstate/react": "^0.8.1",
-    "materialize-css": "^1.0.0-rc.2",
-    "query-string": "^6.13.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-minimal-pie-chart": "^8.0.1",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1",
-    "react-toastify": "^6.0.8",
-    "socket.io-client": "^2.3.0",
-    "typescript": "^3.9.6",
-    "uniqid": "^5.2.0",
-    "xstate": "^4.11.0"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && echo '/* /index.html 200' | cat >build/_redirects ",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@xstate/react": "^5.0.2",
+    "materialize-css": "^1.0.0",
+    "query-string": "^9.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-minimal-pie-chart": "^9.1.0",
+    "react-router-dom": "^7.2.0",
+    "react-toastify": "^11.0.3",
+    "socket.io-client": "^4.8.1",
+    "uniqid": "^5.4.0",
+    "xstate": "^5.19.2"
   },
   "devDependencies": {
-    "@types/query-string": "^6.3.0",
-    "@types/react-toastify": "^4.1.0",
-    "@types/uniqid": "^5.2.0"
+    "@types/materialize-css": "^1.0.14",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@types/react-toastify": "^4.0.2",
+    "@types/uniqid": "^5.3.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "globals": "^15.14.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0"
   }
 }

@@ -12,14 +12,15 @@ var EAction;
     EAction["vote"] = "vote";
     EAction["reset"] = "reset";
     EAction["updateStatus"] = "updateStatus";
-})(EAction = exports.EAction || (exports.EAction = {}));
+})(EAction || (exports.EAction = EAction = {}));
 var EUserRole;
 (function (EUserRole) {
     EUserRole["regularUser"] = "regularUser";
     EUserRole["admin"] = "admin";
-})(EUserRole = exports.EUserRole || (exports.EUserRole = {}));
+})(EUserRole || (exports.EUserRole = EUserRole = {}));
 var ERoomStatus;
 (function (ERoomStatus) {
     ERoomStatus["initial"] = "initial";
     ERoomStatus["edit"] = "edit";
-})(ERoomStatus = exports.ERoomStatus || (exports.ERoomStatus = {}));
+})(ERoomStatus || (exports.ERoomStatus = ERoomStatus = {}));
+//# sourceMappingURL=index.js.map

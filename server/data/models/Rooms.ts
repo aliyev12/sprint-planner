@@ -21,8 +21,13 @@ export class Rooms {
     return foundRoom;
   }
 
+  getRooms(): IRoom[] {
+    return this.rooms;
+  }
+
   addOrGetRoom(...args: [IAddRoomProps]) {
-    return addOrGetRoom.apply(this, args);
+    const result = addOrGetRoom.apply(this, args);
+    return result;
   }
 
   updateCategories(...args: [IUpdateCatArgs]): IAddCardResult {

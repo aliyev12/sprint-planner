@@ -1,6 +1,6 @@
+import { useEffect, useContext, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import M from "materialize-css";
-import React from "react";
-import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   allCatChangesSaved,
@@ -20,7 +20,6 @@ import {
   EUserRole,
 } from "../common/models";
 import { Context } from "../global/Context";
-import { roomMachine } from "../stateMachines";
 import "./RoomActions.css";
 
 interface Props {
@@ -28,7 +27,8 @@ interface Props {
 }
 
 export const RoomActions = ({ roomData }: Props) => {
-  let _categoriesDropdownRef;
+  const categoriesDropdownRef = useRef<HTMLButtonElement>(null);
+
   const {
     socket,
     status,
@@ -38,24 +38,22 @@ export const RoomActions = ({ roomData }: Props) => {
     set__editCategoriesValues,
     currentSession,
     currentCategoryId,
-  } = React.useContext(Context);
+  } = useContext(Context);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const {
-    initial,
-    editingCards,
-    editingCategories,
-    viewingStats,
-  } = ERoomStatus;
+  const { initial, editingCards, editingCategories, viewingStats } =
+    ERoomStatus;
 
   const { EDIT_CARDS, EDIT_CATEGORIES, VIEW_STATS, DONE } = ERoomEvents;
 
-  React.useEffect(() => {
-    M.Dropdown.init(_categoriesDropdownRef);
+  useEffect(() => {
+    if (categoriesDropdownRef.current) {
+      M.Dropdown.init(categoriesDropdownRef.current);
+    }
   }, []);
 
-  if (!currentSession) return null;
+  if (!currentSession || !socket) return null;
 
   const handleDoneEditing = () => {
     if (status.matches(editingCategories)) {
@@ -93,7 +91,7 @@ export const RoomActions = ({ roomData }: Props) => {
     }
 
     handleRoomStatus(ERoomStatus.initial);
-    send(DONE);
+    send({ type: DONE });
   };
 
   const handleStartStopVoting = () => {
@@ -108,7 +106,7 @@ export const RoomActions = ({ roomData }: Props) => {
       votingAction = EAction.end;
     }
     // Update status machine
-    send(DONE);
+    send({ type: DONE });
 
     // Update server side data model
     socket.emit(
@@ -118,7 +116,9 @@ export const RoomActions = ({ roomData }: Props) => {
         action: votingAction,
         categoryId: currentCategoryId,
       },
-      (result: IResult) => {}
+      (result: IResult) => {
+        // Handle result if needed
+      }
     );
   };
 
@@ -143,10 +143,11 @@ export const RoomActions = ({ roomData }: Props) => {
   const viewStatsTxt = viewStatsText(afterVoteMode, status);
   const editStyle = editDropdownStyle(currentSession, status);
   const doneEdtStyle = doneEditingStyle(currentSession, status);
+
   return (
     <div className="RoomActions">
       <div className="buttons-container">
-        {currentUser.role === EUserRole.admin &&
+        {currentUser?.role === EUserRole.admin &&
         voteActionTxt.txt !== "error" ? (
           <button
             disabled={
@@ -164,15 +165,14 @@ export const RoomActions = ({ roomData }: Props) => {
         ) : null}
 
         <button
-          // disabled={!(status.matches(viewingStats) || status.matches(initial))}
           disabled={!afterVoteMode()}
-          title={voteActionTxt.title}
+          title={viewStatsTxt.title}
           className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
           onClick={() => {
             if (status.matches(viewingStats)) {
-              send(DONE);
+              send({ type: DONE });
             } else {
-              send(VIEW_STATS);
+              send({ type: VIEW_STATS });
             }
           }}
         >
@@ -182,19 +182,10 @@ export const RoomActions = ({ roomData }: Props) => {
           {viewStatsTxt.txt}
         </button>
 
-        {/* <button
-          // disabled={!userName || !roomName}
-          className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
-          onClick={() => {}}
-        >
-          <i className="material-icons right">refresh</i>Reset
-        </button> */}
-
-        {currentUser.role === EUserRole.admin ? (
+        {currentUser?.role === EUserRole.admin ? (
           <>
             <button
               style={doneEdtStyle}
-              // disabled={!userName || !roomName}
               className="waves-effect waves-light btn-small blue darken-4 room-action-btn"
               onClick={handleDoneEditing}
             >
@@ -204,9 +195,7 @@ export const RoomActions = ({ roomData }: Props) => {
 
             <button
               style={editStyle}
-              ref={(categoriesDropdownRef) => {
-                _categoriesDropdownRef = categoriesDropdownRef;
-              }}
+              ref={categoriesDropdownRef}
               className="dropdown-trigger btn-small blue darken-4 btn-small"
               data-target="dropdown1"
             >
@@ -216,15 +205,12 @@ export const RoomActions = ({ roomData }: Props) => {
             <ul id="dropdown1" className="dropdown-content" style={editStyle}>
               <li className="flex-centered">
                 <button
-                  className="btn-flat edit-dropdown-btn "
+                  className="btn-flat edit-dropdown-btn"
                   onClick={() => {
                     // When admin starts editing by clicking edit categories or edit cards
                     // emit an event to the server that will set editing status to true
-                    // add this editing status flag ro Room model on server side
-                    // when editing flag is on, all vote and other buttons on other users
-                    // should be disabled. So, this is something that can be handeles on client side later
                     handleRoomStatus(ERoomStatus.edit);
-                    send(EDIT_CATEGORIES);
+                    send({ type: EDIT_CATEGORIES });
                   }}
                 >
                   Edit Categories
@@ -235,7 +221,7 @@ export const RoomActions = ({ roomData }: Props) => {
                   className="btn-flat edit-dropdown-btn"
                   onClick={() => {
                     handleRoomStatus(ERoomStatus.edit);
-                    send(EDIT_CARDS);
+                    send({ type: EDIT_CARDS });
                   }}
                 >
                   Edit Cards

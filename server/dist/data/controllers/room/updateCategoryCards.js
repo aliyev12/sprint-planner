@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCategoryCards = void 0;
+exports.updateCategoryCards = updateCategoryCards;
 const models_1 = require("../../models");
 const utils_1 = require("../../../utils");
 function updateCategoryCards(roomId, categoryId, unit, action) {
@@ -8,7 +8,7 @@ function updateCategoryCards(roomId, categoryId, unit, action) {
         room: null,
         error: null,
     };
-    if (!utils_1.isNumOrFloat(unit) || unit.toString().length > 5) {
+    if (!(0, utils_1.isNumOrFloat)(unit) || unit.toString().length > 5) {
         result.error =
             "Wrong format. Make sure that numbers have no more than 2 digits on each side of a decimal point.";
     }
@@ -41,4 +41,4 @@ function updateCategoryCards(roomId, categoryId, unit, action) {
     this.sortUnitsInCategory(foundCategory.units);
     return result;
 }
-exports.updateCategoryCards = updateCategoryCards;
+//# sourceMappingURL=updateCategoryCards.js.map

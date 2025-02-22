@@ -5,9 +5,8 @@ import { truncate } from "../common/utils";
 import { IUser, EUserRole } from "../common/models";
 
 export const Users = ({ users }) => {
-  const { socket, currentUser, roomState, currentSession } = React.useContext(
-    Context
-  );
+  const { socket, currentUser, roomState, currentSession } =
+    React.useContext(Context);
 
   if (!currentUser || !currentSession) return null;
 
@@ -31,7 +30,7 @@ export const Users = ({ users }) => {
             return (
               <li
                 className={`collection-item ${user.role}`}
-                key={user.id}
+                key={i}
                 title={
                   user.role === EUserRole.admin
                     ? "Administrator"

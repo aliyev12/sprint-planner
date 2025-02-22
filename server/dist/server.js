@@ -7,50 +7,81 @@ const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-// import socketio from "socket.io";
 const cors_1 = __importDefault(require("cors"));
-const xss_clean_1 = __importDefault(require("xss-clean"));
+const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
+const socket_io_1 = require("socket.io");
 const utils_1 = require("./utils");
 const Users_1 = require("./data/models/Users");
 const Rooms_1 = require("./data/models/Rooms");
 const models_1 = require("./data/models");
+require("dotenv").config();
 const PORT = process.env.PORT || 3333;
-// Instantiate in-memody data objects
+// Instantiate in-memory data objects
 const users = new Users_1.Users();
 const rooms = new Rooms_1.Rooms(users);
 // Listen for an uncaughtException and if one takes place - shutdown the server
 process.on("uncaughtException", (err) => {
     gracefullyShutdownServer(null, err, "UNCAUGHT EXCEPTION");
 });
-const app = express_1.default();
-// Data sanitization agains XSS attacks
-// Prevent cross site scripting by replacing html special characters with something else: <script => &lt;script
-app.use(xss_clean_1.default());
+const app = (0, express_1.default)();
+// Data sanitization against NoSQL query injection
+app.use((0, express_mongo_sanitize_1.default)());
 // Limit requests from same API
-const limiter = express_rate_limit_1.default({
-    max: 100,
-    windowMs: utils_1.toMilliseconds("1 hour"),
+const limiter = (0, express_rate_limit_1.default)({
+    limit: 100, // Changed from 'max' to 'limit'
+    windowMs: (0, utils_1.toMilliseconds)("1 hour"),
     message: "Too many requests from this IP, please try again in an hour.",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use("/api", limiter);
+// Load environment variables
+const CLIENT_URLS = process.env.CLIENT_URLS
+    ? process.env.CLIENT_URLS.split(",")
+    : ["https://sprint-planner.aaliyev.com"];
+console.log("process.env.CLIENT_URLS = ", process.env.CLIENT_URLS);
+// // In development, add localhost URLs
+// if (process.env.NODE_ENV === 'development') {
+//   CLIENT_URLS.push("http://localhost:5173");
+//   CLIENT_URLS.push("http://127.0.0.1:5173");
+// }
 // Set security HTTP headers
-app.use(helmet_1.default());
+app.use((0, helmet_1.default)({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", ...CLIENT_URLS],
+        },
+    },
+}));
 const server = http_1.default.createServer(app);
-// const io = socketio(server);
-var io = require("socket.io")(server, { origins: "*:*" });
-// Set Routes
-// Not using any routes for now..
-// app.use("/", baseRoute);
+// Setup Socket.io with CORS
+const io = new socket_io_1.Server(server, {
+    cors: {
+        origin: CLIENT_URLS,
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
+});
 // Use cors to avoid cors error in browser
-app.use(cors_1.default());
+app.use((0, cors_1.default)({
+    origin: CLIENT_URLS,
+    methods: ["GET", "POST"], // Adjust as needed
+    credentials: true, // Include cookies if needed
+}));
 /*=======================================================*/
 /*====================  CONNECTION  =====================*/
 /*=======================================================*/
-// const adminNamespace = io.of("/admin");
-// adminNamespace.on("connection", handleSocket);
 io.on("connection", handleSocket);
 function handleSocket(socket) {
-    socket.on("join", ({ userName, userRole, roomId, roomName }, callback) => {
+    // Log connection ID
+    // Check why there are several connections for one user...
+    socket.on("join", (props, callback) => {
+        const { userName, userRole, roomId, roomName } = props;
+        const rooms_ = io.sockets.adapter.rooms;
+        const socketIsInRoom = rooms_.get(roomId)?.has(socket.id);
+        if (socketIsInRoom)
+            return callback({ message: "User has already joined" });
         // Check is max allowed number of users/rooms hasn't been reached
         if (checkCapacity().max)
             return callback(checkCapacity().payload);
@@ -94,7 +125,6 @@ function handleSocket(socket) {
             text: `${user.name}, has joined!`,
         });
         socket.join(roomId);
-        // socket.join(user.room);
         io.to(user.room).emit("roomData", {
             room: roomData,
             users: users.getUsersInRoom(user.room),
@@ -117,9 +147,12 @@ function handleSocket(socket) {
         };
         // Check is max allowed number of users/rooms hasn't been reached
         if (checkCapacity().max)
-            return callback(Object.assign(Object.assign({}, validationMessage), checkCapacity().payload));
+            return callback({
+                ...validationMessage,
+                ...checkCapacity().payload,
+            });
         if (!roomId)
-            return callback(Object.assign(Object.assign({}, validationMessage), { error: "Wrong room ID" }));
+            return callback({ ...validationMessage, error: "Wrong room ID" });
         const room = rooms.getRoom(roomId);
         if (room) {
             validationMessage.roomExists = true;
@@ -207,11 +240,16 @@ function handleSocket(socket) {
     /*====================  DISCONNECT  =====================*/
     /*=======================================================*/
     socket.on("disconnecting", () => {
-        rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
+        Array.from(socket.rooms.values()).filter((room) => room !== socket.id); // Filter out the socket's own room
     });
     // Runs when client disconnects
     socket.on("disconnect", () => {
-        rooms.teardownRooms(Object.keys(io.sockets.adapter.rooms));
+        // Get rooms where users still exist
+        const usersInRooms = users.users
+            .filter((user) => user.id !== socket.id) // Filter out this disconnected user
+            .map((user) => user.room);
+        // Only teardown rooms that have no users
+        rooms.teardownRooms(usersInRooms);
         const user = users.removeUser(socket.id);
         if (user) {
             io.to(user.room).emit("message", {
@@ -273,3 +311,4 @@ process.on("unhandledRejection", (err) => {
   3. Emit to ALL the clients in general
     io.emit();
 */
+//# sourceMappingURL=server.js.map

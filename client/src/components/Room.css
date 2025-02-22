@@ -70,5 +70,6 @@
   .Room aside.users-aside,
   .Room aside.issues-aside {
     margin: 0;
+    padding: 0;
   }
 }
