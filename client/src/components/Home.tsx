@@ -1,7 +1,15 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import uniqid from "uniqid";
-import { CenteredCard, extractRoomId, Or, WrongRoomAlert } from "../common";
+import {
+  Alert,
+  CenteredCard,
+  extractRoomId,
+  Loader,
+  LoaderInline,
+  Or,
+  WrongRoomAlert,
+} from "../common";
 import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Home.css";
@@ -10,7 +18,14 @@ export const Home = () => {
   const suggestedRoomName = `Sprint Planning ${new Date().toLocaleDateString()}`;
   const navigate = useNavigate();
   const location = useLocation();
-  const { initRoom, homeStatus, changeHomeStatus } = useContext(Context);
+  const {
+    initRoom,
+    homeStatus,
+    changeHomeStatus,
+    isConnected,
+    isConnecting,
+    connectionError,
+  } = useContext(Context);
 
   const [userName, set__userName] = useState("");
   const [roomName, set__roomName] = useState("");
@@ -79,6 +94,7 @@ export const Home = () => {
             type="button"
             className="waves-effect waves-light btn-large blue darken-4 create-new-room-btn"
             onClick={() => changeHomeStatus(creatingNewRoom)}
+            disabled={!isConnected}
           >
             <i className="material-icons left">add</i>create new room
           </button>
@@ -168,7 +184,7 @@ export const Home = () => {
 
               <button
                 type="submit"
-                disabled={!roomIdValid}
+                disabled={!isConnected || !roomIdValid}
                 className="waves-effect waves-light btn-small blue darken-4 join-btn"
               >
                 join
@@ -176,6 +192,38 @@ export const Home = () => {
             </form>
           </>
         ) : null}
+
+        {isConnected && (
+          <div className="connected-message">
+            <p>
+              You are connected!{" "}
+              <i className="material-icons right green">check</i>
+            </p>
+          </div>
+        )}
+        {isConnecting && (
+          <div className="connecting-message">
+            <p>Connecting to remote server</p>
+            <LoaderInline />
+          </div>
+        )}
+        {connectionError && (
+          <div className="connection-error">
+            <Alert
+              text="Something went wrong while connecting to remote server. Please
+              reload the page and try again."
+              type="error"
+            />
+
+            <button
+              type="button"
+              className="waves-effect waves-light btn-small blue darken-4"
+              onClick={() => window.location.reload()}
+            >
+              reload
+            </button>
+          </div>
+        )}
       </div>
     </CenteredCard>
   );

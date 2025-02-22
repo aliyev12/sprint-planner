@@ -1,16 +1,19 @@
-import { useState, useContext, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { io } from "socket.io-client";
-import { CenteredCard, Loader, Or, getEndpoint, Alert } from "../common";
+import { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Alert,
+  CenteredCard,
+  Loader,
+  Or,
+  useSocketConnection,
+} from "../common";
 import { EHomeStatuses, EUserRole } from "../common/models";
 import { Context } from "../global/Context";
 import "./Join.css";
 
 export const Join = () => {
-  const ENDPOINT = getEndpoint() || "localhost:3333";
   const params = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const { initRoom, changeHomeStatus } = useContext(Context);
   const [userName, set__userName] = useState("");
@@ -24,13 +27,20 @@ export const Join = () => {
     error: null,
   });
 
+  const { socket, isConnecting, connectionError } = useSocketConnection({
+    onError: (error) => {
+      set__loading(false);
+      throw new Error(`Socket connection error: ${error}`);
+    },
+  });
+
   useEffect(() => {
     set__loading(true);
     let roomIdParam: string | undefined = params.roomId;
 
-    if (roomIdParam) {
+    if (socket && roomIdParam) {
       // validate roomId
-      const socket = io(ENDPOINT);
+      // const socket = io(ENDPOINT);
 
       socket.emit(
         "validateRoomExists",
@@ -44,12 +54,6 @@ export const Join = () => {
           maxCapacity?: boolean;
           error?: string;
         }) => {
-          console.log({
-            roomExists,
-            maxCapacity,
-            error,
-          });
-
           if (maxCapacity)
             return set__capacity({
               max: true,
@@ -76,7 +80,8 @@ export const Join = () => {
     } else {
       set__loading(false);
     }
-  }, [ENDPOINT, location.pathname, params.roomId, navigate, changeHomeStatus]);
+  }, [socket, params.roomId]);
+  // }, [ENDPOINT, location.pathname, params.roomId, navigate, changeHomeStatus]);
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +97,13 @@ export const Join = () => {
     }
   };
 
-  if (loading) return <Loader />;
+  if (loading || isConnecting) return <Loader />;
+
+  if (connectionError) {
+    throw new Error(
+      "Having trouble connecting to the server. Please try again."
+    );
+  }
 
   if (capacity.max)
     return (

@@ -39,3 +39,54 @@
   margin-left: 2rem;
   margin-bottom: 1rem;
 }
+
+.Home .connected-message {
+}
+
+.Home .connecting-message {
+}
+
+.Home .connection-error {
+}
+
+.Home .connected-message,
+.Home .connecting-message,
+.Home .connection-error {
+  display: flex;
+  font-size: 16px;
+}
+
+.Home .connection-error {
+  margin-top: 20px;
+  flex-direction: column;
+}
+
+.Home .connection-error button {
+  margin-top: 20px;
+}
+
+.Home .connected-message p,
+.Home .connecting-message p,
+.Home .connection-error p {
+  font-size: 16px;
+}
+
+.Home .connecting-message {
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.Home .connecting-message p {
+  margin-right: 20px;
+}
+
+.Home .connected-message {
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.Home .connected-message p {
+  margin: 0;
+}

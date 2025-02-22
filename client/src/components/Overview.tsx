@@ -1,10 +1,9 @@
-import { useState, useContext, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import "./Overview.css";
-import { Context } from "../global/Context";
+import { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Alert, CenteredCard, Loader, useSocketConnection } from "../common";
 import { EHomeStatuses } from "../common/models";
-import { getEndpoint } from "../common";
+import { Context } from "../global/Context";
+import "./Overview.css";
 
 interface RoomValidationResponse {
   roomExists: boolean;
@@ -13,7 +12,7 @@ interface RoomValidationResponse {
 }
 
 export const Overview = () => {
-  const ENDPOINT = getEndpoint() || "localhost:3333";
+  // const ENDPOINT = getEndpoint() || "localhost:3333";
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,13 +22,19 @@ export const Overview = () => {
   const [roomId, set__roomId] = useState("");
   const [roomData, set__roomData] = useState<any>(null); // Replace with proper room data type
 
+  const { socket, isConnecting, connectionError } = useSocketConnection({
+    onError: (error) => {
+      console.error("Socket connection error:", error);
+    },
+  });
+
   useEffect(() => {
     set__loading(true);
     const roomIdParam = params.roomId;
 
-    if (roomIdParam) {
+    if (socket && roomIdParam) {
       // validate roomId
-      const socket: Socket = io(ENDPOINT);
+      // const socket: Socket = io(ENDPOINT);
 
       socket.emit(
         "validateRoomExists",
@@ -59,25 +64,31 @@ export const Overview = () => {
     } else {
       set__loading(false);
     }
-  }, [ENDPOINT, location.pathname, params.roomId, navigate, changeHomeStatus]);
+  }, [socket, params.roomId]);
+  // }, [ENDPOINT, location.pathname, params.roomId, navigate, changeHomeStatus]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (loading || isConnecting) return <Loader />;
+
+  if (connectionError) {
+    return (
+      <CenteredCard>
+        <Alert
+          text="Having trouble connecting to the server. Please try again."
+          type="error"
+        />
+      </CenteredCard>
+    );
   }
 
   // You can expand this component with the actual overview UI
   return (
-    <div className="Overview">
-      <h2>Room Overview</h2>
-      {roomData ? (
-        <div className="room-data-overview">
-          {/* Display room data here */}
-          <p>Room ID: {roomId}</p>
-          {/* Add other room data display elements */}
-        </div>
-      ) : (
-        <p>No room data available</p>
-      )}
-    </div>
+    <CenteredCard>
+      <div className="Overview">
+        <Alert
+          text="Thank you for visiting the room overview page! This page is currently under development. Please check back later for updates."
+          type="info"
+        />
+      </div>
+    </CenteredCard>
   );
 };
