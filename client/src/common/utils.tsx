@@ -148,7 +148,11 @@ export const useSocketConnection = (options: SocketOptions = {}) => {
     // Function to ping server
     const pingServer = async () => {
       try {
-        const response = await fetch(`http://${getEndpoint()}/ping`);
+        const url =
+          getEndpoint() === "localhost:3333"
+            ? "http://localhost:3333/ping"
+            : `${getEndpoint()}/ping`;
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Server ping failed");
         }
