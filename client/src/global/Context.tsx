@@ -1,17 +1,17 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
-import { io, Socket } from "socket.io-client";
 import { useMachine } from "@xstate/react";
+import { createContext, ReactNode, useState } from "react";
+import { Socket } from "socket.io-client";
+import { Loader, useSocketConnection } from "../common";
 import {
   EHomeStatuses,
   ERoomStatus,
   ETheme,
+  EUserRole,
+  ICurrentSession,
   IEditCategory,
   IRoomState,
-  ICurrentSession,
   IUser,
-  EUserRole,
 } from "../common/models";
-import { getEndpoint } from "../common";
 import { roomMachine } from "../stateMachines";
 
 // Define context type
@@ -36,6 +36,9 @@ interface ContextType {
   set__currentSession: (c: ICurrentSession) => void;
   currentCategoryId: string;
   set__currentCategoryId: (c: string) => void;
+  isConnected: boolean;
+  isConnecting: boolean;
+  connectionError: boolean;
 }
 
 // Define props interface for GlobalProvider
@@ -78,11 +81,12 @@ const Context = createContext<ContextType>({
   set__currentSession: () => {},
   currentCategoryId: "",
   set__currentCategoryId: () => {},
+  isConnected: false,
+  isConnecting: false,
+  connectionError: false,
 });
 
 const GlobalProvider = ({ children }: GlobalProviderProps) => {
-  const ENDPOINT = getEndpoint() || "localhost:3333";
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [status, send, service] = useMachine(roomMachine);
 
   const [currentUser, set__currentUser] = useState<IUser | null>(null);
@@ -102,17 +106,19 @@ const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const [currentSession, set__currentSession] = useState<ICurrentSession>(
     EMPTY_CURRENT_SESSION
   );
+  const [isConnected, setIsConnected] = useState(false);
 
-  useEffect(() => {
-    // Connect to socket.io server
-    const newSocket = io(ENDPOINT);
-    setSocket(newSocket);
-
-    // Cleanup on unmount
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [ENDPOINT]);
+  const { socket, isConnecting, connectionError } = useSocketConnection({
+    maxRetries: 5,
+    retryDelay: 1500,
+    onConnect: () => {
+      setIsConnected(true);
+    },
+    onError: (error) => {
+      console.error("Global socket connection error:", error);
+      setIsConnected(false);
+    },
+  });
 
   const initRoom = (newRoomData: IRoomState): void => {
     set__roomState(newRoomData);
@@ -145,6 +151,9 @@ const GlobalProvider = ({ children }: GlobalProviderProps) => {
         set__currentSession,
         currentCategoryId,
         set__currentCategoryId,
+        isConnected,
+        isConnecting,
+        connectionError,
       }}
     >
       {children}

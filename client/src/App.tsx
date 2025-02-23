@@ -1,17 +1,19 @@
+import M from "materialize-css";
 import { useContext, useEffect } from "react";
 import {
   createBrowserRouter,
-  RouterProvider,
+  isRouteErrorResponse,
   Navigate,
+  RouterProvider,
+  useRouteError,
 } from "react-router-dom";
-import M from "materialize-css";
 import { Home } from "./components/Home";
 import { Join } from "./components/Join";
+import { Overview } from "./components/Overview";
 import { Room } from "./components/Room";
 import { Context } from "./global/Context";
 import { Layout } from "./global/Layout";
-import { Overview } from "./components/Overview";
-import { getEndpoint } from "./common";
+import ErrorPage from "./components/ErrorPage";
 
 function App() {
   useEffect(() => {
@@ -24,6 +26,7 @@ function App() {
     {
       path: "/",
       element: <Layout />,
+      errorElement: <ErrorPage />,
       children: [
         {
           index: true,
